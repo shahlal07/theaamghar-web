@@ -1,0 +1,249 @@
+@import "tailwindcss";
+
+/* ===========================================================
+   Design tokens ported from ../Theaamghar/css/base.css.
+   Brand colors are intentionally identical in light and dark mode;
+   only surface tokens (cream/text/surface/shadows) flip below.
+   Keep this file the single source of truth -- do not hardcode these
+   hex values elsewhere.
+   =========================================================== */
+:root {
+  --color-mango-orange: #ff6b00;
+  --color-mango-deep: #e55a00;
+  --color-orchard-green: #2d5a27;
+  --color-orchard-light: #3a7a33;
+  --color-golden: #ffd700;
+
+  --color-cream: #fffbf0;
+  --color-cream-warm: #fff5e6;
+  --color-ink: #1a1a1a;
+  --color-ink-light: #666666;
+  --color-surface: #ffffff;
+  --color-error: #c0392b;
+  --color-border-subtle: rgba(0, 0, 0, 0.08);
+
+  --shadow-color-sm: 0 2px 8px rgba(0, 0, 0, 0.06);
+  --shadow-color-md: 0 8px 30px rgba(0, 0, 0, 0.08);
+  --shadow-color-lg: 0 20px 60px rgba(0, 0, 0, 0.12);
+
+  --radius-brand: 20px;
+  --radius-brand-sm: 12px;
+  --nav-height: 76px;
+
+  color-scheme: light;
+}
+
+:root[data-theme="dark"] {
+  --color-cream: #17130f;
+  --color-cream-warm: #211b14;
+  --color-ink: #f2ede4;
+  --color-ink-light: #a99f8f;
+  --color-surface: #241e17;
+  --color-error: #ff6b5e;
+  --color-border-subtle: rgba(255, 255, 255, 0.1);
+
+  --shadow-color-sm: 0 2px 8px rgba(0, 0, 0, 0.25);
+  --shadow-color-md: 0 8px 30px rgba(0, 0, 0, 0.35);
+  --shadow-color-lg: 0 20px 60px rgba(0, 0, 0, 0.5);
+
+  color-scheme: dark;
+}
+
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme="light"]):not([data-theme="dark"]) {
+    --color-cream: #17130f;
+    --color-cream-warm: #211b14;
+    --color-ink: #f2ede4;
+    --color-ink-light: #a99f8f;
+    --color-surface: #241e17;
+    --color-error: #ff6b5e;
+    --color-border-subtle: rgba(255, 255, 255, 0.1);
+
+    --shadow-color-sm: 0 2px 8px rgba(0, 0, 0, 0.25);
+    --shadow-color-md: 0 8px 30px rgba(0, 0, 0, 0.35);
+    --shadow-color-lg: 0 20px 60px rgba(0, 0, 0, 0.5);
+
+    color-scheme: dark;
+  }
+}
+
+/* Exposes the tokens above as Tailwind utilities: bg-mango-orange,
+   text-ink-light, shadow-brand-md, rounded-brand, etc. */
+@theme inline {
+  --color-mango-orange: var(--color-mango-orange);
+  --color-mango-deep: var(--color-mango-deep);
+  --color-orchard-green: var(--color-orchard-green);
+  --color-orchard-light: var(--color-orchard-light);
+  --color-golden: var(--color-golden);
+  --color-cream: var(--color-cream);
+  --color-cream-warm: var(--color-cream-warm);
+  --color-ink: var(--color-ink);
+  --color-ink-light: var(--color-ink-light);
+  --color-surface: var(--color-surface);
+  --color-error: var(--color-error);
+  --color-border-subtle: var(--color-border-subtle);
+
+  --shadow-brand-sm: var(--shadow-color-sm);
+  --shadow-brand-md: var(--shadow-color-md);
+  --shadow-brand-lg: var(--shadow-color-lg);
+
+  --radius-brand: var(--radius-brand);
+  --radius-brand-sm: var(--radius-brand-sm);
+
+  --font-sans: var(--font-inter), sans-serif;
+  --font-serif: var(--font-cormorant), serif;
+}
+
+* {
+  box-sizing: border-box;
+}
+html {
+  scroll-behavior: smooth;
+  overflow-x: hidden;
+}
+body {
+  overflow-x: hidden;
+  transition:
+    background-color 0.25s ease,
+    color 0.25s ease;
+}
+img.img-fallback {
+  object-fit: contain !important;
+  background: var(--color-cream-warm);
+  padding: 14%;
+}
+
+/* iOS Safari force-zooms the whole page whenever a focused form control has
+   a computed font-size below 16px -- the page jumps, the layout shifts, and
+   typing feels broken. This app styles most inputs with Tailwind's `text-sm`
+   (14px), which triggered it on every form: login, signup, checkout, and the
+   AI chat box (the "keyboard doesn't work properly" reports).
+
+   Enforced globally at the mobile breakpoint rather than editing ~19 files,
+   so any input added later is covered by default. Desktop keeps the smaller
+   visual size, where no zoom behaviour exists. */
+@media (max-width: 767px) {
+  input,
+  select,
+  textarea {
+    font-size: 16px;
+  }
+}
+
+/* Visible focus ring everywhere -- keyboard accessibility, ported verbatim */
+a:focus-visible,
+button:focus-visible,
+input:focus-visible,
+select:focus-visible,
+textarea:focus-visible,
+[tabindex]:focus-visible {
+  outline: 2.5px solid var(--color-mango-orange);
+  outline-offset: 3px;
+  border-radius: 4px;
+}
+
+.skip-link {
+  position: absolute;
+  left: -9999px;
+  top: 0;
+  background: var(--color-mango-orange);
+  color: white;
+  padding: 12px 20px;
+  border-radius: 0 0 8px 0;
+  font-weight: 600;
+  font-size: 0.9rem;
+  z-index: 5000;
+  text-decoration: none;
+}
+.skip-link:focus {
+  left: 0;
+}
+
+@keyframes bounce-mango {
+  0%,
+  100% {
+    transform: translateY(0);
+  }
+  50% {
+    transform: translateY(-8px);
+  }
+}
+@keyframes shake {
+  0%,
+  100% {
+    transform: translateX(0);
+  }
+  25% {
+    transform: translateX(-8px);
+  }
+  75% {
+    transform: translateX(8px);
+  }
+}
+@keyframes drift {
+  0% {
+    transform: translateX(-10%) translateY(0) rotate(0deg);
+    opacity: 0;
+  }
+  10% {
+    opacity: 0.8;
+  }
+  90% {
+    opacity: 0.8;
+  }
+  100% {
+    transform: translateX(110vw) translateY(-40px) rotate(360deg);
+    opacity: 0;
+  }
+}
+@keyframes spin {
+  from {
+    transform: rotate(0deg);
+  }
+  to {
+    transform: rotate(360deg);
+  }
+}
+@keyframes authFadeUp {
+  from {
+    opacity: 0;
+    transform: translateY(16px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+@keyframes mangoFall {
+  0% {
+    transform: translateY(-32px) scale(0.6);
+    opacity: 0;
+  }
+  40% {
+    opacity: 1;
+  }
+  100% {
+    transform: translateY(4px) scale(1);
+    opacity: 0;
+  }
+}
+@keyframes bucketPulse {
+  0%,
+  100% {
+    transform: scale(1);
+  }
+  50% {
+    transform: scale(1.15);
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+    scroll-behavior: auto !important;
+  }
+}
