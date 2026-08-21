@@ -8,8 +8,8 @@ export { DEFAULT_SITE_CONTENT, mergeSiteContent };
 export async function getSiteContent(): Promise<SiteContent> {
   const supabase = await createClient();
   const vendor = await getCurrentVendor();
-  const { data } = await supabase
-    .from("site_content")
+  const query = supabase.from("site_content") as any;
+  const { data } = await query
     .select("content")
     .eq("vendor_id", vendor.id)
     .maybeSingle();
