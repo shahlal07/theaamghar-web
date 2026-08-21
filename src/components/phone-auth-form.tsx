@@ -5,15 +5,18 @@ import { useRouter } from "next/navigation";
 import { createClient } from "@/lib/supabase/client";
 import { safeRedirectPath } from "@/lib/safe-redirect";
 
-// One phone-OTP flow handles both sign-up and sign-in -- a first-time
-// number creates the account automatically (Supabase default), a returning
-// number just signs in. Same normalization pattern already validated in
-// checkout/actions.ts's PK_PHONE_PATTERN, converted to the E.164 shape
-// Supabase's phone auth requires.
 function normalizePhone(input: string): string | null {
   const cleaned = input.replace(/[\s-]/g, "");
   const match = cleaned.match(/^(?:\+92|0092|0)?(3\d{9})$/);
   return match ? `+92${match[1]}` : null;
+}
+
+async function bindCurrentCustomerToVendor() {
+  const response = await fetch("/api/customer/associate", { method: "POST", cache: "no-store" });
+  if (!response.ok) {
+    const payload = await response.json().catch(() => ({})) as { error?: string };
+    throw new Error(payload.error ?? "This customer account is already associated with another store.");
+  }
 }
 
 export function PhoneAuthForm({ returnTo }: { returnTo: string }) {
@@ -57,12 +60,22 @@ export function PhoneAuthForm({ returnTo }: { returnTo: string }) {
       token: code,
       type: "sms",
     });
-    setPending(false);
-
     if (verifyError) {
+      setPending(false);
       setError("That code didn't work — check it and try again.");
       return;
     }
+
+    try {
+      await bindCurrentCustomerToVendor();
+    } catch (associationError) {
+      await supabase.auth.signOut();
+      setPending(false);
+      setError(associationError instanceof Error ? associationError.message : "This account belongs to another store.");
+      return;
+    }
+
+    setPending(false);
     router.push(safeRedirectPath(returnTo));
     router.refresh();
   }
