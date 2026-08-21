@@ -1,10 +1,9 @@
 import type { SupabaseClient } from "@supabase/supabase-js";
-import type { Database } from "@/lib/supabase/types";
 import { createClient } from "@/lib/supabase/server";
 import { getCurrentVendor } from "@/lib/tenant";
 
 export async function getShippingRateServer(
-  supabase: SupabaseClient<Database>,
+  supabase: SupabaseClient,
   province: string,
   city: string
 ): Promise<number> {
