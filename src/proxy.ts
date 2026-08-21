@@ -1,8 +1,7 @@
 import { type NextRequest } from "next/server";
 import { updateSession } from "@/lib/supabase/middleware";
 
-// Next.js 16 renamed the `middleware` convention to `proxy` -- see
-// node_modules/next/dist/docs/01-app/02-guides/upgrading/version-16.md.
+// Standalone TheAamGhar storefront. No Nashemann tenant resolution.
 export async function proxy(request: NextRequest) {
   return await updateSession(request);
 }
