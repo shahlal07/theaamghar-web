@@ -8,9 +8,11 @@ export async function getShippingRateServer(
   province: string,
   city: string
 ): Promise<number> {
+  const vendor = await getCurrentVendor();
   const { data } = await supabase
     .from("shipping_zones")
     .select("city, rate")
+    .eq("vendor_id", vendor.id)
     .eq("province", province)
     .eq("active", true);
 
