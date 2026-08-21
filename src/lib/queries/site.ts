@@ -5,8 +5,9 @@ export async function getSiteChrome() {
   const supabase = await createClient();
   const vendor = await getCurrentVendor();
 
-  const { data: settings } = await supabase
-    .from("public_business_settings")
+  // Live schema contains vendor_id; checked-in generated types are older.
+  const query = supabase.from("public_business_settings") as any;
+  const { data: settings } = await query
     .select("*")
     .eq("vendor_id", vendor.id)
     .maybeSingle();
