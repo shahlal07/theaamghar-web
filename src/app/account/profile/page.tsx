@@ -43,20 +43,41 @@ export default async function ProfilePage() {
               {initials}
             </div>
             <div>
-              <h2 className="font-serif font-bold text-xl">{profile?.name || "Your profile"}</h2>
-              <p className="text-sm text-ink-light">Member since {joinDate}</p>
+              <div className="font-serif font-bold text-lg">{profile?.name ?? "Welcome"}</div>
+              <div className="text-xs text-ink-light">Member since {joinDate}</div>
             </div>
           </div>
-          <ProfileForm profile={profile} defaultAddress={defaultAddress} />
+          <ProfileForm
+            name={profile?.name ?? ""}
+            email={profile?.email ?? user!.email ?? ""}
+            phone={profile?.phone ?? ""}
+          />
         </div>
 
-        <aside className="bg-surface border border-border-subtle rounded-brand p-5 h-fit">
-          <h3 className="font-serif font-bold mb-4">Account Summary</h3>
-          <div className="space-y-3 text-sm">
-            <div className="flex justify-between gap-3"><span className="text-ink-light">Orders</span><span className="font-semibold">{stats.totalOrders}</span></div>
-            <div className="flex justify-between gap-3"><span className="text-ink-light">Total spent</span><span className="font-semibold">Rs. {Number(stats.totalSpent).toLocaleString()}</span></div>
+        <div className="flex flex-col gap-4">
+          <div className="bg-surface border border-border-subtle rounded-brand p-5">
+            <h2 className="text-sm font-bold mb-3">Default Address</h2>
+            {defaultAddress ? (
+              <p className="text-sm text-ink-light">
+                <span className="font-semibold text-ink">{defaultAddress.label ?? defaultAddress.city}</span>
+                <br />
+                {defaultAddress.address}
+                <br />
+                {defaultAddress.city}
+                {defaultAddress.province ? `, ${defaultAddress.province}` : ""}
+              </p>
+            ) : (
+              <p className="text-sm text-ink-light">No default address set yet.</p>
+            )}
           </div>
-        </aside>
+
+          <div className="bg-surface border border-border-subtle rounded-brand p-5">
+            <h2 className="text-sm font-bold mb-1">Favourite Variety</h2>
+            <p className="text-sm text-ink-light">
+              {stats.favouriteVariety ?? "Order a few mangoes and we'll learn your favourite!"}
+            </p>
+          </div>
+        </div>
       </div>
     </div>
   );
