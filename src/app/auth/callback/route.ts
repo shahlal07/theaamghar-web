@@ -1,11 +1,8 @@
 import { NextResponse, type NextRequest } from "next/server";
 import { createClient } from "@/lib/supabase/server";
 import { safeRedirectPath } from "@/lib/safe-redirect";
+import { getCurrentVendor, isPlatformHost } from "@/lib/tenant";
 
-// Handles both the Google OAuth redirect and email-confirmation links --
-// both send the browser here with a `code` query param to exchange for a
-// session. Required for signInWithOAuth() and signUp() email confirmation
-// to actually complete.
 export async function GET(request: NextRequest) {
   const { searchParams, origin } = new URL(request.url);
   const code = searchParams.get("code");
@@ -15,6 +12,15 @@ export async function GET(request: NextRequest) {
     const supabase = await createClient();
     const { error } = await supabase.auth.exchangeCodeForSession(code);
     if (!error) {
+      const host = request.headers.get("x-forwarded-host") ?? request.headers.get("host");
+      if (!isPlatformHost(host)) {
+        const vendor = await getCurrentVendor();
+        const { error: scopeError } = await supabase.rpc("ensure_customer_vendor", { p_vendor_id: vendor.id });
+        if (scopeError) {
+          await supabase.auth.signOut();
+          return NextResponse.redirect(`${origin}/login?error=account_belongs_to_another_store`);
+        }
+      }
       return NextResponse.redirect(`${origin}${returnTo}`);
     }
   }
