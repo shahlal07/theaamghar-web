@@ -6,8 +6,8 @@ export async function getReviewsForCurrentUser() {
   const { data: { user } } = await supabase.auth.getUser();
   if (!user) return [];
   const vendor = await getCurrentVendor();
-  const { data } = await supabase
-    .from("reviews")
+  const query = supabase.from("reviews") as any;
+  const { data } = await query
     .select("id, rating, title, body, verified_purchase, created_at, product:products(id, slug, name, image)")
     .eq("vendor_id", vendor.id)
     .eq("profile_id", user.id)
@@ -18,8 +18,8 @@ export async function getReviewsForCurrentUser() {
 export async function getReviewsForProduct(productId: string) {
   const supabase = await createClient();
   const vendor = await getCurrentVendor();
-  const { data, error } = await supabase
-    .from("reviews")
+  const query = supabase.from("reviews") as any;
+  const { data, error } = await query
     .select("id, rating, title, body, verified_purchase, created_at, images, taste_rating, freshness_rating, packaging_rating, delivery_rating, helpful_count, admin_reply_body, admin_reply_images, admin_reply_at, profile:profiles!reviews_profile_id_fkey(name)")
     .eq("vendor_id", vendor.id)
     .eq("product_id", productId)
@@ -31,8 +31,8 @@ export async function getReviewsForProduct(productId: string) {
 export async function getTopReviews(limit = 6) {
   const supabase = await createClient();
   const vendor = await getCurrentVendor();
-  const { data, error } = await supabase
-    .from("reviews")
+  const query = supabase.from("reviews") as any;
+  const { data, error } = await query
     .select("id, rating, title, body, created_at, product:products(name, slug), profile:profiles!reviews_profile_id_fkey(name)")
     .eq("vendor_id", vendor.id)
     .gte("rating", 4)
