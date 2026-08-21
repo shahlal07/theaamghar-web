@@ -2,6 +2,8 @@ import { getReviewsForCurrentUser } from "@/lib/queries/reviews";
 import { ReviewManagementCard } from "@/components/account/review-management-card";
 import { EmptyState } from "@/components/account/empty-state";
 
+type AccountReview = Awaited<ReturnType<typeof getReviewsForCurrentUser>>[number];
+
 export default async function AccountReviewsPage() {
   const reviews = await getReviewsForCurrentUser();
 
@@ -22,7 +24,7 @@ export default async function AccountReviewsPage() {
         />
       ) : (
         <div className="grid sm:grid-cols-2 gap-4">
-          {reviews.map((r) => (
+          {reviews.map((r: AccountReview) => (
             <ReviewManagementCard key={r.id} review={r} />
           ))}
         </div>
