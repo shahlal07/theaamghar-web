@@ -1,4 +1,5 @@
 import { createClient } from "@/lib/supabase/server";
+import { getCurrentVendor } from "@/lib/tenant";
 import { DEFAULT_SITE_CONTENT, mergeSiteContent, type SiteContent } from "@/lib/site-content-defaults";
 
 export type { SiteContent };
@@ -6,6 +7,12 @@ export { DEFAULT_SITE_CONTENT, mergeSiteContent };
 
 export async function getSiteContent(): Promise<SiteContent> {
   const supabase = await createClient();
-  const { data } = await supabase.from("site_content").select("content").eq("id", true).maybeSingle();
+  const vendor = await getCurrentVendor();
+  const { data } = await supabase
+    .from("site_content")
+    .select("content")
+    .eq("vendor_id", vendor.id)
+    .maybeSingle();
+
   return mergeSiteContent(DEFAULT_SITE_CONTENT, data?.content as Partial<SiteContent> | undefined);
 }
