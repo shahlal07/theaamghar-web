@@ -46,7 +46,9 @@ function getVendorQuery(supabase: Awaited<ReturnType<typeof createClient>>) {
  *
  * Custom domains are checked first and subdomain is checked separately so
  * PostgREST filter syntax cannot accidentally turn an unknown hostname into
- * the default TheAamGhar tenant. An unknown tenant host fails closed.
+ * the default TheAamGhar tenant. Unknown real storefront hosts fail closed.
+ * Vercel's generated *.vercel.app host is treated as the platform/default
+ * host so direct deployment URLs remain usable for verification and rollback.
  */
 export const getCurrentVendor = cache(async (): Promise<StorefrontVendor> => {
   const requestHeaders = await headers();
@@ -55,7 +57,11 @@ export const getCurrentVendor = cache(async (): Promise<StorefrontVendor> => {
   );
   const supabase = await createClient();
 
-  if (host && !PLATFORM_HOSTS.has(host) && host !== "localhost" && host !== "127.0.0.1") {
+  const isLocalHost = host === "localhost" || host === "127.0.0.1";
+  const isVercelDeploymentHost = host.endsWith(".vercel.app");
+  const isKnownPlatformHost = PLATFORM_HOSTS.has(host) || isLocalHost || isVercelDeploymentHost;
+
+  if (host && !isKnownPlatformHost) {
     const { data: customDomainVendor } = await getVendorQuery(supabase)
       .eq("custom_domain", host)
       .maybeSingle();
@@ -82,5 +88,6 @@ export const getCurrentVendor = cache(async (): Promise<StorefrontVendor> => {
 });
 
 export function isPlatformHost(host: string | null): boolean {
-  return PLATFORM_HOSTS.has(normalizeHost(host));
+  const normalized = normalizeHost(host);
+  return PLATFORM_HOSTS.has(normalized) || normalized.endsWith(".vercel.app");
 }
