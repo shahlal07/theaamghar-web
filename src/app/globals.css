@@ -14,6 +14,27 @@
   --color-orchard-light: #3a7a33;
   --color-golden: #ffd700;
 
+  /* Readable variants of the two brand colors for use as TEXT against the
+     theme-adaptive cream/cream-warm surfaces. A vendor's brand color is
+     fixed across themes by design (see note above), but some vendor
+     palettes (e.g. a pastel/light brand color) become low-contrast once
+     the surface flips dark. Blending toward the current --color-ink pulls
+     each one toward "dark enough for light mode, light enough for dark
+     mode" without changing brand identity in light mode, where --color-ink
+     is already dark and the blend is subtle. Use these instead of the raw
+     --color-mango-deep / --color-orchard-green whenever the color is being
+     used as text color, not a background or border. */
+  --color-mango-deep-text: color-mix(in srgb, var(--color-mango-deep) 60%, var(--color-ink) 40%);
+  --color-orchard-green-text: color-mix(in srgb, var(--color-orchard-green) 60%, var(--color-ink) 40%);
+
+  /* Fixed-dark text color, deliberately NOT redefined in the dark-theme
+     block below. For text sitting on a surface that is always light
+     regardless of site theme -- a brand-colored button background, a
+     white hover state -- pairing it with the theme-adaptive --color-ink
+     (which flips to a light color in dark mode) produces invisible
+     light-on-light text. Use this instead in those specific spots. */
+  --color-ink-fixed-dark: #1a1a1a;
+
   --color-cream: #fffbf0;
   --color-cream-warm: #fff5e6;
   --color-ink: #1a1a1a;

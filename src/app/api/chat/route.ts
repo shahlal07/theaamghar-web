@@ -133,6 +133,7 @@ function buildSystemInstruction(
   } | null,
   aiContent: SiteContent["aiAssistant"],
   accentEmoji: string,
+  paymentMethod: string,
   context?: "search",
   language?: "ur",
   productCatalogBlock?: string,
@@ -152,7 +153,7 @@ function buildSystemInstruction(
   const base = `You are the customer support assistant for ${businessName}, an online store selling ${categoryDescription}, delivered fresh across Pakistan.${languageInstruction}
 
 Facts you can rely on:
-- Payment: Cash on Delivery (COD) only, paid when the order arrives.
+- Payment: ${paymentMethod}.
 - Delivery: usually next-day, same-day if ordered before 3pm, across Pakistan.
 ${shippingCost != null ? `- Standard shipping cost: Rs ${shippingCost} (varies a little by province/city).` : ""}
 ${freeShippingAt != null ? `- Free shipping on orders over Rs ${freeShippingAt}.` : ""}
@@ -256,6 +257,7 @@ export async function POST(request: Request) {
             settings,
             content.aiAssistant,
             content.brand.accentEmoji,
+            content.brand.paymentBadgeText ?? "Cash on Delivery (COD) only, paid when the order arrives",
             body.context,
             body.language,
             productCatalogBlock,

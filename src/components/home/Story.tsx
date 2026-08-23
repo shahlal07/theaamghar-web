@@ -6,7 +6,7 @@ import type { SiteContent } from "@/lib/queries/site-content";
 
 export function Story({ content }: { content: SiteContent["story"] }) {
   return (
-    <Section id="story" aria-label="Our story" className="bg-[#FBEFDC] scroll-mt-24">
+    <Section id="story" aria-label="Our story" className="bg-[var(--color-cream-warm)] scroll-mt-24">
       <div className="max-w-3xl mx-auto text-center">
         <Reveal>
           <Heading
@@ -44,7 +44,7 @@ function Stat({ value, suffix, label }: { value: number; suffix?: string; label:
     <div>
       {/* font-sans for the same reason as StatCard: Cormorant's old-style
           figures make these counters visibly bounce as they animate. */}
-      <div className="font-sans text-3xl font-bold text-[var(--color-golden)] tabular-nums">
+      <div className="font-sans text-3xl font-bold text-[var(--color-mango-deep-text)] tabular-nums">
         <AnimatedCounter value={value} suffix={suffix} />
       </div>
       <div className="text-xs text-[var(--color-ink)]/60 mt-1">{label}</div>

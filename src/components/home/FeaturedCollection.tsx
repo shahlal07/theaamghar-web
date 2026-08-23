@@ -186,13 +186,13 @@ function FeaturedCard({
 
         <div className="p-4 sm:p-6">
           {product.origin && (
-            <div className="text-[0.65rem] sm:text-xs font-semibold tracking-wide uppercase text-[var(--color-orchard-green)] mb-1">
+            <div className="text-[0.65rem] sm:text-xs font-semibold tracking-wide uppercase text-[var(--color-orchard-green-text)] mb-1">
               {product.origin}
             </div>
           )}
-          <h3 className="font-serif text-lg sm:text-2xl font-bold text-[var(--color-mango-deep)] truncate">{product.name}</h3>
+          <h3 className="font-serif text-lg sm:text-2xl font-bold text-[var(--color-mango-deep-text)] truncate">{product.name}</h3>
 
-          <div className="flex items-center gap-0.5 my-2 text-[var(--color-golden)]" aria-hidden="true">
+          <div className="flex items-center gap-0.5 my-2 text-[var(--color-mango-deep-text)]" aria-hidden="true">
             {Array.from({ length: 5 }).map((_, i) => (
               <Star
                 key={i}
@@ -208,7 +208,7 @@ function FeaturedCard({
           </div>
 
           {product.sweetness && (
-            <div className="inline-block text-xs font-medium text-[var(--color-orchard-green)] bg-[var(--color-orchard-green)]/8 rounded-full px-3 py-1 mb-3">
+            <div className="inline-block text-xs font-medium text-[var(--color-orchard-green-text)] bg-[var(--color-orchard-green)]/8 rounded-full px-3 py-1 mb-3">
               Taste: {product.sweetness}
             </div>
           )}
@@ -217,7 +217,7 @@ function FeaturedCard({
             {soldOut ? (
               <span className="text-sm text-[var(--color-ink)]/60">Currently unavailable</span>
             ) : (
-              <span className="font-bold text-lg text-[var(--color-mango-deep)]">
+              <span className="font-bold text-lg text-[var(--color-mango-deep-text)]">
                 {formatPKR(product.minPrice!)}
                 {size && (
                   <span className="text-xs font-normal text-[var(--color-ink)]/60"> / {size.box_size_kg}kg</span>

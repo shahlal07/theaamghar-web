@@ -124,7 +124,7 @@ export default async function Home() {
                   href={`tel:${settings.support_phone}`}
                   className="flex flex-col items-center gap-2 bg-white border border-[var(--color-mango-deep)]/10 rounded-2xl p-5 shadow-brand-sm hover:-translate-y-1 hover:shadow-brand-md hover:border-[var(--color-golden)]/50 active:translate-y-0 active:scale-95 transition-all"
                 >
-                  <PhoneIcon className="w-7 h-7 text-[var(--color-golden)]" />
+                  <PhoneIcon className="w-7 h-7 text-[var(--color-mango-deep-text)]" />
                   <span className="font-semibold text-sm text-[var(--color-mango-deep)]">{settings.support_phone}</span>
                   <span className="text-xs text-[var(--color-ink)]/60">Call us directly</span>
                 </a>
@@ -134,7 +134,7 @@ export default async function Home() {
                   href={`mailto:${settings.support_email}`}
                   className="flex flex-col items-center gap-2 bg-white border border-[var(--color-mango-deep)]/10 rounded-2xl p-5 shadow-brand-sm hover:-translate-y-1 hover:shadow-brand-md hover:border-[var(--color-golden)]/50 active:translate-y-0 active:scale-95 transition-all"
                 >
-                  <MailIcon className="w-7 h-7 text-[var(--color-golden)]" />
+                  <MailIcon className="w-7 h-7 text-[var(--color-mango-deep-text)]" />
                   <span className="font-semibold text-sm text-[var(--color-mango-deep)]">{settings.support_email}</span>
                   <span className="text-xs text-[var(--color-ink)]/60">Email anytime</span>
                 </a>
@@ -153,7 +153,7 @@ export default async function Home() {
                     target="_blank"
                     rel="noopener noreferrer"
                     aria-label={`${settings.business_name ?? "TheAamGhar"} on ${label}`}
-                    className="w-10 h-10 rounded-full border border-[var(--color-mango-deep)]/15 flex items-center justify-center text-[var(--color-ink)]/60 hover:text-[var(--color-golden)] hover:border-[var(--color-golden)] hover:-translate-y-0.5 active:translate-y-0 active:scale-90 transition-all"
+                    className="w-10 h-10 rounded-full border border-[var(--color-mango-deep)]/15 flex items-center justify-center text-[var(--color-ink)]/60 hover:text-[var(--color-mango-deep-text)] hover:border-[var(--color-mango-deep)] hover:-translate-y-0.5 active:translate-y-0 active:scale-90 transition-all"
                   >
                     <Icon className="w-4.5 h-4.5" />
                   </a>

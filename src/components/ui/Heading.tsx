@@ -33,7 +33,7 @@ export function Heading({
         <span
           className={cn(
             "inline-block text-xs font-semibold tracking-[0.25em] uppercase mb-4",
-            light ? "text-white/80" : "text-[var(--color-orchard-green)]"
+            light ? "text-white/80" : "text-[var(--color-orchard-green-text)]"
           )}
         >
           {eyebrow}
@@ -43,7 +43,7 @@ export function Heading({
         className={cn(
           "font-serif font-bold leading-[1.1]",
           SIZES[size],
-          light ? "text-white" : "text-[var(--color-mango-deep)]"
+          light ? "text-white" : "text-[var(--color-mango-deep-text)]"
         )}
       >
         {title}

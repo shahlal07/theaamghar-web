@@ -33,9 +33,9 @@ export function TrustBar({ items }: { items: string[] }) {
                 className="flex flex-col items-center justify-center gap-2.5 py-7 border-b lg:border-b-0 lg:border-r last:border-r-0 border-[var(--color-mango-deep)]/10"
               >
                 <div className="h-12 w-12 rounded-full bg-[var(--color-golden)]/12 flex items-center justify-center">
-                  <Icon className="h-5 w-5 text-[var(--color-orchard-green)]" strokeWidth={2} aria-hidden="true" />
+                  <Icon className="h-5 w-5 text-[var(--color-orchard-green-text)]" strokeWidth={2} aria-hidden="true" />
                 </div>
-                <p className="text-xs lg:text-sm font-semibold text-[var(--color-mango-deep)] text-center px-3">
+                <p className="text-xs lg:text-sm font-semibold text-[var(--color-mango-deep-text)] text-center px-3">
                   {title}
                 </p>
               </motion.div>

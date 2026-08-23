@@ -2,7 +2,7 @@
 // message stays consistent instead of some links opening blank and others
 // carrying ad-hoc text.
 export function generalInquiryWhatsAppLink(whatsappNumber: string): string {
-  const text = "Hi TheAamGhar! I have a question about your mangoes.";
+  const text = "Hi! I have a question about your products.";
   return `https://wa.me/${whatsappNumber}?text=${encodeURIComponent(text)}`;
 }
 
@@ -10,7 +10,7 @@ export function generalInquiryWhatsAppLink(whatsappNumber: string): string {
 // support needs first, so it's pre-filled rather than making the customer
 // dig it out of their email.
 export function paymentIssueWhatsAppLink(whatsappNumber: string, orderNumber: string): string {
-  const text = `Hi TheAamGhar! I need help with the payment for my order ${orderNumber}.`;
+  const text = `Hi! I need help with the payment for my order ${orderNumber}.`;
   return `https://wa.me/${whatsappNumber}?text=${encodeURIComponent(text)}`;
 }
 
@@ -20,6 +20,6 @@ export function productOrderWhatsAppLink(
   boxSizeKg?: number
 ): string {
   const sizeNote = boxSizeKg ? ` (${boxSizeKg}kg box)` : "";
-  const text = `Hi TheAamGhar! I'd like to order ${productName}${sizeNote}. Is it available?`;
+  const text = `Hi! I'd like to order ${productName}${sizeNote}. Is it available?`;
   return `https://wa.me/${whatsappNumber}?text=${encodeURIComponent(text)}`;
 }

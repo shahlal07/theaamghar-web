@@ -5,10 +5,10 @@ import { motion } from "framer-motion";
 import { cn } from "@/lib/utils";
 
 const VARIANTS = {
-  primary: "bg-[var(--color-golden)] text-[var(--color-ink)] hover:bg-[#e0a600]",
+  primary: "bg-[var(--color-golden)] text-[var(--color-ink-fixed-dark)] hover:bg-[#e0a600]",
   dark: "bg-[var(--color-orchard-green)] text-white hover:bg-[#256428]",
-  outline: "border border-white/40 text-white hover:bg-white hover:text-[var(--color-ink)]",
-  "outline-dark": "border border-[var(--color-mango-deep)]/25 text-[var(--color-mango-deep)] hover:bg-[var(--color-mango-deep)] hover:text-white",
+  outline: "border border-white/40 text-white hover:bg-white hover:text-[var(--color-ink-fixed-dark)]",
+  "outline-dark": "border border-[var(--color-mango-deep)]/25 text-[var(--color-mango-deep-text)] hover:bg-[var(--color-mango-deep)] hover:text-white",
 } as const;
 
 const SIZES = {

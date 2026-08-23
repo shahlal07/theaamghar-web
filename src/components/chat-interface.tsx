@@ -11,10 +11,12 @@ type Language = "en" | "ur";
 // switches languages again later in the same conversation.
 const URDU_SCRIPT_PATTERN = /[؀-ۿݐ-ݿ]/;
 
-const GREETINGS: Record<Language, string> = {
-  en: "Hi! I'm the TheAamGhar support assistant. Ask me about orders, delivery, payments, or anything mango-related 🥭",
-  ur: "السلام علیکم! میں TheAamGhar کا معاون ہوں۔ آرڈر، ڈیلیوری، ادائیگی یا آم کے بارے میں کچھ بھی پوچھیں 🥭",
-};
+function greetings(businessName: string, productPlural: string, accentEmoji: string): Record<Language, string> {
+  return {
+    en: `Hi! I'm the ${businessName} support assistant. Ask me about orders, delivery, payments, or anything ${productPlural}-related ${accentEmoji}`,
+    ur: `السلام علیکم! میں ${businessName} کا معاون ہوں۔ آرڈر، ڈیلیوری، ادائیگی یا اس بارے میں کچھ بھی پوچھیں ${accentEmoji}`,
+  };
+}
 
 // Shared chat UI, rendered full-page by /chat/page.tsx. Previously this was
 // the guts of a fixed-position overlay panel that customers reported as
@@ -23,8 +25,19 @@ const GREETINGS: Record<Language, string> = {
 // viewport unit doesn't need any of the visualViewport workarounds the
 // overlay required -- the parent page.tsx sizes this to h-dvh and the
 // browser handles keyboard resize on its own.
-export function ChatInterface({ whatsappNumber }: { whatsappNumber: string | null }) {
+export function ChatInterface({
+  whatsappNumber,
+  businessName,
+  productPlural,
+  accentEmoji,
+}: {
+  whatsappNumber: string | null;
+  businessName: string;
+  productPlural: string;
+  accentEmoji: string;
+}) {
   const [language, setLanguage] = useState<Language>("en");
+  const GREETINGS = greetings(businessName, productPlural, accentEmoji);
   const [messages, setMessages] = useState<ChatMessage[]>([
     { role: "assistant", content: GREETINGS.en },
   ]);
@@ -94,7 +107,7 @@ export function ChatInterface({ whatsappNumber }: { whatsappNumber: string | nul
     <div className="flex flex-col h-full bg-surface">
       <div className="flex items-center justify-between px-4 py-3 bg-mango-orange text-white shrink-0">
         <div>
-          <div className="font-serif font-bold">TheAamGhar Support</div>
+          <div className="font-serif font-bold">{businessName} Support</div>
           <div className="text-xs text-white/85">Usually replies instantly</div>
         </div>
         <div className="flex rounded-full bg-white/15 p-0.5 text-xs font-semibold">

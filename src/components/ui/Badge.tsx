@@ -1,11 +1,11 @@
 import { cn } from "@/lib/utils";
 
 const VARIANTS = {
-  gold: "bg-[var(--color-golden)] text-[var(--color-ink)]",
+  gold: "bg-[var(--color-golden)] text-[var(--color-ink-fixed-dark)]",
   green: "bg-[var(--color-orchard-green)] text-white",
   dark: "bg-[var(--color-mango-deep)] text-white",
   glass: "bg-white/15 text-white border border-white/30 backdrop-blur-md",
-  outline: "border border-[var(--color-mango-deep)]/20 text-[var(--color-mango-deep)]",
+  outline: "border border-[var(--color-mango-deep)]/20 text-[var(--color-mango-deep-text)]",
 } as const;
 
 export function Badge({

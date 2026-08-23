@@ -59,7 +59,7 @@ export function Navbar({ brand }: { brand: SiteContent["brand"] }) {
           Our Story
         </Link>
         <Link href="/contact" onClick={closeMenu} className="text-sm font-medium hover:text-mango-orange">
-          Freshness Promise
+          Contact
         </Link>
         <Link href="/track" onClick={closeMenu} className="text-sm font-medium hover:text-mango-orange">
           Track Order

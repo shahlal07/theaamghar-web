@@ -55,7 +55,7 @@ export default async function ProductPage({ params }: { params: Promise<{ slug: 
     name: product.name,
     description: product.tagline ?? undefined,
     image: product.image ? absoluteUrl(productImageSrc(product.image, 1000)) : undefined,
-    brand: { "@type": "Brand", name: "TheAamGhar" },
+    brand: { "@type": "Brand", name: content.brand.logoText },
     ...(product.origin ? { countryOfOrigin: product.origin } : {}),
     offers: {
       "@type": "AggregateOffer",
@@ -97,7 +97,7 @@ export default async function ProductPage({ params }: { params: Promise<{ slug: 
             {review.images && review.images.length > 0 && <div className="flex gap-2 mt-3">{review.images.map((src, i) => <div key={i} className="relative w-16 h-16 rounded-brand-sm overflow-hidden bg-cream-warm"><Image src={src} alt="" fill className="object-cover" sizes="64px" /></div>)}</div>}
             {subRatingLabels.some((s) => review[s.key]) && <div className="flex flex-wrap gap-x-4 gap-y-1 mt-3 text-xs text-ink-light">{subRatingLabels.filter((s) => review[s.key]).map((s) => <span key={s.key}>{s.label}: <span className="text-mango-orange font-semibold">{review[s.key]}/5</span></span>)}</div>}
             <div className="flex items-center justify-between mt-3"><div className="text-xs text-ink-light">{review.profile?.name ?? "Anonymous"} · {new Date(review.created_at).toLocaleDateString("en-GB", { day: "numeric", month: "short", year: "numeric" })}</div><ReviewHelpfulButton reviewId={review.id} initialCount={review.helpful_count} initialVoted={myHelpfulVotes.has(review.id)} /></div>
-            {review.admin_reply_body && <div className="mt-3 bg-cream-warm rounded-brand p-4"><p className="text-xs font-bold uppercase tracking-wide text-mango-orange">Response from TheAamGhar</p><p className="text-sm text-ink mt-1">{review.admin_reply_body}</p>{review.admin_reply_images && review.admin_reply_images.length > 0 && <div className="flex gap-2 mt-3">{review.admin_reply_images.map((src, i) => <div key={i} className="relative w-16 h-16 rounded-brand-sm overflow-hidden bg-surface"><Image src={src} alt="" fill className="object-cover" sizes="64px" /></div>)}</div>}{review.admin_reply_at && <div className="text-xs text-ink-light mt-2">{new Date(review.admin_reply_at).toLocaleDateString("en-GB", { day: "numeric", month: "short", year: "numeric" })}</div>}</div>}
+            {review.admin_reply_body && <div className="mt-3 bg-cream-warm rounded-brand p-4"><p className="text-xs font-bold uppercase tracking-wide text-mango-orange">Response from {content.brand.logoText}</p><p className="text-sm text-ink mt-1">{review.admin_reply_body}</p>{review.admin_reply_images && review.admin_reply_images.length > 0 && <div className="flex gap-2 mt-3">{review.admin_reply_images.map((src, i) => <div key={i} className="relative w-16 h-16 rounded-brand-sm overflow-hidden bg-surface"><Image src={src} alt="" fill className="object-cover" sizes="64px" /></div>)}</div>}{review.admin_reply_at && <div className="text-xs text-ink-light mt-2">{new Date(review.admin_reply_at).toLocaleDateString("en-GB", { day: "numeric", month: "short", year: "numeric" })}</div>}</div>}
           </div>)}
         </div>}
       </section>

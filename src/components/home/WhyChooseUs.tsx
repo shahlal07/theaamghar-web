@@ -32,11 +32,11 @@ export function WhyChooseUs({ content }: { content: SiteContent["whyChooseUs"] }
             <div className="shrink-0 h-32 w-32 md:h-40 md:w-40 rounded-full bg-gradient-to-br from-[var(--color-golden)]/15 to-[var(--color-orchard-green)]/10 flex items-center justify-center">
               {(() => {
                 const Icon = ICONS[index % ICONS.length];
-                return <Icon className="h-14 w-14 md:h-16 md:w-16 text-[var(--color-orchard-green)]" strokeWidth={1.5} aria-hidden="true" />;
+                return <Icon className="h-14 w-14 md:h-16 md:w-16 text-[var(--color-orchard-green-text)]" strokeWidth={1.5} aria-hidden="true" />;
               })()}
             </div>
             <div className="text-center md:text-left max-w-lg">
-              <h3 className="font-serif text-2xl md:text-3xl font-bold text-[var(--color-mango-deep)] mb-3">
+              <h3 className="font-serif text-2xl md:text-3xl font-bold text-[var(--color-mango-deep-text)] mb-3">
                 {reason.title}
               </h3>
               <p className="text-[var(--color-ink)]/75 text-lg leading-relaxed">{reason.body}</p>

@@ -22,7 +22,7 @@ export function Testimonials({ reviews }: { reviews: TestimonialReview[] }) {
   if (reviews.length === 0) return null;
 
   return (
-    <Section aria-label="Customer reviews" className="bg-gradient-to-b from-[var(--color-cream-warm)] to-[#FBEFDC]">
+    <Section aria-label="Customer reviews" className="bg-[var(--color-cream-warm)]">
       <Heading eyebrow="Real Customers" title="What They're Saying" center className="mb-14" />
       <div className="grid sm:grid-cols-2 lg:grid-cols-3 gap-6">
         {reviews.map((review, index) => {
@@ -37,7 +37,7 @@ export function Testimonials({ reviews }: { reviews: TestimonialReview[] }) {
               transition={{ duration: 0.5, delay: (index % 3) * 0.1 }}
             >
               <GlassCard className="p-7 h-full flex flex-col">
-                <div className="flex gap-0.5 text-[var(--color-golden)] mb-3" aria-hidden="true">
+                <div className="flex gap-0.5 text-[var(--color-mango-deep-text)] mb-3" aria-hidden="true">
                   {Array.from({ length: 5 }).map((_, i) => (
                     <Star
                       key={i}
@@ -49,13 +49,13 @@ export function Testimonials({ reviews }: { reviews: TestimonialReview[] }) {
                   ))}
                 </div>
                 {review.title && (
-                  <div className="font-serif font-bold text-lg text-[var(--color-mango-deep)] mb-1">
+                  <div className="font-serif font-bold text-lg text-[var(--color-mango-deep-text)] mb-1">
                     {review.title}
                   </div>
                 )}
                 <p className="text-[var(--color-ink)]/80 leading-relaxed flex-1">&ldquo;{review.body}&rdquo;</p>
                 <div className="mt-5 pt-4 border-t border-[var(--color-mango-deep)]/10 text-sm">
-                  <span className="font-semibold text-[var(--color-mango-deep)]">
+                  <span className="font-semibold text-[var(--color-mango-deep-text)]">
                     {profile?.name ?? "Verified Customer"}
                   </span>
                   {product && <span className="text-[var(--color-ink)]/60"> · {product.name}</span>}

@@ -18,7 +18,10 @@ export async function generateMetadata(): Promise<Metadata> {
 // on-screen keyboard opens, so the input naturally stays above it with no
 // visualViewport workaround needed.
 export default async function ChatPage() {
-  const { vendor, settings } = await getSiteChrome();
+  const [{ vendor, settings }, { brand, aiAssistant }] = await Promise.all([
+    getSiteChrome(),
+    getSiteContent(),
+  ]);
   const whatsappNumber = settings?.support_whatsapp ?? vendor?.whatsapp_number ?? null;
 
   return (
@@ -28,7 +31,12 @@ export default async function ChatPage() {
     // scrollbar on top of the panel's own internal one.
     <div className="h-[calc(100dvh-var(--nav-height)-4rem)] md:h-[calc(100dvh-var(--nav-height))] max-w-2xl mx-auto md:py-6 md:px-4">
       <div className="h-full md:rounded-brand md:border md:border-border-subtle md:shadow-brand-lg overflow-hidden">
-        <ChatInterface whatsappNumber={whatsappNumber} />
+        <ChatInterface
+          whatsappNumber={whatsappNumber}
+          businessName={brand.logoText}
+          productPlural={aiAssistant.productPlural}
+          accentEmoji={brand.accentEmoji}
+        />
       </div>
     </div>
   );

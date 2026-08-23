@@ -29,13 +29,13 @@ export function FAQ({ faqs }: { faqs: FaqEntry[] }) {
                 aria-expanded={open}
                 className="w-full flex items-center justify-between gap-4 py-5 text-left"
               >
-                <span className="font-serif text-lg font-semibold text-[var(--color-mango-deep)]">
+                <span className="font-serif text-lg font-semibold text-[var(--color-mango-deep-text)]">
                   {item.question}
                 </span>
                 <motion.span
                   animate={{ rotate: open ? 45 : 0 }}
                   transition={{ duration: 0.25 }}
-                  className="shrink-0 text-[var(--color-golden)]"
+                  className="shrink-0 text-[var(--color-mango-deep-text)]"
                   aria-hidden="true"
                 >
                   <Plus className="h-5 w-5" strokeWidth={2.5} />

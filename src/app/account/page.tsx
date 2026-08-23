@@ -60,7 +60,7 @@ export default async function AccountDashboardPage() {
           {greetingForHour(new Date().getHours())}, {firstName} 👋
         </h1>
         <p className="text-sm text-ink-light mt-1">
-          Here&apos;s what&apos;s happening with your TheAamGhar account.
+          Here&apos;s what&apos;s happening with your {content.brand.logoText} account.
         </p>
       </div>
 
