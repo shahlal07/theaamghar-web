@@ -135,10 +135,19 @@ function buildSystemInstruction(
     support_whatsapp: string | null;
     support_phone: string | null;
     support_email: string | null;
+    business_address: string | null;
+    google_maps_url: string | null;
     default_shipping_cost: number | null;
     free_shipping_threshold: number | null;
+    facebook_url: string | null;
+    instagram_url: string | null;
+    tiktok_url: string | null;
+    youtube_url: string | null;
+    twitter_url: string | null;
   } | null,
   aiContent: SiteContent["aiAssistant"],
+  storyContent: SiteContent["story"],
+  loyaltyProgram: SiteContent["loyaltyProgram"],
   accentEmoji: string,
   paymentMethod: string,
   context?: "search",
@@ -148,9 +157,23 @@ function buildSystemInstruction(
 ) {
   const businessName = settings?.business_name ?? "TheAamGhar";
   const whatsapp = settings?.support_whatsapp ?? "our WhatsApp number on the Contact page";
+  const whatsappLink = settings?.support_whatsapp ? `https://wa.me/${settings.support_whatsapp}` : null;
   const shippingCost = settings?.default_shipping_cost;
   const freeShippingAt = settings?.free_shipping_threshold;
   const { categoryDescription, productSingular, productPlural, damagedItemNote } = aiContent;
+
+  const socialLines = [
+    settings?.instagram_url ? `Instagram: ${settings.instagram_url}` : null,
+    settings?.facebook_url ? `Facebook: ${settings.facebook_url}` : null,
+    settings?.tiktok_url ? `TikTok: ${settings.tiktok_url}` : null,
+    settings?.youtube_url ? `YouTube: ${settings.youtube_url}` : null,
+    settings?.twitter_url ? `X/Twitter: ${settings.twitter_url}` : null,
+  ].filter(Boolean);
+
+  const storyBlock =
+    storyContent.paragraph1 || storyContent.paragraph2
+      ? `\n\nOur story (share this, in your own warm words, only if the customer asks about the store, who's behind it, or how it started -- don't volunteer it unprompted):\n${[storyContent.paragraph1, storyContent.paragraph2].filter(Boolean).join("\n")}`
+      : "";
 
   const languageInstruction =
     language === "ur"
@@ -164,21 +187,26 @@ Facts you can rely on:
 - Delivery: usually next-day, same-day if ordered before 3pm, across Pakistan.
 ${shippingCost != null ? `- Standard shipping cost: Rs ${shippingCost} (varies a little by province/city).` : ""}
 ${freeShippingAt != null ? `- Free shipping on orders over Rs ${freeShippingAt}.` : ""}
-- New customers get a one-time welcome discount after verifying their email in their account (see Account page).
+- New customers get a one-time welcome discount after verifying their email in their account (see Account page). Don't invent a specific percentage or code beyond what's stated here -- only what the customer's real account shows applies to them.
+- ${loyaltyProgram.name}: customers earn ${loyaltyProgram.currencyPlural} (shown as "${loyaltyProgram.currencyTitleCase}" in their account) for activity like check-ins and reviews -- point them to the Rewards page in their account for their real balance, never guess a number.
 - Orders can be tracked at /track using the order number, or right here in chat — a customer can paste an order number (like TAG-100001) or just ask "track my order" and you'll be given their real order data below when that happens.
 - Reviews can be left on a product's page once it's delivered, via the account's Orders page.
 - ${damagedItemNote} (${whatsapp}) with their order number — support will make it right.
 - Signing in is available via email/password, Google, or phone number (OTP).
+${settings?.business_address ? `- Location: ${settings.business_address}${settings.google_maps_url ? ` — map link: ${settings.google_maps_url}` : ""}` : ""}
+${whatsappLink ? `- WhatsApp: ${whatsapp} (${whatsappLink}) -- share this link directly whenever a customer wants to message, order, or reach a real person.` : ""}
+${socialLines.length > 0 ? `- Social media: ${socialLines.join(" | ")}` : ""}
 - When a customer describes a mood or craving (e.g. "something sweet", "not too messy to eat", "want it tangy") instead of naming a variety, recommend a specific ${productSingular} from the live catalog below based on its taste profile — don't just describe ${productPlural} generically.
 
 Rules:
 - Be warm, concise, and helpful — a few sentences, not an essay.
-- Only answer questions about ${businessName}, its products, orders, delivery, payments, returns, or account features.
+- Only answer questions about ${businessName}, its products, orders, delivery, payments, returns, location, socials, or account features.
 - Always quote real prices and stock from the live product catalog below when asked — never invent a number.
 - Order status/tracking info is only ever real when supplied to you below — if no order context was supplied for this message, don't guess a status; ask for the order number or tell them to sign in at /track.
+- Never invent a coupon/discount code — only mention the welcome discount and loyalty program facts stated above, and never state a specific rewards balance since you don't have access to it.
 - If asked something you don't actually know and wasn't given to you as data below, say so honestly and point them to WhatsApp (${whatsapp}) or the Contact page rather than guessing.
 - Never invent policies, prices, or order information.
-- If the user asks something totally unrelated to the store, politely redirect them back to how you can help with their order.${productCatalogBlock ?? ""}${orderTrackingBlock ?? ""}`;
+- If the user asks something totally unrelated to the store, politely redirect them back to how you can help with their order.${storyBlock}${productCatalogBlock ?? ""}${orderTrackingBlock ?? ""}`;
 
   if (context !== "search") return base;
 
@@ -263,6 +291,8 @@ export async function POST(request: Request) {
           content: buildSystemInstruction(
             settings,
             content.aiAssistant,
+            content.story,
+            content.loyaltyProgram,
             content.brand.accentEmoji,
             content.brand.paymentBadgeText ?? "Cash on Delivery (COD) only, paid when the order arrives",
             body.context,
