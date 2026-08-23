@@ -14,7 +14,7 @@ export const size = { width: 1200, height: 630 };
 export const contentType = "image/png";
 
 export default async function OpengraphImage() {
-  const { brand, siteMeta } = await getSiteContent();
+  const { brand, brandColors, siteMeta } = await getSiteContent();
 
   return new ImageResponse(
     (
@@ -26,7 +26,7 @@ export default async function OpengraphImage() {
           flexDirection: "column",
           alignItems: "center",
           justifyContent: "center",
-          background: "linear-gradient(135deg, #FF6B00 0%, #E55A00 55%, #2D5A27 100%)",
+          background: `linear-gradient(135deg, ${brandColors.primary} 0%, ${brandColors.primaryDeep} 55%, ${brandColors.secondary} 100%)`,
           color: "white",
           fontFamily: "sans-serif",
         }}

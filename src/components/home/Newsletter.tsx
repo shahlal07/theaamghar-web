@@ -31,14 +31,14 @@ export function Newsletter({ content }: { content: SiteContent["newsletter"] }) 
   }
 
   return (
-    <Section aria-label="Newsletter signup" className="bg-[#2E7D32] text-white">
+    <Section aria-label="Newsletter signup" className="bg-[var(--color-orchard-green)] text-white">
       <div className="max-w-xl mx-auto text-center">
-        <Mail className="h-9 w-9 mx-auto mb-4 text-[#F4B400]" strokeWidth={1.5} aria-hidden="true" />
+        <Mail className="h-9 w-9 mx-auto mb-4 text-[var(--color-golden)]" strokeWidth={1.5} aria-hidden="true" />
         <Heading title={content.heading} light center />
         <p className="mt-4 text-white/85">{content.body}</p>
 
         {status === "done" ? (
-          <p className="mt-8 font-semibold text-[#F4B400]">{content.successMessage}</p>
+          <p className="mt-8 font-semibold text-[var(--color-golden)]">{content.successMessage}</p>
         ) : (
           <form onSubmit={handleSubmit} className="mt-8 flex flex-col sm:flex-row gap-3 justify-center">
             <input
@@ -47,7 +47,7 @@ export function Newsletter({ content }: { content: SiteContent["newsletter"] }) 
               value={email}
               onChange={(e) => setEmail(e.target.value)}
               placeholder="you@example.com"
-              className="flex-1 sm:max-w-xs rounded-full px-5 py-3.5 text-[#2D2D2D] bg-white focus-visible:outline-none"
+              className="flex-1 sm:max-w-xs rounded-full px-5 py-3.5 text-[var(--color-ink)] bg-white focus-visible:outline-none"
             />
             <Button type="submit" variant="primary" disabled={status === "loading"}>
               {status === "loading" ? "Subscribing…" : "Subscribe"}

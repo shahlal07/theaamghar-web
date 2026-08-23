@@ -22,10 +22,10 @@ export function Story({ content }: { content: SiteContent["story"] }) {
           />
         </Reveal>
         <Reveal delay={100}>
-          <p className="text-[#2D2D2D]/75 text-lg leading-relaxed mt-8 mb-4">{content.paragraph1}</p>
+          <p className="text-[var(--color-ink)]/75 text-lg leading-relaxed mt-8 mb-4">{content.paragraph1}</p>
         </Reveal>
         <Reveal delay={180}>
-          <p className="text-[#2D2D2D]/75 text-lg leading-relaxed mb-12">{content.paragraph2}</p>
+          <p className="text-[var(--color-ink)]/75 text-lg leading-relaxed mb-12">{content.paragraph2}</p>
         </Reveal>
         <Reveal delay={260}>
           <div className="grid grid-cols-3 gap-6 max-w-md mx-auto">
@@ -44,10 +44,10 @@ function Stat({ value, suffix, label }: { value: number; suffix?: string; label:
     <div>
       {/* font-sans for the same reason as StatCard: Cormorant's old-style
           figures make these counters visibly bounce as they animate. */}
-      <div className="font-sans text-3xl font-bold text-[#F4B400] tabular-nums">
+      <div className="font-sans text-3xl font-bold text-[var(--color-golden)] tabular-nums">
         <AnimatedCounter value={value} suffix={suffix} />
       </div>
-      <div className="text-xs text-[#2D2D2D]/60 mt-1">{label}</div>
+      <div className="text-xs text-[var(--color-ink)]/60 mt-1">{label}</div>
     </div>
   );
 }

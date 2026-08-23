@@ -42,7 +42,16 @@ function buildProductCatalogBlock(products: ProductWithBoxSizes[]): string {
               })`
           )
           .join(", ")
-      : "currently no sizes listed / unavailable";
+      : p.variants.length
+        ? p.variants
+            .map(
+              (v) =>
+                `${v.label ?? Object.values(v.attributes).join("/") ?? "Standard"} ${formatPKR(v.selling_price)} (${
+                  v.stock_qty > 0 ? `${v.stock_qty} in stock` : "out of stock"
+                })`
+            )
+            .join(", ")
+        : "currently no sizes listed / unavailable";
     const traits = [p.sweetness, p.fiber].filter(Boolean).join(", ");
     return `- ${p.name}${p.origin ? ` (${p.origin})` : ""}: ${sizes}${
       traits ? ` | taste profile: ${traits}` : ""

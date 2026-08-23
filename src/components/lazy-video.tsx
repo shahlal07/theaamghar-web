@@ -39,7 +39,7 @@ export function LazyVideo({
   const wrapRef = useRef<HTMLDivElement>(null);
   const [shouldLoad, setShouldLoad] = useState(false);
   const isDesktop = useSyncExternalStore(subscribe, getSnapshot, getServerSnapshot);
-  const showVideo = isDesktop || !mobileImageSrc;
+  const showVideo = Boolean(src) && (isDesktop || !mobileImageSrc);
 
   useEffect(() => {
     if (!showVideo) return;
@@ -74,13 +74,15 @@ export function LazyVideo({
           </video>
         )
       ) : (
-        <Image
-          src={mobileImageSrc!}
-          alt=""
-          fill
-          sizes="(max-width: 768px) 100vw, 0px"
-          className="object-cover"
-        />
+        mobileImageSrc && (
+          <Image
+            src={mobileImageSrc}
+            alt=""
+            fill
+            sizes="(max-width: 768px) 100vw, 0px"
+            className="object-cover"
+          />
+        )
       )}
     </div>
   );

@@ -15,7 +15,7 @@ const ICONS = [Sunrise, Ban, TreePine, Package] as const;
 
 export function WhyChooseUs({ content }: { content: SiteContent["whyChooseUs"] }) {
   return (
-    <Section aria-label="Why choose us" className="bg-[#FFF9F2]">
+    <Section aria-label="Why choose us" className="bg-[var(--color-cream-warm)]">
       <Heading eyebrow={content.eyebrow} title={content.title} center className="mb-16" />
       <div className="space-y-14">
         {content.reasons.map((reason, index) => (
@@ -29,17 +29,17 @@ export function WhyChooseUs({ content }: { content: SiteContent["whyChooseUs"] }
               index % 2 === 1 ? "md:flex-row-reverse" : ""
             }`}
           >
-            <div className="shrink-0 h-32 w-32 md:h-40 md:w-40 rounded-full bg-gradient-to-br from-[#F4B400]/15 to-[#2E7D32]/10 flex items-center justify-center">
+            <div className="shrink-0 h-32 w-32 md:h-40 md:w-40 rounded-full bg-gradient-to-br from-[var(--color-golden)]/15 to-[var(--color-orchard-green)]/10 flex items-center justify-center">
               {(() => {
                 const Icon = ICONS[index % ICONS.length];
-                return <Icon className="h-14 w-14 md:h-16 md:w-16 text-[#2E7D32]" strokeWidth={1.5} aria-hidden="true" />;
+                return <Icon className="h-14 w-14 md:h-16 md:w-16 text-[var(--color-orchard-green)]" strokeWidth={1.5} aria-hidden="true" />;
               })()}
             </div>
             <div className="text-center md:text-left max-w-lg">
-              <h3 className="font-serif text-2xl md:text-3xl font-bold text-[#4A2C12] mb-3">
+              <h3 className="font-serif text-2xl md:text-3xl font-bold text-[var(--color-mango-deep)] mb-3">
                 {reason.title}
               </h3>
-              <p className="text-[#2D2D2D]/75 text-lg leading-relaxed">{reason.body}</p>
+              <p className="text-[var(--color-ink)]/75 text-lg leading-relaxed">{reason.body}</p>
             </div>
           </motion.div>
         ))}

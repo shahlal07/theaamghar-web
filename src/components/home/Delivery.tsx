@@ -21,7 +21,7 @@ export function Delivery({
   if (provinces.length === 0) return null;
 
   return (
-    <Section aria-label="Delivery coverage" className="bg-[#4A2C12] text-white overflow-hidden">
+    <Section aria-label="Delivery coverage" className="bg-[var(--color-mango-deep)] text-white overflow-hidden">
       <Heading
         eyebrow={content.eyebrow}
         title={content.title}
@@ -40,7 +40,7 @@ export function Delivery({
             transition={{ duration: 0.5, delay: pIndex * 0.08 }}
             className="text-center"
           >
-            <div className="text-xs font-semibold tracking-[0.2em] uppercase text-[#F4B400] mb-4">
+            <div className="text-xs font-semibold tracking-[0.2em] uppercase text-[var(--color-golden)] mb-4">
               {province}
             </div>
             <div className="flex flex-wrap justify-center gap-3">

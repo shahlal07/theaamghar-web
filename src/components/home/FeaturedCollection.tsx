@@ -35,7 +35,7 @@ export function FeaturedCollection({
   if (featured.length === 0) return null;
 
   return (
-    <Section aria-label="Featured collection" className="bg-[#FFF9F2]">
+    <Section aria-label="Featured collection" className="bg-[var(--color-cream-warm)]">
       <Heading
         eyebrow={content.eyebrow}
         title={content.title}
@@ -90,7 +90,7 @@ function FeaturedCard({
     e.preventDefault();
     e.stopPropagation();
     if (!product.defaultBoxSizeId) return;
-    addItem(product.defaultBoxSizeId, 1);
+    addItem(product.defaultBoxSizeId, 1, product.defaultUnitSource);
     showToast(`${product.name} added to cart!`);
   }
 
@@ -126,7 +126,7 @@ function FeaturedCard({
       className="group relative rounded-[24px] overflow-hidden bg-white shadow-[0_8px_30px_rgba(74,44,18,0.08)] hover:shadow-[0_24px_60px_rgba(74,44,18,0.18)] transition-shadow duration-500"
     >
       <Link href={`/product/${product.slug}`} className="block">
-        <div className="relative aspect-[4/5] bg-[#FFF9F2] overflow-hidden">
+        <div className="relative aspect-[4/5] bg-[var(--color-cream-warm)] overflow-hidden">
           {product.image && (
             <Image
               src={productImageSrc(product.image, 1000)}
@@ -152,7 +152,7 @@ function FeaturedCard({
             aria-pressed={wishlisted}
             // 44px tap target on mobile, back to the original 36px on
             // desktop where a cursor (not a fingertip) is doing the clicking.
-            className="absolute top-2 right-2 sm:top-4 sm:right-4 w-11 h-11 sm:w-9 sm:h-9 rounded-full bg-white/90 text-[#2D2D2D] flex items-center justify-center text-lg transition-transform hover:scale-110 active:scale-90"
+            className="absolute top-2 right-2 sm:top-4 sm:right-4 w-11 h-11 sm:w-9 sm:h-9 rounded-full bg-white/90 text-[var(--color-ink)] flex items-center justify-center text-lg transition-transform hover:scale-110 active:scale-90"
           >
             {wishlisted ? "♥" : "♡"}
           </button>
@@ -163,7 +163,7 @@ function FeaturedCard({
             aria-pressed={isComparing}
             title="Add to comparison"
             className={`absolute bottom-2 left-2 sm:bottom-4 sm:left-4 flex items-center gap-1 min-h-[36px] sm:min-h-0 text-[0.65rem] sm:text-xs font-semibold px-2.5 sm:px-3 py-1.5 rounded-full transition-all active:scale-90 ${
-              isComparing ? "bg-[#F4B400] text-[#2D2D2D]" : "bg-white/90 text-[#2D2D2D]"
+              isComparing ? "bg-[var(--color-golden)] text-[var(--color-ink)]" : "bg-white/90 text-[var(--color-ink)]"
             }`}
           >
             <svg className="w-3 h-3" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" aria-hidden="true">
@@ -176,7 +176,7 @@ function FeaturedCard({
             <button
               type="button"
               onClick={handleQuickAdd}
-              className="absolute bottom-4 right-4 translate-y-2 opacity-0 group-hover:translate-y-0 group-hover:opacity-100 transition-all duration-300 flex items-center gap-1.5 bg-white text-[#2D2D2D] text-xs font-bold px-4 py-2.5 rounded-full shadow-lg hover:bg-[#F4B400]"
+              className="absolute bottom-4 right-4 translate-y-2 opacity-0 group-hover:translate-y-0 group-hover:opacity-100 transition-all duration-300 flex items-center gap-1.5 bg-white text-[var(--color-ink)] text-xs font-bold px-4 py-2.5 rounded-full shadow-lg hover:bg-[var(--color-golden)]"
             >
               <Plus className="h-3.5 w-3.5" strokeWidth={2.5} aria-hidden="true" />
               Quick Add
@@ -186,13 +186,13 @@ function FeaturedCard({
 
         <div className="p-4 sm:p-6">
           {product.origin && (
-            <div className="text-[0.65rem] sm:text-xs font-semibold tracking-wide uppercase text-[#2E7D32] mb-1">
+            <div className="text-[0.65rem] sm:text-xs font-semibold tracking-wide uppercase text-[var(--color-orchard-green)] mb-1">
               {product.origin}
             </div>
           )}
-          <h3 className="font-serif text-lg sm:text-2xl font-bold text-[#4A2C12] truncate">{product.name}</h3>
+          <h3 className="font-serif text-lg sm:text-2xl font-bold text-[var(--color-mango-deep)] truncate">{product.name}</h3>
 
-          <div className="flex items-center gap-0.5 my-2 text-[#F4B400]" aria-hidden="true">
+          <div className="flex items-center gap-0.5 my-2 text-[var(--color-golden)]" aria-hidden="true">
             {Array.from({ length: 5 }).map((_, i) => (
               <Star
                 key={i}
@@ -203,23 +203,25 @@ function FeaturedCard({
               />
             ))}
             {product.review_count > 0 && (
-              <span className="text-xs text-[#2D2D2D]/60 ml-1">({product.review_count})</span>
+              <span className="text-xs text-[var(--color-ink)]/60 ml-1">({product.review_count})</span>
             )}
           </div>
 
           {product.sweetness && (
-            <div className="inline-block text-xs font-medium text-[#2E7D32] bg-[#2E7D32]/8 rounded-full px-3 py-1 mb-3">
+            <div className="inline-block text-xs font-medium text-[var(--color-orchard-green)] bg-[var(--color-orchard-green)]/8 rounded-full px-3 py-1 mb-3">
               Taste: {product.sweetness}
             </div>
           )}
 
           <div className="flex items-baseline justify-between mt-2">
             {soldOut ? (
-              <span className="text-sm text-[#2D2D2D]/60">Currently unavailable</span>
+              <span className="text-sm text-[var(--color-ink)]/60">Currently unavailable</span>
             ) : (
-              <span className="font-bold text-lg text-[#4A2C12]">
+              <span className="font-bold text-lg text-[var(--color-mango-deep)]">
                 {formatPKR(product.minPrice!)}
-                <span className="text-xs font-normal text-[#2D2D2D]/60"> / {size?.box_size_kg}kg</span>
+                {size && (
+                  <span className="text-xs font-normal text-[var(--color-ink)]/60"> / {size.box_size_kg}kg</span>
+                )}
               </span>
             )}
           </div>

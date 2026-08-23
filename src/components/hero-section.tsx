@@ -22,24 +22,28 @@ function getServerSnapshot() {
 interface HeroSectionProps {
   videoSrc: string;
   mobileImageSrc: string;
+  desktopImageSrc?: string;
   title: React.ReactNode;
   subtitle?: React.ReactNode;
   children?: React.ReactNode;
 }
 
 // Full-height hero shown immediately -- no scroll-to-reveal interaction.
-// Desktop gets the autoplaying video; mobile gets a static still frame from
-// that same video (extracted once, not a separate photoshoot) so it never
-// downloads the video at all.
-export function HeroSection({ videoSrc, mobileImageSrc, title, subtitle, children }: HeroSectionProps) {
+// Desktop gets the autoplaying video when one's configured; mobile gets a
+// static still frame from that same video (extracted once, not a separate
+// photoshoot) so it never downloads the video at all. Vendors with no video
+// asset (photo-only businesses) fall back to a static image on both
+// breakpoints instead of an empty <video> tag.
+export function HeroSection({ videoSrc, mobileImageSrc, desktopImageSrc, title, subtitle, children }: HeroSectionProps) {
   const isDesktop = useSyncExternalStore(subscribe, getSnapshot, getServerSnapshot);
+  const showVideo = isDesktop && Boolean(videoSrc);
 
   return (
     <section
       className="relative h-screen min-h-[600px] w-full overflow-hidden bg-black"
       aria-label="From our orchards to your doorstep"
     >
-      {isDesktop ? (
+      {showVideo ? (
         <video
           className="absolute inset-0 h-full w-full object-cover"
           src={videoSrc}
@@ -50,7 +54,7 @@ export function HeroSection({ videoSrc, mobileImageSrc, title, subtitle, childre
         />
       ) : (
         <Image
-          src={mobileImageSrc}
+          src={(isDesktop && desktopImageSrc) || mobileImageSrc}
           alt="Ripe mangoes hanging in our orchard"
           fill
           priority

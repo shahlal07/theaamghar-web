@@ -72,19 +72,21 @@ async function sendMail(to: string, subject: string, html: string, businessName:
 // small helper rather than threading getSiteContent() through every call
 // site's own params.
 async function getEmailBrand() {
-  const { brand, emailBrand } = await getSiteContent();
+  const { brand, brandColors, emailBrand } = await getSiteContent();
   return {
     businessName: brand.logoText,
     accentEmoji: brand.accentEmoji,
     headerText: emailBrand.headerText,
     footerText: emailBrand.footerText,
+    primaryColor: brandColors.primary,
+    secondaryColor: brandColors.secondary,
   };
 }
 
-function wrapEmail(bodyHtml: string, headerText: string, footerText: string): string {
+function wrapEmail(bodyHtml: string, headerText: string, footerText: string, primaryColor: string): string {
   return `
     <div style="font-family:-apple-system,Segoe UI,Roboto,sans-serif;max-width:560px;margin:0 auto;">
-      <div style="background:#FF6B00;padding:20px 24px;border-radius:12px 12px 0 0;">
+      <div style="background:${primaryColor};padding:20px 24px;border-radius:12px 12px 0 0;">
         <span style="color:#fff;font-size:20px;font-weight:700;">${headerText}</span>
       </div>
       <div style="background:#fff;border:1px solid #eee;border-top:none;border-radius:0 0 12px 12px;padding:24px;color:#2D2D2D;">
@@ -131,7 +133,7 @@ export async function sendOrderConfirmationEmail(params: {
   city: string;
   paymentMethod: string;
 }): Promise<void> {
-  const { businessName, accentEmoji, headerText, footerText } = await getEmailBrand();
+  const { businessName, accentEmoji, headerText, footerText, primaryColor, secondaryColor } = await getEmailBrand();
   const trackUrl = `${SITE_URL}/track?order=${params.orderNumber}`;
   const html = wrapEmail(
     `
@@ -140,16 +142,17 @@ export async function sendOrderConfirmationEmail(params: {
     ${itemsTable(params.items)}
     <p style="text-align:right;margin:4px 0;">Subtotal: ${formatPKR(params.subtotal)}</p>
     <p style="text-align:right;margin:4px 0;">Shipping: ${formatPKR(params.shippingFee)}</p>
-    ${params.discountAmount > 0 ? `<p style="text-align:right;margin:4px 0;color:#2E7D32;">Discount: -${formatPKR(params.discountAmount)}</p>` : ""}
+    ${params.discountAmount > 0 ? `<p style="text-align:right;margin:4px 0;color:${secondaryColor};">Discount: -${formatPKR(params.discountAmount)}</p>` : ""}
     <p style="text-align:right;font-weight:700;font-size:18px;margin:8px 0;">Total: ${formatPKR(params.total)}</p>
     <p style="margin-top:20px;"><strong>Delivering to:</strong><br/>${params.address}, ${params.city}</p>
     <p><strong>Payment:</strong> ${
       params.paymentMethod === "cod" ? "Cash on Delivery" : "Manual transfer — awaiting your payment proof"
     }</p>
-    <a href="${trackUrl}" style="display:inline-block;margin-top:16px;background:#FF6B00;color:#fff;text-decoration:none;padding:12px 24px;border-radius:999px;font-weight:600;">Track Your Order</a>
+    <a href="${trackUrl}" style="display:inline-block;margin-top:16px;background:${primaryColor};color:#fff;text-decoration:none;padding:12px 24px;border-radius:999px;font-weight:600;">Track Your Order</a>
   `,
     headerText,
-    footerText
+    footerText,
+    primaryColor
   );
   await sendMail(params.to, `Order Confirmed — ${params.orderNumber}`, html, businessName);
 }
@@ -161,16 +164,17 @@ export async function sendAdminNewOrderAlert(params: {
   customerName: string;
   itemsSummary: string;
 }): Promise<void> {
-  const { businessName, accentEmoji, headerText, footerText } = await getEmailBrand();
+  const { businessName, accentEmoji, headerText, footerText, primaryColor, secondaryColor } = await getEmailBrand();
   const html = wrapEmail(
     `
     <h2 style="margin-top:0;">${accentEmoji} New Order — ${params.orderNumber}</h2>
     <p><strong>${params.customerName}</strong> just ordered ${formatPKR(params.total)}.</p>
     <p>${params.itemsSummary}</p>
-    <a href="${ADMIN_URL}/admin/orders" style="display:inline-block;margin-top:12px;background:#2E7D32;color:#fff;text-decoration:none;padding:12px 24px;border-radius:999px;font-weight:600;">Open Admin Dashboard</a>
+    <a href="${ADMIN_URL}/admin/orders" style="display:inline-block;margin-top:12px;background:${secondaryColor};color:#fff;text-decoration:none;padding:12px 24px;border-radius:999px;font-weight:600;">Open Admin Dashboard</a>
   `,
     headerText,
-    footerText
+    footerText,
+    primaryColor
   );
   await sendMail(params.to, `New Order — ${params.orderNumber} (${formatPKR(params.total)})`, html, businessName);
 }
@@ -180,15 +184,16 @@ export async function sendAdminPaymentProofAlert(params: {
   orderNumber: string;
   total: number;
 }): Promise<void> {
-  const { businessName, headerText, footerText } = await getEmailBrand();
+  const { businessName, headerText, footerText, primaryColor, secondaryColor } = await getEmailBrand();
   const html = wrapEmail(
     `
     <h2 style="margin-top:0;">💰 Payment Proof Uploaded — ${params.orderNumber}</h2>
     <p>A customer just uploaded payment proof for their ${formatPKR(params.total)} order. Please verify it in the admin dashboard.</p>
-    <a href="${ADMIN_URL}/admin/orders" style="display:inline-block;margin-top:12px;background:#2E7D32;color:#fff;text-decoration:none;padding:12px 24px;border-radius:999px;font-weight:600;">Verify Payment</a>
+    <a href="${ADMIN_URL}/admin/orders" style="display:inline-block;margin-top:12px;background:${secondaryColor};color:#fff;text-decoration:none;padding:12px 24px;border-radius:999px;font-weight:600;">Verify Payment</a>
   `,
     headerText,
-    footerText
+    footerText,
+    primaryColor
   );
   await sendMail(params.to, `Payment Proof Uploaded — ${params.orderNumber}`, html, businessName);
 }
@@ -198,7 +203,7 @@ export async function sendStreakReminderEmail(params: {
   name: string;
   streak: number;
 }): Promise<void> {
-  const [{ businessName, accentEmoji, headerText, footerText }, { loyaltyProgram }] = await Promise.all([
+  const [{ businessName, accentEmoji, headerText, footerText, primaryColor }, { loyaltyProgram }] = await Promise.all([
     getEmailBrand(),
     getSiteContent(),
   ]);
@@ -207,10 +212,11 @@ export async function sendStreakReminderEmail(params: {
     `
     <h2 style="margin-top:0;">Don't lose your streak, ${params.name}! 🔥${accentEmoji}</h2>
     <p>You're on a <strong>${params.streak}-day</strong> ${loyaltyProgram.currencySingular} check-in streak — check in today or it resets back to day one.</p>
-    <a href="${rewardsUrl}" style="display:inline-block;margin-top:16px;background:#FF6B00;color:#fff;text-decoration:none;padding:12px 24px;border-radius:999px;font-weight:600;">Check In Now</a>
+    <a href="${rewardsUrl}" style="display:inline-block;margin-top:16px;background:${primaryColor};color:#fff;text-decoration:none;padding:12px 24px;border-radius:999px;font-weight:600;">Check In Now</a>
   `,
     headerText,
-    footerText
+    footerText,
+    primaryColor
   );
   await sendMail(params.to, `🔥 Your ${params.streak}-day streak is about to reset`, html, businessName);
 }
@@ -220,7 +226,7 @@ export async function sendAdminBugReportAlert(params: {
   title: string;
   reporterName: string;
 }): Promise<void> {
-  const [{ businessName, headerText, footerText }, { loyaltyProgram }] = await Promise.all([
+  const [{ businessName, headerText, footerText, primaryColor, secondaryColor }, { loyaltyProgram }] = await Promise.all([
     getEmailBrand(),
     getSiteContent(),
   ]);
@@ -228,10 +234,11 @@ export async function sendAdminBugReportAlert(params: {
     `
     <h2 style="margin-top:0;">🐞 New Bug Report — ${params.title}</h2>
     <p><strong>${params.reporterName}</strong> just reported a bug. Review it and confirm to grant their ${loyaltyProgram.currencySingular}.</p>
-    <a href="${ADMIN_URL}/admin/bugs" style="display:inline-block;margin-top:12px;background:#2E7D32;color:#fff;text-decoration:none;padding:12px 24px;border-radius:999px;font-weight:600;">Review Bug Reports</a>
+    <a href="${ADMIN_URL}/admin/bugs" style="display:inline-block;margin-top:12px;background:${secondaryColor};color:#fff;text-decoration:none;padding:12px 24px;border-radius:999px;font-weight:600;">Review Bug Reports</a>
   `,
     headerText,
-    footerText
+    footerText,
+    primaryColor
   );
   await sendMail(params.to, `New Bug Report — ${params.title}`, html, businessName);
 }

@@ -43,6 +43,7 @@ export default async function Home() {
       <HeroSection
         videoSrc={content.hero.desktopVideoUrl}
         mobileImageSrc={content.hero.mobileImageUrl}
+        desktopImageSrc={content.hero.desktopImageUrl}
         title={
           <>
             {content.hero.headlineLine1}
@@ -87,7 +88,7 @@ export default async function Home() {
 
       <FAQ faqs={faqs.length > 0 ? faqs : content.faqFallback} />
 
-      <section aria-label="Freshness promise and contact" className="px-[5%] py-16 bg-[#FFF9F2]">
+      <section aria-label="Freshness promise and contact" className="px-[5%] py-16 bg-[var(--color-cream-warm)]">
         <div className="max-w-5xl mx-auto grid gap-10 md:grid-cols-2 md:items-center mb-12">
           <Reveal>
             <LazyVideo
@@ -97,10 +98,10 @@ export default async function Home() {
             />
           </Reveal>
           <Reveal delay={120}>
-            <h2 className="font-serif text-2xl md:text-3xl font-bold mb-2 text-[#4A2C12]">
+            <h2 className="font-serif text-2xl md:text-3xl font-bold mb-2 text-[var(--color-mango-deep)]">
               {content.storyBanner.heading}
             </h2>
-            <p className="text-[#2D2D2D]/75">{content.storyBanner.body}</p>
+            <p className="text-[var(--color-ink)]/75">{content.storyBanner.body}</p>
           </Reveal>
         </div>
         <div className="max-w-4xl mx-auto text-center">
@@ -111,31 +112,31 @@ export default async function Home() {
                   href={generalInquiryWhatsAppLink(settings.support_whatsapp)}
                   target="_blank"
                   rel="noopener noreferrer"
-                  className="flex flex-col items-center gap-2 bg-white border border-[#4A2C12]/10 rounded-2xl p-5 shadow-brand-sm hover:-translate-y-1 hover:shadow-brand-md hover:border-[#F4B400]/50 active:translate-y-0 active:scale-95 transition-all"
+                  className="flex flex-col items-center gap-2 bg-white border border-[var(--color-mango-deep)]/10 rounded-2xl p-5 shadow-brand-sm hover:-translate-y-1 hover:shadow-brand-md hover:border-[var(--color-golden)]/50 active:translate-y-0 active:scale-95 transition-all"
                 >
                   <WhatsAppIcon className="w-7 h-7 text-[#25D366]" />
-                  <span className="font-semibold text-sm text-[#4A2C12]">WhatsApp Us</span>
-                  <span className="text-xs text-[#2D2D2D]/60">Usually replies in minutes</span>
+                  <span className="font-semibold text-sm text-[var(--color-mango-deep)]">WhatsApp Us</span>
+                  <span className="text-xs text-[var(--color-ink)]/60">Usually replies in minutes</span>
                 </a>
               )}
               {settings?.support_phone && (
                 <a
                   href={`tel:${settings.support_phone}`}
-                  className="flex flex-col items-center gap-2 bg-white border border-[#4A2C12]/10 rounded-2xl p-5 shadow-brand-sm hover:-translate-y-1 hover:shadow-brand-md hover:border-[#F4B400]/50 active:translate-y-0 active:scale-95 transition-all"
+                  className="flex flex-col items-center gap-2 bg-white border border-[var(--color-mango-deep)]/10 rounded-2xl p-5 shadow-brand-sm hover:-translate-y-1 hover:shadow-brand-md hover:border-[var(--color-golden)]/50 active:translate-y-0 active:scale-95 transition-all"
                 >
-                  <PhoneIcon className="w-7 h-7 text-[#F4B400]" />
-                  <span className="font-semibold text-sm text-[#4A2C12]">{settings.support_phone}</span>
-                  <span className="text-xs text-[#2D2D2D]/60">Call us directly</span>
+                  <PhoneIcon className="w-7 h-7 text-[var(--color-golden)]" />
+                  <span className="font-semibold text-sm text-[var(--color-mango-deep)]">{settings.support_phone}</span>
+                  <span className="text-xs text-[var(--color-ink)]/60">Call us directly</span>
                 </a>
               )}
               {settings?.support_email && (
                 <a
                   href={`mailto:${settings.support_email}`}
-                  className="flex flex-col items-center gap-2 bg-white border border-[#4A2C12]/10 rounded-2xl p-5 shadow-brand-sm hover:-translate-y-1 hover:shadow-brand-md hover:border-[#F4B400]/50 active:translate-y-0 active:scale-95 transition-all"
+                  className="flex flex-col items-center gap-2 bg-white border border-[var(--color-mango-deep)]/10 rounded-2xl p-5 shadow-brand-sm hover:-translate-y-1 hover:shadow-brand-md hover:border-[var(--color-golden)]/50 active:translate-y-0 active:scale-95 transition-all"
                 >
-                  <MailIcon className="w-7 h-7 text-[#F4B400]" />
-                  <span className="font-semibold text-sm text-[#4A2C12]">{settings.support_email}</span>
-                  <span className="text-xs text-[#2D2D2D]/60">Email anytime</span>
+                  <MailIcon className="w-7 h-7 text-[var(--color-golden)]" />
+                  <span className="font-semibold text-sm text-[var(--color-mango-deep)]">{settings.support_email}</span>
+                  <span className="text-xs text-[var(--color-ink)]/60">Email anytime</span>
                 </a>
               )}
             </div>
@@ -143,7 +144,7 @@ export default async function Home() {
 
           {settings && SOCIAL_LINKS.some((s) => settings[s.key]) && (
             <Reveal delay={100} className="mt-10">
-              <div className="text-sm font-semibold text-[#2D2D2D]/60 mb-3">Follow Us</div>
+              <div className="text-sm font-semibold text-[var(--color-ink)]/60 mb-3">Follow Us</div>
               <div className="flex justify-center gap-3">
                 {SOCIAL_LINKS.filter((s) => settings[s.key]).map(({ key, label, Icon }) => (
                   <a
@@ -152,7 +153,7 @@ export default async function Home() {
                     target="_blank"
                     rel="noopener noreferrer"
                     aria-label={`${settings.business_name ?? "TheAamGhar"} on ${label}`}
-                    className="w-10 h-10 rounded-full border border-[#4A2C12]/15 flex items-center justify-center text-[#2D2D2D]/60 hover:text-[#F4B400] hover:border-[#F4B400] hover:-translate-y-0.5 active:translate-y-0 active:scale-90 transition-all"
+                    className="w-10 h-10 rounded-full border border-[var(--color-mango-deep)]/15 flex items-center justify-center text-[var(--color-ink)]/60 hover:text-[var(--color-golden)] hover:border-[var(--color-golden)] hover:-translate-y-0.5 active:translate-y-0 active:scale-90 transition-all"
                   >
                     <Icon className="w-4.5 h-4.5" />
                   </a>

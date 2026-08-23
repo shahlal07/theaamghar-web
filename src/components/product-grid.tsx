@@ -10,9 +10,11 @@ type SortOption = "recommended" | "price-asc" | "price-desc" | "newest";
 export function ProductGrid({
   products,
   whatsappNumber,
+  paymentBadgeText,
 }: {
   products: ProductWithBoxSizes[];
   whatsappNumber?: string | null;
+  paymentBadgeText?: string | null;
 }) {
   const [query, setQuery] = useState("");
   const [sweetness, setSweetness] = useState<string | null>(null);
@@ -235,7 +237,7 @@ export function ProductGrid({
       ) : (
         <div className="grid grid-cols-2 md:grid-cols-3 gap-4 md:gap-6">
           {filtered.map((p) => (
-            <ProductCard key={p.id} product={p} whatsappNumber={whatsappNumber} />
+            <ProductCard key={p.id} product={p} whatsappNumber={whatsappNumber} paymentBadgeText={paymentBadgeText} />
           ))}
         </div>
       )}

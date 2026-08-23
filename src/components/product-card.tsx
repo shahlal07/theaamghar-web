@@ -19,9 +19,11 @@ import { productOrderWhatsAppLink } from "@/lib/whatsapp";
 export function ProductCard({
   product,
   whatsappNumber,
+  paymentBadgeText,
 }: {
   product: ProductWithBoxSizes;
   whatsappNumber?: string | null;
+  paymentBadgeText?: string | null;
 }) {
   const { addItem } = useCart();
   const { ids: compareIds, toggle: toggleCompare, isFull: compareIsFull } = useCompare();
@@ -52,7 +54,7 @@ export function ProductCard({
     e.preventDefault();
     e.stopPropagation();
     if (!product.defaultBoxSizeId) return;
-    addItem(product.defaultBoxSizeId, 1);
+    addItem(product.defaultBoxSizeId, 1, product.defaultUnitSource);
     showToast(`${product.name} added to cart!`);
   }
 
@@ -84,9 +86,11 @@ export function ProductCard({
           />
         )}
         <div className="absolute top-1.5 left-1.5 md:top-3 md:left-3 flex flex-col gap-1 md:gap-1.5 items-start max-w-[70%]">
-          <span className="bg-white/90 text-[#1A1A1A] text-[0.55rem] md:text-[0.7rem] font-semibold px-1.5 py-0.5 md:px-2.5 md:py-1 rounded-full leading-tight">
-            COD Available
-          </span>
+          {paymentBadgeText && (
+            <span className="bg-white/90 text-[#1A1A1A] text-[0.55rem] md:text-[0.7rem] font-semibold px-1.5 py-0.5 md:px-2.5 md:py-1 rounded-full leading-tight">
+              {paymentBadgeText}
+            </span>
+          )}
           {product.isBestSeller && (
             <span className="bg-golden text-mango-deep text-[0.55rem] md:text-[0.7rem] font-bold px-1.5 py-0.5 md:px-2.5 md:py-1 rounded-full leading-tight">
               ⭐ Best Seller
@@ -154,9 +158,11 @@ export function ProductCard({
               <span className="font-bold text-mango-orange">
                 {formatPKR(product.minPrice!)}
               </span>
-              <span className="text-xs text-ink-light">
-                / {product.boxSizes[0]?.box_size_kg}kg
-              </span>
+              {product.boxSizes[0] && (
+                <span className="text-xs text-ink-light">
+                  / {product.boxSizes[0].box_size_kg}kg
+                </span>
+              )}
             </>
           )}
         </div>

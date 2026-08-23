@@ -33,7 +33,7 @@ export function Heading({
         <span
           className={cn(
             "inline-block text-xs font-semibold tracking-[0.25em] uppercase mb-4",
-            light ? "text-white/80" : "text-[#2E7D32]"
+            light ? "text-white/80" : "text-[var(--color-orchard-green)]"
           )}
         >
           {eyebrow}
@@ -43,7 +43,7 @@ export function Heading({
         className={cn(
           "font-serif font-bold leading-[1.1]",
           SIZES[size],
-          light ? "text-white" : "text-[#4A2C12]"
+          light ? "text-white" : "text-[var(--color-mango-deep)]"
         )}
       >
         {title}
@@ -53,7 +53,7 @@ export function Heading({
           className={cn(
             "mt-5 text-lg leading-relaxed",
             center && "mx-auto max-w-2xl",
-            light ? "text-white/85" : "text-[#2D2D2D]/75"
+            light ? "text-white/85" : "text-[var(--color-ink)]/75"
           )}
         >
           {subtitle}

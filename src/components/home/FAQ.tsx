@@ -16,9 +16,9 @@ export function FAQ({ faqs }: { faqs: FaqEntry[] }) {
   const [openId, setOpenId] = useState<string | null>(items[0]?.id ?? null);
 
   return (
-    <Section aria-label="Frequently asked questions" className="bg-[#FFF9F2]">
+    <Section aria-label="Frequently asked questions" className="bg-[var(--color-cream-warm)]">
       <Heading eyebrow="Questions" title="Frequently Asked" center className="mb-12" />
-      <div className="max-w-2xl mx-auto divide-y divide-[#4A2C12]/10">
+      <div className="max-w-2xl mx-auto divide-y divide-[var(--color-mango-deep)]/10">
         {items.map((item) => {
           const open = openId === item.id;
           return (
@@ -29,13 +29,13 @@ export function FAQ({ faqs }: { faqs: FaqEntry[] }) {
                 aria-expanded={open}
                 className="w-full flex items-center justify-between gap-4 py-5 text-left"
               >
-                <span className="font-serif text-lg font-semibold text-[#4A2C12]">
+                <span className="font-serif text-lg font-semibold text-[var(--color-mango-deep)]">
                   {item.question}
                 </span>
                 <motion.span
                   animate={{ rotate: open ? 45 : 0 }}
                   transition={{ duration: 0.25 }}
-                  className="shrink-0 text-[#F4B400]"
+                  className="shrink-0 text-[var(--color-golden)]"
                   aria-hidden="true"
                 >
                   <Plus className="h-5 w-5" strokeWidth={2.5} />
@@ -50,7 +50,7 @@ export function FAQ({ faqs }: { faqs: FaqEntry[] }) {
                     transition={{ duration: 0.25 }}
                     className="overflow-hidden"
                   >
-                    <p className="pb-5 text-[#2D2D2D]/75 leading-relaxed">{item.answer}</p>
+                    <p className="pb-5 text-[var(--color-ink)]/75 leading-relaxed">{item.answer}</p>
                   </motion.div>
                 )}
               </AnimatePresence>

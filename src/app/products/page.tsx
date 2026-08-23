@@ -28,7 +28,11 @@ export default async function ProductsPage() {
       {products.length === 0 ? (
         <p className="text-center text-ink-light">{content.emptyStates.productsEmpty}</p>
       ) : (
-        <ProductGrid products={products} whatsappNumber={settings?.support_whatsapp} />
+        <ProductGrid
+          products={products}
+          whatsappNumber={settings?.support_whatsapp}
+          paymentBadgeText={content.brand.paymentBadgeText}
+        />
       )}
     </div>
   );
