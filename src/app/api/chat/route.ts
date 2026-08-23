@@ -16,7 +16,14 @@ export const runtime = "nodejs";
 // to silently run up a bill. If this model is ever retired, swap the name
 // here; the request/response shape below is the standard OpenAI-compatible
 // chat-completions format Groq (and most other free-tier providers) speaks.
-const MODEL = "llama-3.3-70b-versatile";
+// llama-3.3-70b-versatile was retired from Groq's catalog (verified via
+// GET /openai/v1/models) -- gpt-oss-120b is its replacement. It's a
+// reasoning model: without reasoning_effort:"low" it can burn the whole
+// max_tokens budget on hidden chain-of-thought and return an EMPTY
+// message.content (the actual answer only ever lands in message.reasoning,
+// which this route never reads) -- confirmed by testing directly against
+// the Groq API before swapping this in.
+const MODEL = "openai/gpt-oss-120b";
 const MAX_MESSAGES = 20;
 const MAX_MESSAGE_LENGTH = 1000;
 
@@ -268,11 +275,16 @@ export async function POST(request: Request) {
       ],
       max_tokens: 400,
       temperature: 0.6,
+      reasoning_effort: "low",
     }),
   });
 
   if (!groqResponse.ok) {
-    // Don't leak upstream error details to the client -- just fail gracefully.
+    // Logged (not leaked to the client) so a future Groq-side change --
+    // model retirement, quota, auth -- shows up in Vercel logs instead of
+    // requiring a manual curl against the Groq API to diagnose, like this
+    // one did (llama-3.3-70b-versatile was silently retired).
+    console.error("[chat] Groq API error", groqResponse.status, await groqResponse.text());
     return NextResponse.json(
       { error: "Something went wrong. Please try again or message us on WhatsApp." },
       { status: 502 }
@@ -283,6 +295,7 @@ export async function POST(request: Request) {
   const reply: string | undefined = data?.choices?.[0]?.message?.content;
 
   if (!reply) {
+    console.error("[chat] Groq response had no message.content", JSON.stringify(data).slice(0, 500));
     return NextResponse.json(
       { error: "Something went wrong. Please try again or message us on WhatsApp." },
       { status: 502 }
