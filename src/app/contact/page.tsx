@@ -1,4 +1,6 @@
 import { getSiteChrome } from "@/lib/queries/site";
+import { getSiteContent } from "@/lib/queries/site-content";
+import { getActiveFaqs } from "@/lib/queries/faq";
 import {
   WhatsAppIcon,
   PhoneIcon,
@@ -20,44 +22,14 @@ const SOCIAL_LINKS = [
   { key: "youtube_url", label: "YouTube", Icon: YouTubeIcon },
 ] as const;
 
-const FAQS = [
-  {
-    q: "How fast is delivery?",
-    a: "Usually next-day across Pakistan, or same-day if you order before 3pm.",
-  },
-  {
-    q: "What payment methods do you accept?",
-    a: "Cash on Delivery (COD) only — you pay when your mangoes arrive at your door.",
-  },
-  {
-    q: "What if my mangoes arrive unripe, damaged, or wrong?",
-    a: "Message us on WhatsApp with your order number and we'll make it right — replacement or refund, no hassle.",
-  },
-  {
-    q: "How do I track my order?",
-    a: "Head to the Track Order page and enter your order number, or find it under My Orders in your account.",
-  },
-  {
-    q: "Do you deliver everywhere in Pakistan?",
-    a: "Yes — shipping rates vary a little by province and city, and are shown at checkout before you pay.",
-  },
-  {
-    q: "How do I get the 10% welcome discount?",
-    a: "Sign up, then verify your email from your account dashboard — the discount is added automatically and ready to use at checkout.",
-  },
-  {
-    q: "Can I sign in with my phone number instead of email?",
-    a: "Yes — the Sign In and Create Account pages both have a Phone tab that sends you a one-time code by SMS.",
-  },
-  {
-    q: "How do I leave a review?",
-    a: "Once an order is delivered, go to My Orders in your account and tap Leave Review on that item.",
-  },
-] as const;
-
 export default async function ContactPage() {
-  const { settings } = await getSiteChrome();
+  const [{ settings }, content, faqs] = await Promise.all([
+    getSiteChrome(),
+    getSiteContent(),
+    getActiveFaqs(),
+  ]);
   const socialLinks = settings ? SOCIAL_LINKS.filter((s) => settings[s.key]) : [];
+  const FAQS = faqs.length > 0 ? faqs.map((f) => ({ q: f.question, a: f.answer })) : content.faqFallback.map((f) => ({ q: f.question, a: f.answer }));
 
   return (
     <div className="px-[5%] py-10 max-w-2xl mx-auto">
@@ -111,7 +83,7 @@ export default async function ContactPage() {
             <LocationIcon className="w-7 h-7 text-mango-orange shrink-0" />
             <div>
               <div className="font-semibold">{settings.business_address}</div>
-              <div className="text-sm text-ink-light">Our orchards</div>
+              <div className="text-sm text-ink-light">Find us here</div>
             </div>
           </div>
         )}
@@ -162,7 +134,7 @@ export default async function ContactPage() {
                 href={settings![key]!}
                 target="_blank"
                 rel="noopener noreferrer"
-                aria-label={`${settings?.business_name ?? "TheAamGhar"} on ${label}`}
+                aria-label={`${settings?.business_name ?? content.brand.logoText} on ${label}`}
                 className="w-10 h-10 rounded-full border border-border-subtle flex items-center justify-center text-ink-light hover:text-mango-orange hover:border-mango-orange transition-colors"
               >
                 <Icon className="w-4.5 h-4.5" />

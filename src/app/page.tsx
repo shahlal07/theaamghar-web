@@ -45,6 +45,7 @@ export default async function Home() {
         videoSrc={content.hero.desktopVideoUrl}
         mobileImageSrc={content.hero.mobileImageUrl}
         desktopImageSrc={content.hero.desktopImageUrl}
+        accentEmoji={content.brand.accentEmoji}
         title={
           <>
             {content.hero.headlineLine1}

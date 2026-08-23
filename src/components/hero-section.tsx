@@ -26,6 +26,7 @@ interface HeroSectionProps {
   title: React.ReactNode;
   subtitle?: React.ReactNode;
   children?: React.ReactNode;
+  accentEmoji?: string;
 }
 
 // Full-height hero shown immediately -- no scroll-to-reveal interaction.
@@ -34,14 +35,14 @@ interface HeroSectionProps {
 // photoshoot) so it never downloads the video at all. Vendors with no video
 // asset (photo-only businesses) fall back to a static image on both
 // breakpoints instead of an empty <video> tag.
-export function HeroSection({ videoSrc, mobileImageSrc, desktopImageSrc, title, subtitle, children }: HeroSectionProps) {
+export function HeroSection({ videoSrc, mobileImageSrc, desktopImageSrc, title, subtitle, children, accentEmoji }: HeroSectionProps) {
   const isDesktop = useSyncExternalStore(subscribe, getSnapshot, getServerSnapshot);
   const showVideo = isDesktop && Boolean(videoSrc);
 
   return (
     <section
       className="relative h-screen min-h-[600px] w-full overflow-hidden bg-black"
-      aria-label="From our orchards to your doorstep"
+      aria-label="Hero"
     >
       {showVideo ? (
         <video
@@ -55,7 +56,7 @@ export function HeroSection({ videoSrc, mobileImageSrc, desktopImageSrc, title, 
       ) : (
         <Image
           src={(isDesktop && desktopImageSrc) || mobileImageSrc}
-          alt="Ripe mangoes hanging in our orchard"
+          alt=""
           fill
           priority
           sizes="100vw"
@@ -63,7 +64,7 @@ export function HeroSection({ videoSrc, mobileImageSrc, desktopImageSrc, title, 
         />
       )}
       <div className="absolute inset-0 bg-black/45" />
-      <FloatingMangoes />
+      <FloatingMangoes emoji={accentEmoji} />
       <div className="relative z-[2] flex h-full flex-col items-center justify-center px-[5%] text-center">
         <h1 className="font-serif text-4xl font-bold leading-tight text-white drop-shadow-md md:text-6xl">
           {title}

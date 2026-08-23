@@ -11,7 +11,7 @@ const MANGOES = [
   { top: "22%", duration: "32s", delay: "-4s", size: "0.9rem" },
 ];
 
-export function FloatingMangoes() {
+export function FloatingMangoes({ emoji = "🥭" }: { emoji?: string }) {
   return (
     <div className="absolute inset-0 overflow-hidden pointer-events-none z-[1]" aria-hidden="true">
       {MANGOES.map((m, i) => (
@@ -25,7 +25,7 @@ export function FloatingMangoes() {
             animationDelay: m.delay,
           }}
         >
-          🥭
+          {emoji}
         </span>
       ))}
     </div>

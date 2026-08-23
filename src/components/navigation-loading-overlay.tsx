@@ -2,12 +2,17 @@
 
 import { useEffect, useRef, useState } from "react";
 import { usePathname } from "next/navigation";
+import { NashemannLoader } from "@/components/nashemann-loader";
 
-// Full-page "picking mangoes" loader shown while an internal page
-// navigation is in flight. The App Router doesn't expose route-change
-// start/end events, so this listens for genuine internal <a> clicks
-// (skipping hash anchors, external links, new-tab clicks, mailto/tel, etc.)
-// and clears itself once usePathname() reflects the new route.
+// Full-page loader shown while an internal page navigation is in flight,
+// reusing the same Nashemann-branded overlay as app/loading.tsx (App
+// Router's own Suspense fallback only fires once a route segment actually
+// suspends, which for a fast client-cached navigation may never show at
+// all -- this fires immediately on the click instead, for instant
+// feedback, then clears once usePathname() reflects the new route). The
+// App Router doesn't expose route-change start/end events, so this
+// listens for genuine internal <a> clicks (skipping hash anchors,
+// external links, new-tab clicks, mailto/tel, etc.) directly.
 export function NavigationLoadingOverlay() {
   const [loading, setLoading] = useState(false);
   const pathname = usePathname();
@@ -67,29 +72,5 @@ export function NavigationLoadingOverlay() {
 
   if (!loading) return null;
 
-  return (
-    <div
-      role="status"
-      aria-live="polite"
-      className="fixed inset-0 z-[2000] flex flex-col items-center justify-center gap-4 bg-cream/95 backdrop-blur-sm"
-    >
-      <div className="relative w-16 h-16 flex items-center justify-center">
-        <span
-          className="text-5xl"
-          style={{ animation: "bucketPulse 1s ease-in-out infinite" }}
-          aria-hidden="true"
-        >
-          🧺
-        </span>
-        <span
-          className="absolute -top-7 text-3xl"
-          style={{ animation: "mangoFall 0.9s ease-in-out infinite" }}
-          aria-hidden="true"
-        >
-          🥭
-        </span>
-      </div>
-      <p className="text-sm font-semibold text-ink-light">Picking your mangoes…</p>
-    </div>
-  );
+  return <NashemannLoader />;
 }
