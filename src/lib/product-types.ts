@@ -1,4 +1,4 @@
-// Mirrors theaamghar-admin's src/lib/product-types.ts (same cross-repo
+// Mirrors vendor-admins's src/lib/product-types.ts (same cross-repo
 // duplication convention as site-content-defaults.ts) -- a bounded,
 // code-defined set of product types rather than a DB-driven dynamic field
 // system, since this is a single-vendor business adding at most a handful

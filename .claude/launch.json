@@ -2,7 +2,7 @@
   "version": "0.0.1",
   "configurations": [
     {
-      "name": "theaamghar-web",
+      "name": "vendor-storefronts",
       "runtimeExecutable": "npm",
       "runtimeArgs": ["run", "dev", "--", "--port", "3210"],
       "port": 3210

@@ -9,13 +9,13 @@
 // Must be NEXT_PUBLIC_ because OG/canonical tags are also needed in Client
 // Components and at build time, not just on the server.
 export const SITE_URL = (
-  process.env.NEXT_PUBLIC_SITE_URL ?? "https://theaamghar-web.vercel.app"
+  process.env.NEXT_PUBLIC_SITE_URL ?? "https://vendor-storefronts.vercel.app"
 ).replace(/\/$/, "");
 
 // The admin panel, linked from admin alert emails. Separate var because it
 // will likely live on a subdomain (admin.theaamghar.pk) rather than a path.
 export const ADMIN_URL = (
-  process.env.NEXT_PUBLIC_ADMIN_URL ?? "https://theaamghar-admin.vercel.app"
+  process.env.NEXT_PUBLIC_ADMIN_URL ?? "https://vendor-admins.vercel.app"
 ).replace(/\/$/, "");
 
 export function absoluteUrl(path: string): string {

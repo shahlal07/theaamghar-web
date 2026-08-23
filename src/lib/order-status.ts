@@ -1,4 +1,4 @@
-// Matches theaamghar-admin's order status pipeline exactly (see its
+// Matches vendor-admins's order status pipeline exactly (see its
 // CLAUDE.md "Data conventions"): pending | confirmed | packed | shipped |
 // delivered | cancelled | refunded.
 export const STATUS_LABELS: Record<string, string> = {
