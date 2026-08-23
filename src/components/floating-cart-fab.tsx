@@ -5,7 +5,7 @@ import { useCart } from "@/lib/cart-context";
 
 const MAX_FILL_ITEMS = 5;
 
-export function FloatingCartFab() {
+export function FloatingCartFab({ accentEmoji = "🛍️" }: { accentEmoji?: string }) {
   const { count, openCart } = useCart();
   const prevCount = useRef(count);
   const [animating, setAnimating] = useState(false);
@@ -33,14 +33,16 @@ export function FloatingCartFab() {
       // screen. Desktop has no tab bar, so it stays there.
       className="hidden md:flex fixed bottom-[272px] md:bottom-[216px] right-5 z-40 w-14 h-14"
     >
-      {/* Falling mango sits outside the clipped circle so the "pouring in from
-          above" motion is actually visible, not cut off by the circle's edge. */}
+      {/* Falling accent emoji sits outside the clipped circle so the "pouring
+          in from above" motion is actually visible, not cut off by the
+          circle's edge. Uses the resolved vendor's own brand emoji instead
+          of a hardcoded mango. */}
       {animating && (
         <span
           className="absolute -top-3 left-1/2 -translate-x-1/2 text-base animate-[mangoFall_0.6s_ease-out] pointer-events-none"
           aria-hidden="true"
         >
-          🥭
+          {accentEmoji}
         </span>
       )}
 

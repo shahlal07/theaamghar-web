@@ -149,7 +149,7 @@ export default async function RootLayout({
               <MobileTabBar />
               <WhatsAppButton whatsappNumber={settings?.support_whatsapp ?? vendor?.whatsapp_number ?? null} />
               <AIChatWidget whatsappNumber={settings?.support_whatsapp ?? vendor?.whatsapp_number ?? null} />
-              <FloatingCartFab />
+              <FloatingCartFab accentEmoji={content.brand.accentEmoji} />
               <CompareBar />
               <BackToTopButton />
               <NavigationLoadingOverlay />

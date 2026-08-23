@@ -32,6 +32,8 @@ export default async function ProductsPage() {
           products={products}
           whatsappNumber={settings?.support_whatsapp}
           paymentBadgeText={content.brand.paymentBadgeText}
+          productPlural={content.aiAssistant.productPlural}
+          accentEmoji={content.brand.accentEmoji}
         />
       )}
     </div>

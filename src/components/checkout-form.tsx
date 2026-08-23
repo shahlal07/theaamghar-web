@@ -237,7 +237,7 @@ export function CheckoutForm({ emptyStates }: { emptyStates: SiteContent["emptyS
             {isGift && (
               <div className="pl-2 border-l-2 border-mango-orange/30">
                 <label htmlFor="giftMessage" className="text-sm font-medium block mb-1">Gift Message (optional)</label>
-                <textarea id="giftMessage" name="giftMessage" maxLength={300} rows={2} placeholder="Happy birthday! Enjoy the sweetest mangoes in Pakistan 🥭" className="w-full border-[1.5px] border-border-subtle rounded-xl px-4 py-3 text-sm bg-surface focus-visible:outline-none focus-visible:border-mango-orange transition-colors" />
+                <textarea id="giftMessage" name="giftMessage" maxLength={300} rows={2} placeholder="Happy birthday! Hope you enjoy this 🎁" className="w-full border-[1.5px] border-border-subtle rounded-xl px-4 py-3 text-sm bg-surface focus-visible:outline-none focus-visible:border-mango-orange transition-colors" />
                 <p className="text-xs text-ink-light mt-1.5">We&apos;ll ship straight to the recipient — use their name and address above.</p>
               </div>
             )}

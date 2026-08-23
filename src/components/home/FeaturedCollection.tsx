@@ -98,7 +98,7 @@ function FeaturedCard({
     e.preventDefault();
     e.stopPropagation();
     if (!isComparing && compareIsFull) {
-      showToast("You can compare up to 4 mangoes at a time");
+      showToast("You can compare up to 4 items at a time");
       return;
     }
     toggleCompare(product.id);
@@ -152,7 +152,7 @@ function FeaturedCard({
             aria-pressed={wishlisted}
             // 44px tap target on mobile, back to the original 36px on
             // desktop where a cursor (not a fingertip) is doing the clicking.
-            className="absolute top-2 right-2 sm:top-4 sm:right-4 w-11 h-11 sm:w-9 sm:h-9 rounded-full bg-white/90 text-[var(--color-ink)] flex items-center justify-center text-lg transition-transform hover:scale-110 active:scale-90"
+            className="absolute top-2 right-2 sm:top-4 sm:right-4 w-11 h-11 sm:w-9 sm:h-9 rounded-full bg-white/90 text-[var(--color-ink-fixed-dark)] flex items-center justify-center text-lg transition-transform hover:scale-110 active:scale-90"
           >
             {wishlisted ? "♥" : "♡"}
           </button>
@@ -163,7 +163,7 @@ function FeaturedCard({
             aria-pressed={isComparing}
             title="Add to comparison"
             className={`absolute bottom-2 left-2 sm:bottom-4 sm:left-4 flex items-center gap-1 min-h-[36px] sm:min-h-0 text-[0.65rem] sm:text-xs font-semibold px-2.5 sm:px-3 py-1.5 rounded-full transition-all active:scale-90 ${
-              isComparing ? "bg-[var(--color-golden)] text-[var(--color-ink)]" : "bg-white/90 text-[var(--color-ink)]"
+              isComparing ? "bg-[var(--color-golden)] text-[var(--color-ink-fixed-dark)]" : "bg-white/90 text-[var(--color-ink-fixed-dark)]"
             }`}
           >
             <svg className="w-3 h-3" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" aria-hidden="true">
@@ -176,7 +176,7 @@ function FeaturedCard({
             <button
               type="button"
               onClick={handleQuickAdd}
-              className="absolute bottom-4 right-4 translate-y-2 opacity-0 group-hover:translate-y-0 group-hover:opacity-100 transition-all duration-300 flex items-center gap-1.5 bg-white text-[var(--color-ink)] text-xs font-bold px-4 py-2.5 rounded-full shadow-lg hover:bg-[var(--color-golden)]"
+              className="absolute bottom-4 right-4 translate-y-2 opacity-0 group-hover:translate-y-0 group-hover:opacity-100 transition-all duration-300 flex items-center gap-1.5 bg-white text-[var(--color-ink-fixed-dark)] text-xs font-bold px-4 py-2.5 rounded-full shadow-lg hover:bg-[var(--color-golden)]"
             >
               <Plus className="h-3.5 w-3.5" strokeWidth={2.5} aria-hidden="true" />
               Quick Add

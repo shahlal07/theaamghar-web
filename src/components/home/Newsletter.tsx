@@ -47,7 +47,7 @@ export function Newsletter({ content }: { content: SiteContent["newsletter"] }) 
               value={email}
               onChange={(e) => setEmail(e.target.value)}
               placeholder="you@example.com"
-              className="flex-1 sm:max-w-xs rounded-full px-5 py-3.5 text-[var(--color-ink)] bg-white focus-visible:outline-none"
+              className="flex-1 sm:max-w-xs rounded-full px-5 py-3.5 text-[var(--color-ink-fixed-dark)] bg-white focus-visible:outline-none"
             />
             <Button type="submit" variant="primary" disabled={status === "loading"}>
               {status === "loading" ? "Subscribing…" : "Subscribe"}

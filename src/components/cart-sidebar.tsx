@@ -10,6 +10,7 @@ import { productImageSrc } from "@/lib/product-image";
 import { formatPKR } from "@/lib/format";
 import { RecentlyViewedStrip } from "@/components/recently-viewed-strip";
 import type { SiteContent } from "@/lib/queries/site-content";
+import { ShoppingBag } from "lucide-react";
 
 export function CartSidebar({ content }: { content: SiteContent["emptyStates"] }) {
   const { items, isOpen, closeCart, updateQty, removeItem } = useCart();
@@ -80,9 +81,7 @@ export function CartSidebar({ content }: { content: SiteContent["emptyStates"] }
           ) : lines.length === 0 ? (
             <div>
               <div className="text-center py-10">
-                <div className="text-4xl mb-3" aria-hidden="true">
-                  🥭
-                </div>
+                <ShoppingBag className="h-10 w-10 mx-auto mb-3 text-[var(--color-ink-light)]" strokeWidth={1.5} aria-hidden="true" />
                 <p>{content.cartTitle}</p>
                 <p className="text-sm text-ink-light mt-2">{content.cartSubtitle}</p>
               </div>

@@ -37,7 +37,7 @@ export function ProductCard({
     e.preventDefault();
     e.stopPropagation();
     if (!isComparing && compareIsFull) {
-      showToast("You can compare up to 4 mangoes at a time");
+      showToast("You can compare up to 4 items at a time");
       return;
     }
     toggleCompare(product.id);

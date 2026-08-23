@@ -30,7 +30,7 @@ export function ProductCareSection({
     <div className="grid sm:grid-cols-2 gap-4 mb-8">
       {(storageTip || ripeningTip) && (
         <div className="bg-cream-warm rounded-brand p-5">
-          <h3 className="font-serif font-bold text-sm mb-3">🥭 Storage &amp; Ripening</h3>
+          <h3 className="font-serif font-bold text-sm mb-3">📦 Storage &amp; Ripening</h3>
           {ripeningTip && <p className="text-xs text-ink-light mb-3 leading-relaxed">{ripeningTip}</p>}
           {storageTip && <p className="text-xs text-ink-light leading-relaxed">{storageTip}</p>}
         </div>

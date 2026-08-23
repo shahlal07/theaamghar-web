@@ -101,7 +101,7 @@ export default async function AccountDashboardPage() {
           className="flex items-center gap-4 bg-gradient-to-r from-mango-orange to-mango-deep text-white rounded-brand p-5 shadow-brand-md hover:-translate-y-0.5 transition-transform"
         >
           <span className="text-3xl" aria-hidden="true">
-            🥭
+            {content.brand.accentEmoji}
           </span>
           <div className="flex-1">
             <div className="font-serif font-bold">

@@ -11,10 +11,14 @@ export function ProductGrid({
   products,
   whatsappNumber,
   paymentBadgeText,
+  productPlural = "products",
+  accentEmoji = "🛍️",
 }: {
   products: ProductWithBoxSizes[];
   whatsappNumber?: string | null;
   paymentBadgeText?: string | null;
+  productPlural?: string;
+  accentEmoji?: string;
 }) {
   const [query, setQuery] = useState("");
   const [sweetness, setSweetness] = useState<string | null>(null);
@@ -148,8 +152,8 @@ export function ProductGrid({
             type="search"
             value={query}
             onChange={(e) => setQuery(e.target.value)}
-            placeholder="Search mangoes by name, origin…"
-            aria-label="Search mangoes"
+            placeholder={`Search ${productPlural} by name…`}
+            aria-label={`Search ${productPlural}`}
             className="w-full border border-border-subtle rounded-full pl-10 pr-4 py-2.5 text-sm bg-surface"
           />
         </div>
@@ -207,12 +211,12 @@ export function ProductGrid({
       {filtered.length === 0 ? (
         <div className="text-center py-10 max-w-md mx-auto">
           <p className="text-ink-light mb-4">
-            No mangoes match your search — try adjusting the filters.
+            No {productPlural} match your search — try adjusting the filters.
           </p>
           {query.trim().length >= 2 && (aiPending || aiReply) && (
             <div className="bg-cream-warm rounded-brand p-4 text-left text-sm">
               <div className="font-semibold text-xs text-mango-orange uppercase tracking-wide mb-1">
-                🥭 AI Assistant
+                {accentEmoji} AI Assistant
               </div>
               {aiPending ? (
                 <p className="text-ink-light">Thinking…</p>
