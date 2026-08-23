@@ -13,6 +13,7 @@ import { WhyChooseUs } from "@/components/home/WhyChooseUs";
 import { Story } from "@/components/home/Story";
 import { Testimonials } from "@/components/home/Testimonials";
 import { Delivery } from "@/components/home/Delivery";
+import { FindUs } from "@/components/home/FindUs";
 import { FAQ } from "@/components/home/FAQ";
 import { Newsletter } from "@/components/home/Newsletter";
 import { Button } from "@/components/ui/Button";
@@ -85,6 +86,8 @@ export default async function Home() {
       <Testimonials reviews={topReviews} />
 
       <Delivery coverage={deliveryCoverage} content={content.delivery} />
+
+      <FindUs address={settings?.business_address ?? null} mapsUrl={settings?.google_maps_url ?? null} />
 
       <FAQ faqs={faqs.length > 0 ? faqs : content.faqFallback} />
 
