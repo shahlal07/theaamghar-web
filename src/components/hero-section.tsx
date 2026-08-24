@@ -38,6 +38,7 @@ interface HeroSectionProps {
 export function HeroSection({ videoSrc, mobileImageSrc, desktopImageSrc, title, subtitle, children, accentEmoji }: HeroSectionProps) {
   const isDesktop = useSyncExternalStore(subscribe, getSnapshot, getServerSnapshot);
   const showVideo = isDesktop && Boolean(videoSrc);
+  const imageSrc = (isDesktop && desktopImageSrc) || mobileImageSrc;
 
   return (
     <section
@@ -62,15 +63,21 @@ export function HeroSection({ videoSrc, mobileImageSrc, desktopImageSrc, title, 
           loop
           playsInline
         />
-      ) : (
+      ) : imageSrc ? (
         <Image
-          src={(isDesktop && desktopImageSrc) || mobileImageSrc}
+          src={imageSrc}
           alt=""
           fill
           priority
           sizes="100vw"
           className="object-cover"
         />
+      ) : (
+        // No video and no image set for this vendor (or breakpoint) --
+        // a gradient background, same fallback pattern as LazyVideo's story
+        // banner, rather than ever falling through to a shared default
+        // image that would actually belong to a different vendor.
+        <div className="absolute inset-0 bg-gradient-to-br from-[var(--color-orchard-green)] to-[var(--color-mango-deep)]" />
       )}
       <div className="absolute inset-0 bg-black/45" />
       <FloatingMangoes emoji={accentEmoji} />

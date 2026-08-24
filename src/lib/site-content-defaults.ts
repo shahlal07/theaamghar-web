@@ -147,9 +147,17 @@ export const DEFAULT_SITE_CONTENT: SiteContent = {
       "Premium Pakistani mangoes, hand-cut to order in our own orchards in Muzaffargarh — Pakistan's City of Mangoes — and on your doorstep within 24 hours, not weeks in cold storage.",
     ctaPrimaryText: "Shop This Harvest",
     ctaSecondaryText: "Meet the Orchard",
-    desktopVideoUrl: "/videos/mango-branch-closeup.mp4",
+    // No image/video path here -- this whole object is TheAamGhar's actual
+    // launch copy, reused as the fallback for any field a NEW vendor hasn't
+    // set yet (see mergeSiteContent). A mango photo is right for TheAamGhar
+    // but would be wrong for literally any other vendor; HeroSection
+    // degrades to a plain gradient when both are empty rather than ever
+    // showing one vendor's specific image on another's storefront.
+    // TheAamGhar's own site_content row carries its real hero image
+    // directly now instead of relying on this default.
+    desktopVideoUrl: "",
     desktopImageUrl: "",
-    mobileImageUrl: "/images/hero-mango-mobile.jpg",
+    mobileImageUrl: "",
   },
   story: {
     eyebrow: "Our Story",
@@ -199,8 +207,11 @@ export const DEFAULT_SITE_CONTENT: SiteContent = {
   storyBanner: {
     heading: "Our Freshness Promise",
     body: "Every mango is hand-cut to order in our own gardens and delivered within 24 hours — no cold storage, no shortcuts. Not happy with the ripeness or quality on arrival? Message us and we'll make it right, no forms, no hassle.",
-    videoUrl: "/videos/mango-knife-garden.mp4",
-    mobileImageUrl: "/images/freshness-mango-mobile.jpg",
+    // See the identical note on hero above -- no vendor-specific asset in
+    // the shared default. LazyVideo already degrades to a plain gradient
+    // when both are empty.
+    videoUrl: "",
+    mobileImageUrl: "",
   },
   delivery: {
     eyebrow: "Nationwide Delivery",
