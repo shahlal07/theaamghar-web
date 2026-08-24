@@ -7,6 +7,22 @@ import { logError } from "@/lib/log-error";
 // Next.js 16 renamed the error boundary's retry prop to `unstable_retry`
 // (was `reset` in older versions) -- see
 // node_modules/next/dist/docs/01-app/03-api-reference/03-file-conventions/error.md
+
+// A stale JS chunk reference (page open, or a slow/flaky connection's
+// in-flight fetch, spanning a production deploy that replaced the build)
+// fails with one of these -- unstable_retry() re-renders in place but can't
+// fix it since the chunk URL itself is gone; only a real reload re-fetches
+// the current build's HTML/JS. Checkout/tracking are exactly the pages a
+// customer is most likely to hit this on mid-session.
+function isChunkLoadError(error: Error): boolean {
+  return (
+    error.name === "ChunkLoadError" ||
+    /Loading chunk [\d]+ failed|Failed to fetch dynamically imported module|Importing a module script failed/i.test(
+      error.message
+    )
+  );
+}
+
 export default function Error({
   error,
   unstable_retry,
@@ -16,6 +32,13 @@ export default function Error({
 }) {
   useEffect(() => {
     logError(error);
+    if (isChunkLoadError(error)) {
+      const key = "theaamghar_chunk_reload_attempted";
+      if (!sessionStorage.getItem(key)) {
+        sessionStorage.setItem(key, "1");
+        window.location.reload();
+      }
+    }
   }, [error]);
 
   return (
@@ -30,7 +53,7 @@ export default function Error({
       <div className="flex items-center justify-center gap-3">
         <button
           type="button"
-          onClick={unstable_retry}
+          onClick={() => (isChunkLoadError(error) ? window.location.reload() : unstable_retry())}
           className="bg-mango-orange text-white font-semibold px-8 py-3 rounded-full hover:-translate-y-0.5 transition-transform"
         >
           Try Again
