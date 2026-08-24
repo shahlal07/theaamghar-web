@@ -6,6 +6,7 @@ import { generateBugReportAiReply } from "@/lib/bug-report-ai";
 import { sendAdminBugReportAlert, ADMIN_ALERT_EMAIL } from "@/lib/email";
 import { getSiteContent } from "@/lib/queries/site-content";
 import { checkRateLimit } from "@/lib/rate-limit";
+import { getCurrentVendor } from "@/lib/tenant";
 
 export type SubmitBugReportState =
   | { error: string }
@@ -70,8 +71,10 @@ export async function submitBugReport(
     (await generateBugReportAiReply(title, description, brand.logoText, loyaltyProgram.currencySingular)) ??
     fallbackReply;
 
+  const vendor = await getCurrentVendor();
   const { error: insertError } = await supabase.from("bug_reports").insert({
     profile_id: user.id,
+    vendor_id: vendor.id,
     title,
     description,
     screenshot_path: screenshotPath,
