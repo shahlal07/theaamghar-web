@@ -23,13 +23,16 @@ export function MiniProductCard({ product }: { product: MiniProduct }) {
   // This card is reused inside the cart sidebar's "Recently Viewed" list
   // (shown even when the cart is empty). Without this, tapping a product
   // there navigated the page underneath while the sidebar stayed open on
-  // top of it. closeCart() is a no-op when the cart isn't open, so this is
-  // safe everywhere else this card is used (wishlist, recommendations).
-  const { closeCart } = useCart();
+  // top of it. closeCartForNavigation() (not closeCart()) since this click
+  // is immediately followed by a real route push -- closeCart()'s
+  // history.back() would race against it. No-op when the cart isn't open,
+  // so this is safe everywhere else this card is used (wishlist,
+  // recommendations).
+  const { closeCartForNavigation } = useCart();
   return (
     <Link
       href={`/product/${product.slug}`}
-      onClick={closeCart}
+      onClick={closeCartForNavigation}
       className="group flex flex-col rounded-brand-sm overflow-hidden border border-border-subtle hover:shadow-brand-sm transition-shadow bg-surface"
     >
       <div className="relative aspect-square bg-cream-warm">

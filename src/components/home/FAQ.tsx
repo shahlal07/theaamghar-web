@@ -16,12 +16,14 @@ export function FAQ({ faqs }: { faqs: FaqEntry[] }) {
   const [openId, setOpenId] = useState<string | null>(items[0]?.id ?? null);
 
   return (
-    <Section aria-label="Frequently asked questions" className="bg-[var(--color-cream-warm)]">
-      <Heading eyebrow="Questions" title="Frequently Asked" center className="mb-12" />
-      {/* Heading always shows; the expandable question list is dense scroll
-          content hidden on mobile to keep the homepage light (most traffic
-          is mobile) -- full list stays on desktop. */}
-      <div className="hidden md:block max-w-2xl mx-auto divide-y divide-[var(--color-mango-deep)]/10">
+    <Section aria-label="Frequently asked questions" className="bg-[var(--color-cream-warm)] py-10 md:py-20 lg:py-[120px]">
+      <Heading eyebrow="Questions" title="Frequently Asked" center className="mb-8 md:mb-12" />
+      {/* Each question is already its own click-to-expand row (only the
+          answer is hidden until tapped) -- that's exactly the compact
+          pattern mobile needs, so unlike Why Choose Us / Our Story this list
+          shows on every breakpoint; only the section's own padding shrinks
+          on mobile. */}
+      <div className="max-w-2xl mx-auto divide-y divide-[var(--color-mango-deep)]/10">
         {items.map((item) => {
           const open = openId === item.id;
           return (

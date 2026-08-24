@@ -212,15 +212,22 @@ export function CheckoutForm({ emptyStates }: { emptyStates: SiteContent["emptyS
               <label htmlFor="address" className="text-sm font-medium block mb-1">Street Address</label>
               <textarea id="address" name="address" required maxLength={200} rows={3} className="w-full border-[1.5px] border-border-subtle rounded-xl px-4 py-3 text-sm bg-surface focus-visible:outline-none focus-visible:border-mango-orange transition-colors" />
             </div>
+            {/* min-w-0 on both grid items: a <select>'s intrinsic min-content
+                width can be as wide as its longest <option> ("Islamabad
+                Capital Territory") regardless of w-full, and CSS Grid's
+                default min-width:auto lets that blow the item (and the
+                whole form, and the whole page) past the viewport on mobile
+                -- this was the real cause of the checkout page rendering
+                off-center/horizontally scrollable on phones. */}
             <div className="grid grid-cols-2 gap-3">
-              <div>
+              <div className="min-w-0">
                 <label htmlFor="province" className="text-sm font-medium block mb-1">Province</label>
                 <select id="province" name="province" required value={province} onChange={(e) => setProvince(e.target.value)} className="w-full border-[1.5px] border-border-subtle rounded-xl px-4 py-3 text-sm bg-surface focus-visible:outline-none focus-visible:border-mango-orange transition-colors">
                   <option value="">Select…</option>
                   {PAKISTAN_PROVINCES.map((p) => <option key={p} value={p}>{p}</option>)}
                 </select>
               </div>
-              <div>
+              <div className="min-w-0">
                 <label htmlFor="city" className="text-sm font-medium block mb-1">City</label>
                 <input id="city" name="city" type="text" required maxLength={60} value={city} onChange={(e) => setCity(e.target.value)} className="w-full border-[1.5px] border-border-subtle rounded-xl px-4 py-3 text-sm bg-surface focus-visible:outline-none focus-visible:border-mango-orange transition-colors" />
               </div>

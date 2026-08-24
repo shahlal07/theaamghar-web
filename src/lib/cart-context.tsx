@@ -33,6 +33,10 @@ type CartContextValue = {
   isOpen: boolean;
   openCart: () => void;
   closeCart: () => void;
+  /** For a close that's immediately followed by a real route navigation (the
+   * checkout link) -- skips the history.back() dance in closeCart(), which
+   * would otherwise race against Next's own client-side push to /checkout. */
+  closeCartForNavigation: () => void;
 };
 
 const CartContext = createContext<CartContextValue | null>(null);
@@ -102,6 +106,25 @@ export function CartProvider({ children }: { children: React.ReactNode }) {
   const items = useSyncedLocalStorage<CartItem[]>(STORAGE_KEY, EMPTY_CART);
   const [isOpen, setIsOpen] = useState(false);
   const lastSyncedUserId = useRef<string | null>(null);
+
+  // The cart is an overlay, not a real route -- opening it never used to
+  // push a history entry. On mobile, a customer's instinct is to hit the
+  // phone's back gesture/button to close it; with no entry to consume, that
+  // back press instead left the page entirely (exiting to the previous site,
+  // or closing the tab if this was the first page visited), which read as
+  // "the whole website closes." Pushing a state entry while open and
+  // listening for popstate makes back-to-close work like a real mobile app.
+  useEffect(() => {
+    if (!isOpen) return;
+    function onPopState() {
+      setIsOpen(false);
+    }
+    window.history.pushState({ cartOpen: true }, "");
+    window.addEventListener("popstate", onPopState);
+    return () => {
+      window.removeEventListener("popstate", onPopState);
+    };
+  }, [isOpen]);
 
   // Runs once per sign-in (not on every render/cart-change): pulls this
   // account's server-side cart -- saved from a previous session, possibly
@@ -187,7 +210,17 @@ export function CartProvider({ children }: { children: React.ReactNode }) {
       count: items.reduce((sum, i) => sum + i.qty, 0),
       isOpen,
       openCart: () => setIsOpen(true),
-      closeCart: () => setIsOpen(false),
+      // Closing any way OTHER than the back gesture (the × button, the
+      // backdrop, Escape, the checkout link) still needs to consume the
+      // history entry opening the cart pushed -- otherwise it's left
+      // dangling and the next real back press just pops it silently instead
+      // of taking the customer where they'd expect. history.back() pops it,
+      // which fires the popstate listener above and sets isOpen false there.
+      closeCart: () => {
+        if (isOpen) window.history.back();
+        else setIsOpen(false);
+      },
+      closeCartForNavigation: () => setIsOpen(false),
     };
   }, [items, isOpen]);
 

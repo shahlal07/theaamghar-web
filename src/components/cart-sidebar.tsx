@@ -13,7 +13,7 @@ import type { SiteContent } from "@/lib/queries/site-content";
 import { ShoppingBag } from "lucide-react";
 
 export function CartSidebar({ content }: { content: SiteContent["emptyStates"] }) {
-  const { items, isOpen, closeCart, updateQty, removeItem } = useCart();
+  const { items, isOpen, closeCart, closeCartForNavigation, updateQty, removeItem } = useCart();
   const [lines, setLines] = useState<CartLine[] | null>(null);
   const [freeShippingThreshold, setFreeShippingThreshold] = useState<number | null>(null);
 
@@ -178,7 +178,7 @@ export function CartSidebar({ content }: { content: SiteContent["emptyStates"] }
             </p>
             <Link
               href="/checkout"
-              onClick={closeCart}
+              onClick={closeCartForNavigation}
               className="block text-center bg-mango-orange text-white font-semibold py-3.5 rounded-full hover:bg-mango-deep hover:-translate-y-0.5 transition-all"
             >
               Proceed to Checkout →
