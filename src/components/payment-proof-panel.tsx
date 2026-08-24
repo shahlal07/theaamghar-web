@@ -4,7 +4,7 @@ import { useActionState, useEffect, useRef, useState } from "react";
 import { Upload, CheckCircle2, Clock, AlertTriangle } from "lucide-react";
 import { uploadPaymentProof, type UploadProofState } from "@/app/track/actions";
 import { getActivePaymentAccounts, type PaymentAccount } from "@/lib/queries/payment-accounts";
-import { paymentIssueWhatsAppLink } from "@/lib/whatsapp";
+import { paymentIssueWhatsAppLink, paymentProofWhatsAppLink } from "@/lib/whatsapp";
 import { formatPKR } from "@/lib/format";
 
 const METHOD_LABELS: Record<string, string> = {
@@ -172,6 +172,20 @@ export function PaymentProofPanel({
               : "Upload payment proof"}
         </button>
       </form>
+
+      {whatsappNumber && !isSubmitted && (
+        <p className="text-xs text-ink-light mt-3 text-center">
+          Prefer WhatsApp?{" "}
+          <a
+            href={paymentProofWhatsAppLink(whatsappNumber, orderNumber)}
+            target="_blank"
+            rel="noopener noreferrer"
+            className="font-semibold text-[#25D366] underline"
+          >
+            Send your screenshot there instead →
+          </a>
+        </p>
+      )}
     </div>
   );
 }

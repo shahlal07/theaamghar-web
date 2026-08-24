@@ -14,6 +14,16 @@ export function paymentIssueWhatsAppLink(whatsappNumber: string, orderNumber: st
   return `https://wa.me/${whatsappNumber}?text=${encodeURIComponent(text)}`;
 }
 
+// WhatsApp's wa.me links can only pre-fill text, not attach an image, so
+// this can't attach the screenshot itself -- it pre-fills the order number
+// and prompts the customer to attach the screenshot manually, for anyone
+// who'd rather send it this way than upload it in-app (both work; in-app
+// upload is not required to place or track an order).
+export function paymentProofWhatsAppLink(whatsappNumber: string, orderNumber: string): string {
+  const text = `Hi! Here's my payment screenshot for order ${orderNumber}.`;
+  return `https://wa.me/${whatsappNumber}?text=${encodeURIComponent(text)}`;
+}
+
 // `template`, when set, is the vendor's own copy from Settings
 // (business_settings.whatsapp_order_message_template) -- supports {product}
 // and {size} placeholders so a vendor can write their own message without
