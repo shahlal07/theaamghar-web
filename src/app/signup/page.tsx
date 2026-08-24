@@ -1,16 +1,20 @@
 "use client";
 
 import Link from "next/link";
-import { Suspense } from "react";
+import { Suspense, useState } from "react";
 import { useSearchParams } from "next/navigation";
 import { createClient } from "@/lib/supabase/client";
-import { AuthSplitLayout } from "@/components/auth-split-layout";
+import { AuthCenteredLayout } from "@/components/auth-centered-layout";
+
+const TERMS_URL = "https://nashemann.store/terms";
 
 function SignupForm() {
   const searchParams = useSearchParams();
   const returnTo = searchParams.get("returnTo") ?? "/account";
+  const [agreedToTerms, setAgreedToTerms] = useState(false);
 
   async function continueWithGoogle() {
+    if (!agreedToTerms) return;
     const supabase = createClient();
     await supabase.auth.signInWithOAuth({
       provider: "google",
@@ -21,18 +25,17 @@ function SignupForm() {
   }
 
   return (
-    <AuthSplitLayout
-      eyebrow="Nashemann"
-      headline="One account for every shop you love."
-      subhead="Create an account with Google in one tap. Your customer data and orders stay isolated to the shop where you sign up."
-    >
-      <h1 className="font-serif text-3xl font-bold text-center mb-2">Create your account</h1>
-      <p className="text-ink-light text-center mb-6">No passwords to set or remember.</p>
+    <AuthCenteredLayout>
+      <div className="text-center mb-6">
+        <h1 className="font-serif text-2xl font-bold mb-1.5">Create your account</h1>
+        <p className="text-sm text-ink-light">No passwords to set or remember.</p>
+      </div>
 
       <button
         type="button"
         onClick={continueWithGoogle}
-        className="w-full flex items-center justify-center gap-2 border border-border-subtle rounded-full py-3 font-semibold text-sm hover:border-mango-orange"
+        disabled={!agreedToTerms}
+        className="w-full flex items-center justify-center gap-2 border border-border-subtle rounded-full py-3 font-semibold text-sm hover:border-mango-orange disabled:cursor-not-allowed disabled:opacity-50"
       >
         <svg width="18" height="18" viewBox="0 0 24 24" aria-hidden="true">
           <path fill="#4285F4" d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09z" />
@@ -43,11 +46,28 @@ function SignupForm() {
         Continue with Google
       </button>
 
+      <label className="mt-5 flex items-start gap-2.5 text-xs text-ink-light">
+        <input
+          type="checkbox"
+          checked={agreedToTerms}
+          onChange={(e) => setAgreedToTerms(e.target.checked)}
+          required
+          className="mt-0.5 h-4 w-4 shrink-0 accent-mango-orange"
+        />
+        <span>
+          I agree to Nashemann&apos;s{" "}
+          <a href={TERMS_URL} target="_blank" rel="noopener noreferrer" className="font-semibold text-mango-orange hover:underline">
+            Terms &amp; Conditions
+          </a>
+          .
+        </span>
+      </label>
+
       <p className="text-center text-sm text-ink-light mt-6">
         Already have an account?{" "}
         <Link href={`/login?returnTo=${encodeURIComponent(returnTo)}`} className="text-mango-orange font-semibold">Sign in</Link>
       </p>
-    </AuthSplitLayout>
+    </AuthCenteredLayout>
   );
 }
 

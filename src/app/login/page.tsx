@@ -4,7 +4,7 @@ import Link from "next/link";
 import { Suspense } from "react";
 import { useSearchParams } from "next/navigation";
 import { createClient } from "@/lib/supabase/client";
-import { AuthSplitLayout } from "@/components/auth-split-layout";
+import { AuthCenteredLayout } from "@/components/auth-centered-layout";
 
 function LoginForm() {
   const searchParams = useSearchParams();
@@ -21,13 +21,11 @@ function LoginForm() {
   }
 
   return (
-    <AuthSplitLayout
-      eyebrow="Nashemann"
-      headline="One account for every shop you love."
-      subhead="Sign in with Google to track orders, manage your wishlist, and keep your store experience private to the shop you are using."
-    >
-      <h1 className="font-serif text-3xl font-bold text-center mb-2">Welcome Back</h1>
-      <p className="text-ink-light text-center mb-6">One tap, no password to remember.</p>
+    <AuthCenteredLayout>
+      <div className="text-center mb-6">
+        <h1 className="font-serif text-2xl font-bold mb-1.5">Welcome back</h1>
+        <p className="text-sm text-ink-light">One tap, no password to remember.</p>
+      </div>
 
       <button
         type="button"
@@ -47,7 +45,7 @@ function LoginForm() {
         New here?{" "}
         <Link href={`/signup?returnTo=${encodeURIComponent(returnTo)}`} className="text-mango-orange font-semibold">Create an account</Link>
       </p>
-    </AuthSplitLayout>
+    </AuthCenteredLayout>
   );
 }
 

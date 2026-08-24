@@ -2,7 +2,7 @@
 
 import { Suspense, useActionState } from "react";
 import { useSearchParams } from "next/navigation";
-import { AuthSplitLayout } from "@/components/auth-split-layout";
+import { AuthCenteredLayout } from "@/components/auth-centered-layout";
 import { completeProfile } from "./actions";
 
 function CompleteProfileForm() {
@@ -11,13 +11,11 @@ function CompleteProfileForm() {
   const [state, formAction, pending] = useActionState(completeProfile, undefined);
 
   return (
-    <AuthSplitLayout
-      eyebrow="Nashemann"
-      headline="One last thing."
-      subhead="We need a phone number on file so the store can reach you about your orders. You won't need it to sign in again."
-    >
-      <h1 className="font-serif text-3xl font-bold text-center mb-2">Add your phone number</h1>
-      <p className="text-ink-light text-center mb-6">Used for delivery updates only — never for signing in.</p>
+    <AuthCenteredLayout>
+      <div className="text-center mb-6">
+        <h1 className="font-serif text-2xl font-bold mb-1.5">Add your phone number</h1>
+        <p className="text-sm text-ink-light">Used for delivery updates only — never for signing in.</p>
+      </div>
 
       <form action={formAction} className="flex flex-col gap-4">
         <input type="hidden" name="returnTo" value={returnTo} />
@@ -44,7 +42,7 @@ function CompleteProfileForm() {
           {pending ? "Saving…" : "Continue"}
         </button>
       </form>
-    </AuthSplitLayout>
+    </AuthCenteredLayout>
   );
 }
 
