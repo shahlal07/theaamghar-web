@@ -5,7 +5,6 @@ import { Suspense } from "react";
 import { useSearchParams } from "next/navigation";
 import { createClient } from "@/lib/supabase/client";
 import { AuthSplitLayout } from "@/components/auth-split-layout";
-import { PhoneAuthForm } from "@/components/phone-auth-form";
 
 function LoginForm() {
   const searchParams = useSearchParams();
@@ -25,15 +24,15 @@ function LoginForm() {
     <AuthSplitLayout
       eyebrow="Nashemann"
       headline="One account for every shop you love."
-      subhead="Sign in with your phone or Google to track orders, manage your wishlist, and keep your store experience private to the shop you are using."
+      subhead="Sign in with Google to track orders, manage your wishlist, and keep your store experience private to the shop you are using."
     >
       <h1 className="font-serif text-3xl font-bold text-center mb-2">Welcome Back</h1>
-      <p className="text-ink-light text-center mb-6">Choose a secure passwordless sign-in method.</p>
+      <p className="text-ink-light text-center mb-6">One tap, no password to remember.</p>
 
       <button
         type="button"
         onClick={signInWithGoogle}
-        className="w-full flex items-center justify-center gap-2 border border-border-subtle rounded-full py-3 font-semibold text-sm mb-5 hover:border-mango-orange"
+        className="w-full flex items-center justify-center gap-2 border border-border-subtle rounded-full py-3 font-semibold text-sm hover:border-mango-orange"
       >
         <svg width="18" height="18" viewBox="0 0 24 24" aria-hidden="true">
           <path fill="#4285F4" d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09z" />
@@ -43,14 +42,6 @@ function LoginForm() {
         </svg>
         Continue with Google
       </button>
-
-      <div className="flex items-center gap-3 my-5 text-xs text-ink-light">
-        <div className="flex-1 h-px bg-border-subtle" />
-        or use your phone
-        <div className="flex-1 h-px bg-border-subtle" />
-      </div>
-
-      <PhoneAuthForm returnTo={returnTo} />
 
       <p className="text-center text-sm text-ink-light mt-6">
         New here?{" "}

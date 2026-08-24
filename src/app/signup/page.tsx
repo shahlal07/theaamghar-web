@@ -1,10 +1,10 @@
 "use client";
 
 import Link from "next/link";
-import { Suspense, useSearchParams } from "next/navigation";
+import { Suspense } from "react";
+import { useSearchParams } from "next/navigation";
 import { createClient } from "@/lib/supabase/client";
 import { AuthSplitLayout } from "@/components/auth-split-layout";
-import { PhoneAuthForm } from "@/components/phone-auth-form";
 
 function SignupForm() {
   const searchParams = useSearchParams();
@@ -24,15 +24,15 @@ function SignupForm() {
     <AuthSplitLayout
       eyebrow="Nashemann"
       headline="One account for every shop you love."
-      subhead="Create an account with your phone or Google. Your customer data and orders stay isolated to the shop where you sign up."
+      subhead="Create an account with Google in one tap. Your customer data and orders stay isolated to the shop where you sign up."
     >
       <h1 className="font-serif text-3xl font-bold text-center mb-2">Create your account</h1>
-      <p className="text-ink-light text-center mb-6">No email passwords. Use Google or a one-time phone code.</p>
+      <p className="text-ink-light text-center mb-6">No passwords to set or remember.</p>
 
       <button
         type="button"
         onClick={continueWithGoogle}
-        className="w-full flex items-center justify-center gap-2 border border-border-subtle rounded-full py-3 font-semibold text-sm mb-5 hover:border-mango-orange"
+        className="w-full flex items-center justify-center gap-2 border border-border-subtle rounded-full py-3 font-semibold text-sm hover:border-mango-orange"
       >
         <svg width="18" height="18" viewBox="0 0 24 24" aria-hidden="true">
           <path fill="#4285F4" d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09z" />
@@ -42,14 +42,6 @@ function SignupForm() {
         </svg>
         Continue with Google
       </button>
-
-      <div className="flex items-center gap-3 my-5 text-xs text-ink-light">
-        <div className="flex-1 h-px bg-border-subtle" />
-        or use your phone
-        <div className="flex-1 h-px bg-border-subtle" />
-      </div>
-
-      <PhoneAuthForm returnTo={returnTo} />
 
       <p className="text-center text-sm text-ink-light mt-6">
         Already have an account?{" "}
