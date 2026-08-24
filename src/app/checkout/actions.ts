@@ -179,22 +179,19 @@ export async function placeOrder(lines: OrderLineInput[], formData: FormData): P
   const { data: order, error: insertError } = await supabase
     .from("orders")
     .insert({
-      profile_id: user.id,
+      customer_id: user.id,
       vendor_id: vendorId,
       items: orderItems,
-      customer_name: fullName,
-      customer_email: user.email ?? null,
-      customer_phone: phone,
-      shipping_address: { full_name: fullName, phone, address, city, postal_code: postalCode || null, province },
-      billing_address: null,
-      notes: notes || null,
+      delivery: { full_name: fullName, phone, address, city, postal_code: postalCode || null, notes: notes || null },
       subtotal,
-      shipping_cost: shippingFee,
-      coupon_code: appliedCouponCode,
+      shipping_fee: shippingFee,
+      discount_code: appliedCouponCode,
       discount_amount: discountAmount,
       total,
       payment_method: paymentMethod,
-      metadata: { payment_account_id: paymentAccountId, is_gift: isGift, gift_message: giftMessage || null },
+      payment_account_id: paymentAccountId,
+      is_gift: isGift,
+      gift_message: isGift ? giftMessage || null : null,
     })
     .select("order_number")
     .single();
@@ -202,9 +199,9 @@ export async function placeOrder(lines: OrderLineInput[], formData: FormData): P
   if (appliedCouponCode && !welcomeDiscountGranted && !insertError) await supabase.rpc("increment_coupon_usage", { p_code: appliedCouponCode });
   if (insertError || !order) return { error: `Something went wrong placing your order${insertError?.message ? `: ${insertError.message}` : ". Please try again."}` };
 
-  const { data: existingAddress } = await supabase.from("addresses").select("id").eq("profile_id", user.id).eq("address_line1", address).eq("city", city).maybeSingle();
+  const { data: existingAddress } = await supabase.from("addresses").select("id").eq("profile_id", user.id).eq("address", address).eq("city", city).maybeSingle();
   if (!existingAddress) {
-    await supabase.from("addresses").insert({ profile_id: user.id, label: "Delivery Address", address_line1: address, city, province, postal_code: postalCode || null, phone, is_default: false, country: "Pakistan" });
+    await supabase.from("addresses").insert({ profile_id: user.id, label: "Delivery Address", address, city, province, postal_code: postalCode || null, phone, is_default: false });
   }
 
   if (user.email) await sendOrderConfirmationEmail({ to: user.email, orderNumber: order.order_number, items: orderItems, subtotal, shippingFee, discountAmount, total, fullName, address, city, paymentMethod });

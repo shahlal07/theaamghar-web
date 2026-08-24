@@ -35,12 +35,11 @@ export async function addAddress(_prev: AddressFormState, formData: FormData): P
   const { error } = await supabase.from("addresses").insert({
     profile_id: user.id,
     label: form.label,
-    address_line1: form.address,
+    address: form.address,
     city: form.city,
     province: form.province,
     postal_code: form.postalCode || null,
     phone: form.phone || null,
-    country: "Pakistan",
     is_default: (count ?? 0) === 0,
   });
   if (error) return { error: "Something went wrong saving your address. Please try again." };
@@ -57,7 +56,7 @@ export async function updateAddress(addressId: string, _prev: AddressFormState, 
   if (validationError) return { error: validationError };
   const { error } = await supabase.from("addresses").update({
     label: form.label,
-    address_line1: form.address,
+    address: form.address,
     city: form.city,
     province: form.province,
     postal_code: form.postalCode || null,
