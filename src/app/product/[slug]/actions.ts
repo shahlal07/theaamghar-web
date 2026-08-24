@@ -40,6 +40,13 @@ export async function submitReview(formData: FormData) {
     return { error: "Please provide a rating and a review." };
   }
 
+  // reviews.vendor_id is NOT NULL with no default -- must be resolved from
+  // the product being reviewed, not assumed from any single-vendor context.
+  const { data: product } = await supabase.from("products").select("vendor_id").eq("id", productId).maybeSingle();
+  if (!product) {
+    return { error: "This product could not be found." };
+  }
+
   const imageFiles = formData
     .getAll("images")
     .filter((f): f is File => f instanceof File && f.size > 0)
@@ -70,6 +77,7 @@ export async function submitReview(formData: FormData) {
     .from("reviews")
     .insert({
       product_id: productId,
+      vendor_id: product.vendor_id,
       profile_id: user.id,
       rating,
       title: title || null,

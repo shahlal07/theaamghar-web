@@ -196,7 +196,13 @@ export async function placeOrder(lines: OrderLineInput[], formData: FormData): P
     .select("order_number")
     .single();
 
-  if (appliedCouponCode && !welcomeDiscountGranted && !insertError) await supabase.rpc("increment_coupon_usage", { p_code: appliedCouponCode });
+  if (appliedCouponCode && !welcomeDiscountGranted && !insertError) {
+    const { error: incrementError } = await supabase.rpc("increment_coupon_usage", { p_code: appliedCouponCode });
+    // Non-fatal to the order (already placed), but a silently-discarded
+    // failure here means the coupon's usage_count drifts from reality with
+    // no trace -- log it so it's at least visible in server logs.
+    if (incrementError) console.error(`increment_coupon_usage failed for ${appliedCouponCode} (order ${order?.order_number}):`, incrementError.message);
+  }
   if (insertError || !order) return { error: `Something went wrong placing your order${insertError?.message ? `: ${insertError.message}` : ". Please try again."}` };
 
   const { data: existingAddress } = await supabase.from("addresses").select("id").eq("profile_id", user.id).eq("address", address).eq("city", city).maybeSingle();

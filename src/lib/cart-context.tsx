@@ -99,17 +99,20 @@ async function pushCartToServer(userId: string, items: CartItem[]) {
   const boxSizeItems = items.filter((i) => itemSource(i) === "box_size");
   const variantItems = items.filter((i) => itemSource(i) === "variant");
 
+  // cart_items.vendor_id is NOT NULL with no default -- resolve it from each
+  // unit's own row rather than assuming a single-vendor context, since this
+  // client is shared across every vendor's storefront.
   if (boxSizeItems.length > 0) {
-    await supabase.from("cart_items").upsert(
-      boxSizeItems.map((i) => ({ profile_id: userId, box_size_id: i.unitId, qty: i.qty })),
-      { onConflict: "profile_id,box_size_id" }
-    );
+    const { data: rows } = await supabase.from("product_box_sizes").select("id, vendor_id").in("id", boxSizeItems.map((i) => i.unitId));
+    const vendorById = new Map((rows ?? []).map((r) => [r.id, r.vendor_id]));
+    const payload = boxSizeItems.filter((i) => vendorById.has(i.unitId)).map((i) => ({ profile_id: userId, box_size_id: i.unitId, vendor_id: vendorById.get(i.unitId), qty: i.qty }));
+    if (payload.length > 0) await supabase.from("cart_items").upsert(payload, { onConflict: "profile_id,box_size_id" });
   }
   if (variantItems.length > 0) {
-    await supabase.from("cart_items").upsert(
-      variantItems.map((i) => ({ profile_id: userId, variant_id: i.unitId, qty: i.qty })),
-      { onConflict: "profile_id,variant_id" }
-    );
+    const { data: rows } = await supabase.from("product_variants").select("id, vendor_id").in("id", variantItems.map((i) => i.unitId));
+    const vendorById = new Map((rows ?? []).map((r) => [r.id, r.vendor_id]));
+    const payload = variantItems.filter((i) => vendorById.has(i.unitId)).map((i) => ({ profile_id: userId, variant_id: i.unitId, vendor_id: vendorById.get(i.unitId), qty: i.qty }));
+    if (payload.length > 0) await supabase.from("cart_items").upsert(payload, { onConflict: "profile_id,variant_id" });
   }
 }
 
