@@ -42,6 +42,7 @@ export function CheckoutForm({ emptyStates }: { emptyStates: SiteContent["emptyS
   const { user, loading: userLoading } = useUser();
   const router = useRouter();
   const formRef = useRef<HTMLFormElement>(null);
+  const guestSessionRef = useRef(false);
 
   const lines: OrderLineInput[] = buynowUnitId ? [{ unitId: buynowUnitId, source: buynowSource, qty: buynowQty }] : cartItems;
   const [resolvedLines, setResolvedLines] = useState<CartLine[] | null>(null);
@@ -78,10 +79,35 @@ export function CheckoutForm({ emptyStates }: { emptyStates: SiteContent["emptyS
 
   const shippingFee = shippingInfo && shippingInfo.province === province && shippingInfo.city === city ? shippingInfo.rate : null;
 
-  function handleSubmit(e: React.FormEvent<HTMLFormElement>) {
-    if (user || userLoading) return;
+  // Checkout no longer forces an account. A signed-out customer is given a
+  // real-but-anonymous Supabase session instead, which satisfies
+  // orders.customer_id (NOT NULL) and every RLS policy/trigger keyed off
+  // auth.uid() without any of them changing. They can still attach a real
+  // account later; the anonymous user is upgraded in place rather than
+  // creating a second one.
+  //
+  // If the anonymous provider is switched off at the project level, this
+  // degrades to the previous behaviour (stash the form, send them to signup,
+  // resume automatically) rather than dead-ending them at checkout.
+  async function handleSubmit(e: React.FormEvent<HTMLFormElement>) {
+    // guestSessionRef guards the re-entry from requestSubmit() below: the
+    // useUser() hook hasn't re-rendered with the new session yet at that
+    // point, so `user` is still null and this would otherwise loop forever.
+    if (user || userLoading || guestSessionRef.current) return;
     e.preventDefault();
-    const formValues = Object.fromEntries(new FormData(e.currentTarget).entries()) as Record<string, string>;
+    const form = e.currentTarget;
+    const formValues = Object.fromEntries(new FormData(form).entries()) as Record<string, string>;
+
+    const supabase = createBrowserSupabaseClient();
+    const { error: anonError } = await supabase.auth.signInAnonymously();
+    if (!anonError) {
+      // Session cookies are written synchronously by the browser client, so
+      // the Server Action below will see the guest session.
+      guestSessionRef.current = true;
+      form.requestSubmit();
+      return;
+    }
+
     try { window.localStorage.setItem(PENDING_CHECKOUT_KEY, JSON.stringify({ lines, form: formValues } satisfies PendingCheckout)); } catch {}
     const returnTo = buynowUnitId ? `/checkout?buynow=${buynowUnitId}&buynowSource=${buynowSource}&qty=${buynowQty}` : "/checkout";
     router.push(`/signup?returnTo=${encodeURIComponent(returnTo)}`);
@@ -280,7 +306,15 @@ export function CheckoutForm({ emptyStates }: { emptyStates: SiteContent["emptyS
         <button type="submit" disabled={pending || resolvedLines === null} className="w-full bg-mango-orange text-white font-semibold py-4 rounded-full transition-transform hover:-translate-y-0.5 disabled:opacity-60 disabled:hover:translate-y-0">
           {pending ? "Placing Order…" : `${buynowUnitId ? "Buy Now" : "Place Order"} — ${formatPKR(total)}`}
         </button>
-        {!user && !userLoading && <p className="text-xs text-ink-light text-center mt-3">🔒 You&apos;ll be asked to sign in or create a free account to complete your order — we&apos;ll bring you right back here.</p>}
+        {!user && !userLoading && (
+          <p className="text-xs text-ink-light text-center mt-3">
+            🔒 No account needed — check out as a guest. Want order history and faster checkout next time?{" "}
+            <Link href={`/signup?returnTo=${encodeURIComponent("/checkout")}`} className="text-mango-orange font-semibold">
+              Create a free account
+            </Link>
+            .
+          </p>
+        )}
       </form>
 
       <div>
