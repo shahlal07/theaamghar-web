@@ -60,7 +60,15 @@ export function CheckoutForm({ emptyStates }: { emptyStates: SiteContent["emptyS
   const [paymentAccountId, setPaymentAccountId] = useState<string | null>(null);
   const [isGift, setIsGift] = useState(false);
 
-  const boundPlaceOrder = async (_prev: PlaceOrderState, formData: FormData) => placeOrder(lines, formData);
+  // placeOrder must only ever be sent what the customer actually saw and
+  // approved in the order summary below. resolveCartLines() silently drops
+  // any line whose unit is gone/inactive/unpublished (so the summary never
+  // shows a broken item) -- but `lines` itself is the raw, unfiltered cart,
+  // so submitting it as-is could include a line the customer never saw,
+  // and the server would then hard-error on it ("no longer available")
+  // with no context on an order that looked perfectly valid on screen.
+  const submittableLines = resolvedLines ? lines.filter((l) => resolvedLines.some((rl) => rl.unitId === l.unitId)) : lines;
+  const boundPlaceOrder = async (_prev: PlaceOrderState, formData: FormData) => placeOrder(submittableLines, formData);
   const [state, formAction, pending] = useActionState<PlaceOrderState, FormData>(boundPlaceOrder, undefined);
 
   useEffect(() => {
@@ -79,6 +87,11 @@ export function CheckoutForm({ emptyStates }: { emptyStates: SiteContent["emptyS
   }, [province, city, resolvedLines]);
 
   const shippingFee = shippingInfo && shippingInfo.province === province && shippingInfo.city === city ? shippingInfo.rate : null;
+  // True only while a rate fetch for the currently-selected province/city is
+  // still in flight (both required fields are filled, so the browser won't
+  // block submission on them) -- distinct from "no rate configured", which
+  // resolves to shippingFee === null too but isn't a pending state.
+  const shippingResolving = Boolean(province && city && shippingFee === null);
 
   // Checkout no longer forces an account. A signed-out customer is given a
   // real-but-anonymous Supabase session instead, which satisfies
@@ -305,7 +318,7 @@ export function CheckoutForm({ emptyStates }: { emptyStates: SiteContent["emptyS
         </div>
 
         {state && "error" in state && <p className="text-sm text-error mb-4">{state.error}</p>}
-        <button type="submit" disabled={pending || resolvedLines === null} className="w-full bg-mango-orange text-white font-semibold py-4 rounded-full transition-transform hover:-translate-y-0.5 disabled:opacity-60 disabled:hover:translate-y-0">
+        <button type="submit" disabled={pending || resolvedLines === null || shippingResolving} className="w-full bg-mango-orange text-white font-semibold py-4 rounded-full transition-transform hover:-translate-y-0.5 disabled:opacity-60 disabled:hover:translate-y-0">
           {pending ? "Placing Order…" : `${buynowUnitId ? "Buy Now" : "Place Order"} — ${formatPKR(total)}`}
         </button>
         {!user && !userLoading && (

@@ -203,7 +203,14 @@ export async function placeOrder(lines: OrderLineInput[], formData: FormData): P
     // no trace -- log it so it's at least visible in server logs.
     if (incrementError) console.error(`increment_coupon_usage failed for ${appliedCouponCode} (order ${order?.order_number}):`, incrementError.message);
   }
-  if (insertError || !order) return { error: `Something went wrong placing your order${insertError?.message ? `: ${insertError.message}` : ". Please try again."}` };
+  if (insertError || !order) {
+    // claim_welcome_discount() above already burned the one-time discount
+    // (welcome_discount_claimed_at is set the moment it's called, not on
+    // order success) -- if the order itself then failed to insert, the
+    // customer would otherwise lose their welcome discount for nothing.
+    if (welcomeDiscountGranted) await supabase.rpc("unclaim_welcome_discount");
+    return { error: `Something went wrong placing your order${insertError?.message ? `: ${insertError.message}` : ". Please try again."}` };
+  }
 
   const { data: existingAddress } = await supabase.from("addresses").select("id").eq("profile_id", user.id).eq("address", address).eq("city", city).maybeSingle();
   if (!existingAddress) {
