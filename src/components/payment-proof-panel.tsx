@@ -23,6 +23,7 @@ export function PaymentProofPanel({
   rejectionReason,
   total,
   whatsappNumber,
+  vendorId,
 }: {
   orderNumber: string;
   paymentMethod: string;
@@ -31,6 +32,7 @@ export function PaymentProofPanel({
   rejectionReason: string | null;
   total: number;
   whatsappNumber: string | null;
+  vendorId: string;
 }) {
   const [account, setAccount] = useState<PaymentAccount | null>(null);
   const [fileName, setFileName] = useState<string | null>(null);
@@ -42,10 +44,10 @@ export function PaymentProofPanel({
 
   useEffect(() => {
     if (!paymentAccountId) return;
-    getActivePaymentAccounts().then((accounts) => {
+    getActivePaymentAccounts(vendorId).then((accounts) => {
       setAccount(accounts.find((a) => a.id === paymentAccountId) ?? null);
     });
-  }, [paymentAccountId]);
+  }, [paymentAccountId, vendorId]);
 
   // A successful upload changes payment_status server-side; reload so the
   // panel re-renders from the real row rather than a guessed local state.

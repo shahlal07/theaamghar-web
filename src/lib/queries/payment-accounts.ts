@@ -15,11 +15,12 @@ export type PaymentAccount = {
 // RLS, not just this query) -- an account the admin hasn't finished filling
 // in stays invisible rather than showing placeholder digits to a customer
 // who might actually transfer money to them.
-export async function getActivePaymentAccounts(): Promise<PaymentAccount[]> {
+export async function getActivePaymentAccounts(vendorId: string): Promise<PaymentAccount[]> {
   const supabase = createClient();
   const { data, error } = await supabase
     .from("payment_accounts")
     .select("id, method, label, account_title, account_number, bank_name, iban, instructions")
+    .eq("vendor_id", vendorId)
     .eq("active", true)
     .order("sort_order", { ascending: true });
 

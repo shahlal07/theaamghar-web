@@ -69,13 +69,14 @@ export function CheckoutForm({ emptyStates }: { emptyStates: SiteContent["emptyS
   }, [JSON.stringify(lines)]);
 
   useEffect(() => {
-    if (!province || !city) return;
+    const vendorId = resolvedLines?.[0]?.vendorId;
+    if (!province || !city || !vendorId) return;
     let cancelled = false;
-    getShippingRate(province, city).then((rate) => {
+    getShippingRate(province, city, vendorId).then((rate) => {
       if (!cancelled) setShippingInfo({ province, city, rate });
     });
     return () => { cancelled = true; };
-  }, [province, city]);
+  }, [province, city, resolvedLines]);
 
   const shippingFee = shippingInfo && shippingInfo.province === province && shippingInfo.city === city ? shippingInfo.rate : null;
 
@@ -183,9 +184,10 @@ export function CheckoutForm({ emptyStates }: { emptyStates: SiteContent["emptyS
 
   async function handleApplyCoupon() {
     const code = couponInput.trim();
-    if (!code) return;
+    const vendorId = resolvedLines?.[0]?.vendorId;
+    if (!code || !vendorId) return;
     setCouponChecking(true);
-    const result = await checkCoupon(code, subtotal);
+    const result = await checkCoupon(code, subtotal, vendorId);
     setCouponChecking(false);
     if (result?.valid) setCouponState({ status: "valid", message: result.message, discountType: result.discountType || undefined, discountValue: result.discountValue || undefined });
     else setCouponState({ status: "invalid", message: result?.message ?? "Invalid coupon code." });
@@ -282,7 +284,7 @@ export function CheckoutForm({ emptyStates }: { emptyStates: SiteContent["emptyS
           <h2 className="font-serif text-xl font-bold mb-4">💰 Payment Method</h2>
           <input type="hidden" name="paymentMethod" value={paymentMethod} />
           <input type="hidden" name="paymentAccountId" value={paymentAccountId ?? ""} />
-          <PaymentMethodSelector value={paymentMethod} onChange={(method, accountId) => { setPaymentMethod(method); setPaymentAccountId(accountId); }} total={total} />
+          <PaymentMethodSelector value={paymentMethod} onChange={(method, accountId) => { setPaymentMethod(method); setPaymentAccountId(accountId); }} total={total} vendorId={resolvedLines?.[0]?.vendorId ?? null} />
         </div>
 
         <div className="bg-surface border border-border-subtle rounded-2xl shadow-brand-sm p-6 mb-5">

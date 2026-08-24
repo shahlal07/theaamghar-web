@@ -191,6 +191,7 @@ function OrderDetail({
           rejectionReason={order.payment_rejection_reason}
           total={Number(order.total)}
           whatsappNumber={whatsappNumber}
+          vendorId={order.vendor_id}
         />
       )}
 

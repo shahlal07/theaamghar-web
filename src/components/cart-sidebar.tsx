@@ -18,9 +18,11 @@ export function CartSidebar({ content }: { content: SiteContent["emptyStates"] }
   const [lines, setLines] = useState<CartLine[] | null>(null);
   const [freeShippingThreshold, setFreeShippingThreshold] = useState<number | null>(null);
 
+  const vendorId = lines?.[0]?.vendorId;
   useEffect(() => {
-    getFreeShippingThreshold().then(setFreeShippingThreshold);
-  }, []);
+    if (!vendorId) return;
+    getFreeShippingThreshold(vendorId).then(setFreeShippingThreshold);
+  }, [vendorId]);
 
   // Stale-while-revalidate rather than resetting to a loading state on
   // every change: reopening a cart that's already resolved shows the last

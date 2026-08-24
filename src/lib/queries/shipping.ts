@@ -15,12 +15,13 @@ export { PAKISTAN_PROVINCES };
 /* City-specific rate overrides a province's default rate when present
    (e.g. Lahore is cheaper than the rest of Punjab). Matching is
    case-insensitive since customers type city names freely. */
-export async function getShippingRate(province: string, city: string): Promise<number> {
+export async function getShippingRate(province: string, city: string, vendorId: string): Promise<number> {
   const supabase = createClient();
 
   const { data } = await supabase
     .from("shipping_zones")
     .select("city, rate")
+    .eq("vendor_id", vendorId)
     .eq("province", province)
     .eq("active", true);
 
@@ -36,13 +37,16 @@ export async function getShippingRate(province: string, city: string): Promise<n
 // null means the feature is off -- this business's shipping is otherwise a
 // flat zone-based fee with no "free above X" concept until an admin sets
 // this in Settings, so the cart must not fabricate a progress bar without it.
-export async function getFreeShippingThreshold(): Promise<number | null> {
+export async function getFreeShippingThreshold(vendorId: string): Promise<number | null> {
   const supabase = createClient();
   // business_settings itself is admin-only RLS -- public_business_settings
   // is the view that exposes just the customer-facing columns to anon too.
+  // .single() (not .maybeSingle()) used to error/return null the moment a
+  // second vendor's row existed in this now-shared view.
   const { data } = await supabase
     .from("public_business_settings")
     .select("free_shipping_threshold")
-    .single();
+    .eq("vendor_id", vendorId)
+    .maybeSingle();
   return data?.free_shipping_threshold ?? null;
 }

@@ -20,17 +20,23 @@ export function PaymentMethodSelector({
   value,
   onChange,
   total,
+  vendorId,
 }: {
   value: PaymentMethodValue;
   onChange: (value: PaymentMethodValue, accountId: string | null) => void;
   total: number;
+  vendorId: string | null;
 }) {
   const [accounts, setAccounts] = useState<PaymentAccount[] | null>(null);
   const [openAccount, setOpenAccount] = useState<PaymentAccount | null>(null);
 
   useEffect(() => {
-    getActivePaymentAccounts().then(setAccounts);
-  }, []);
+    // Cart lines are still resolving -- wait for a real vendorId rather than
+    // fetching every vendor's payment accounts (there's no other way to
+    // scope this query client-side).
+    if (!vendorId) return;
+    getActivePaymentAccounts(vendorId).then(setAccounts);
+  }, [vendorId]);
 
   // An account the admin hasn't activated (or hasn't filled in real details
   // for) simply isn't offered -- better to show only COD than to invite a

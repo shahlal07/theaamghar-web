@@ -22,14 +22,14 @@ export type CheckCouponState =
   | { valid: true; discountType: string; discountValue: number; message: string }
   | undefined;
 
-export async function checkCoupon(code: string, subtotal: number): Promise<CheckCouponState> {
+export async function checkCoupon(code: string, subtotal: number, vendorId: string): Promise<CheckCouponState> {
   const supabase = await createClient();
   const headersList = await headers();
   const ip = headersList.get("x-forwarded-for")?.split(",")[0]?.trim() || headersList.get("x-real-ip") || "unknown";
   const { data: rateLimit } = await supabase.rpc("check_and_record_coupon_attempt", { p_identifier: ip }).single();
   if (!rateLimit?.allowed) return { valid: false, message: "Too many attempts. Please try again in a few minutes." };
   const { data: { user } } = await supabase.auth.getUser();
-  const { data } = await supabase.rpc("validate_coupon", { p_code: code, p_order_amount: subtotal, p_customer_id: user?.id }).single();
+  const { data } = await supabase.rpc("validate_coupon", { p_code: code, p_order_amount: subtotal, p_vendor_id: vendorId, p_customer_id: user?.id }).single();
   if (!data?.valid) return { valid: false, message: data?.message ?? "Invalid coupon code." };
   return { valid: true, discountType: data.discount_type ?? "", discountValue: Number(data.discount_value ?? 0), message: data.message };
 }
@@ -153,7 +153,7 @@ export async function placeOrder(lines: OrderLineInput[], formData: FormData): P
       appliedCouponCode = "WELCOME";
     }
   } else if (couponCode) {
-    const { data: couponResult } = await supabase.rpc("validate_coupon", { p_code: couponCode, p_order_amount: subtotal, p_customer_id: user.id }).single();
+    const { data: couponResult } = await supabase.rpc("validate_coupon", { p_code: couponCode, p_order_amount: subtotal, p_vendor_id: vendorId, p_customer_id: user.id }).single();
     if (couponResult?.valid) {
       appliedCouponCode = couponCode.toUpperCase();
       const result = computeDiscount(couponResult.discount_type, Number(couponResult.discount_value), subtotal, shippingFee);
@@ -169,7 +169,7 @@ export async function placeOrder(lines: OrderLineInput[], formData: FormData): P
   let paymentAccountId: string | null = null;
 
   if (["bank", "easypaisa", "jazzcash"].includes(requestedMethod) && requestedAccountId) {
-    const { data: account } = await supabase.from("payment_accounts").select("id, method").eq("id", requestedAccountId).eq("active", true).maybeSingle();
+    const { data: account } = await supabase.from("payment_accounts").select("id, method").eq("id", requestedAccountId).eq("vendor_id", vendorId).eq("active", true).maybeSingle();
     if (account && account.method === requestedMethod) {
       paymentMethod = requestedMethod;
       paymentAccountId = account.id;
