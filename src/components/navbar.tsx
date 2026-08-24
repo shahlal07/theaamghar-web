@@ -31,13 +31,22 @@ export function Navbar({ brand }: { brand: SiteContent["brand"] }) {
         className="font-serif text-2xl font-bold text-ink flex items-center gap-2"
       >
         {brand.logoImageUrl ? (
-          <Image
-            src={brand.logoImageUrl}
-            alt={brand.logoText}
-            width={28}
-            height={28}
-            className="rounded-full object-cover"
-          />
+          // Vendor-uploaded logo art commonly has its own circular mark
+          // inset with padding/background inside the source frame (Mina
+          // Cafe's does), so a plain object-cover at the container's exact
+          // aspect leaves a sliver of that background visible at the
+          // rounded-full clip edge instead of the mark filling it. Scaling
+          // the image up within a clipped, fixed-size wrapper crops that
+          // margin away so the mark itself fills the circle edge-to-edge.
+          <span className="relative inline-block w-7 h-7 shrink-0 overflow-hidden rounded-full">
+            <Image
+              src={brand.logoImageUrl}
+              alt={brand.logoText}
+              fill
+              sizes="28px"
+              className="scale-125 object-cover"
+            />
+          </span>
         ) : (
           <span
             aria-hidden="true"

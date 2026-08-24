@@ -31,13 +31,19 @@ export function Footer({
         <div>
           <Link href="/" className="font-serif text-xl font-bold flex items-center gap-2">
             {content.brand.logoImageUrl ? (
-              <Image
-                src={content.brand.logoImageUrl}
-                alt={content.brand.logoText}
-                width={28}
-                height={28}
-                className="rounded-full object-cover"
-              />
+              // See navbar.tsx's identical fix -- vendor logo art commonly
+              // has its own circular mark inset with background padding, so
+              // this scales/clips to fill the circle instead of showing that
+              // margin at the edge.
+              <span className="relative inline-block w-7 h-7 shrink-0 overflow-hidden rounded-full">
+                <Image
+                  src={content.brand.logoImageUrl}
+                  alt={content.brand.logoText}
+                  fill
+                  sizes="28px"
+                  className="scale-125 object-cover"
+                />
+              </span>
             ) : (
               <span
                 aria-hidden="true"
