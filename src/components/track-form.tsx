@@ -4,7 +4,7 @@ import { useEffect, useRef, useState } from "react";
 import { useSearchParams } from "next/navigation";
 import Link from "next/link";
 import { useUser } from "@/lib/use-user";
-import { getOrderByNumberClient } from "@/lib/queries/orders-client";
+import { getOrderByNumberClient, getOrderByNumberAndEmailClient } from "@/lib/queries/orders-client";
 import { formatPKR } from "@/lib/format";
 import { PaymentProofPanel } from "@/components/payment-proof-panel";
 import { getOrderItemVariantLabel } from "@/lib/order-item";
@@ -30,6 +30,7 @@ export function TrackForm({ whatsappNumber }: { whatsappNumber: string | null })
   const searchParams = useSearchParams();
   const { user, loading: userLoading } = useUser();
   const [query, setQuery] = useState(searchParams.get("order") ?? "");
+  const [email, setEmail] = useState("");
   // undefined = no search performed yet; null = searched, not found; an
   // Order = found. Deriving "searched" from this instead of a separate
   // boolean avoids a synchronous setState at the top of search() that
@@ -42,10 +43,19 @@ export function TrackForm({ whatsappNumber }: { whatsappNumber: string | null })
   // can never clobber a newer one that already resolved.
   const latestRequestId = useRef(0);
 
+  // Tracking never requires an account (or even the exact guest session
+  // used at checkout): a signed-in customer's own order still resolves via
+  // RLS with just the order number, but anyone -- including a guest who
+  // lost their session on a different device or browser -- can instead
+  // supply the order number plus the email captured at checkout.
   async function search(orderNumber: string) {
-    if (!orderNumber.trim()) return;
+    const trimmedNumber = orderNumber.trim().toUpperCase();
+    const trimmedEmail = email.trim();
+    if (!trimmedNumber) return;
     const requestId = ++latestRequestId.current;
-    const result = await getOrderByNumberClient(orderNumber.trim().toUpperCase());
+    let result: Order | null = null;
+    if (user) result = await getOrderByNumberClient(trimmedNumber);
+    if (!result && trimmedEmail) result = await getOrderByNumberAndEmailClient(trimmedNumber, trimmedEmail);
     if (requestId === latestRequestId.current) setOrder(result);
   }
 
@@ -56,25 +66,10 @@ export function TrackForm({ whatsappNumber }: { whatsappNumber: string | null })
     // through the async boundary and flags the call site anyway.
     // eslint-disable-next-line react-hooks/set-state-in-effect
     if (initial && user) search(initial);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [user, searchParams]);
 
   if (userLoading) return null;
-
-  if (!user) {
-    return (
-      <div className="border-[1.5px] border-border-subtle rounded-2xl p-8 text-center">
-        <p className="text-ink-light mb-4">Sign in to track your order.</p>
-        <Link
-          href={`/login?returnTo=${encodeURIComponent(
-            `/track${query ? `?order=${query}` : ""}`
-          )}`}
-          className="bg-mango-orange text-white font-semibold px-6 py-3 rounded-full transition-transform hover:-translate-y-0.5 inline-block"
-        >
-          Sign In
-        </Link>
-      </div>
-    );
-  }
 
   return (
     <div>
@@ -83,26 +78,47 @@ export function TrackForm({ whatsappNumber }: { whatsappNumber: string | null })
           e.preventDefault();
           search(query);
         }}
-        className="flex gap-3 mb-8"
+        className="flex flex-col gap-3 mb-8"
       >
-        <input
-          type="text"
-          value={query}
-          onChange={(e) => setQuery(e.target.value)}
-          placeholder="e.g. TAG-100001"
-          className="flex-1 border-[1.5px] border-border-subtle rounded-full px-5 py-3 text-sm bg-surface focus-visible:outline-none focus-visible:border-mango-orange transition-colors"
-        />
-        <button
-          type="submit"
-          className="bg-mango-orange text-white font-semibold px-6 py-3 rounded-full transition-transform hover:-translate-y-0.5"
-        >
-          Track
-        </button>
+        <div className="flex gap-3">
+          <input
+            type="text"
+            value={query}
+            onChange={(e) => setQuery(e.target.value)}
+            placeholder="Order number, e.g. TAG-100001"
+            className="flex-1 border-[1.5px] border-border-subtle rounded-full px-5 py-3 text-sm bg-surface focus-visible:outline-none focus-visible:border-mango-orange transition-colors"
+          />
+          <button
+            type="submit"
+            className="bg-mango-orange text-white font-semibold px-6 py-3 rounded-full transition-transform hover:-translate-y-0.5"
+          >
+            Track
+          </button>
+        </div>
+        {!user && (
+          <input
+            type="email"
+            value={email}
+            onChange={(e) => setEmail(e.target.value)}
+            placeholder="Email used at checkout"
+            className="border-[1.5px] border-border-subtle rounded-full px-5 py-3 text-sm bg-surface focus-visible:outline-none focus-visible:border-mango-orange transition-colors"
+          />
+        )}
       </form>
+
+      {!user && (
+        <p className="text-center text-xs text-ink-light -mt-5 mb-8">
+          Not signed in? Enter the email you used at checkout above, or{" "}
+          <Link href={`/login?returnTo=${encodeURIComponent(`/track${query ? `?order=${query}` : ""}`)}`} className="text-mango-orange font-semibold">
+            sign in
+          </Link>{" "}
+          to see all your orders.
+        </p>
+      )}
 
       {searched && order === null && (
         <p className="text-center text-ink-light py-10">
-          No order found with that number on your account.
+          {user ? "No order found with that number on your account." : "No order found with that number and email."}
         </p>
       )}
 

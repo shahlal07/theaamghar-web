@@ -250,6 +250,7 @@ export function CheckoutForm({ emptyStates }: { emptyStates: SiteContent["emptyS
           <div className="flex flex-col gap-4">
             <Field id="fullName" name="fullName" label={isGift ? "Recipient's Name" : "Full Name"} required maxLength={80} />
             <Field id="phone" name="phone" label="Phone Number" type="tel" required placeholder="03XX-XXXXXXX" maxLength={20} />
+            <Field id="email" name="email" label="Email (for order confirmation & tracking)" type="email" required placeholder="you@example.com" maxLength={200} defaultValue={user?.email && !user.is_anonymous ? user.email : undefined} />
             <div>
               <label htmlFor="address" className="text-sm font-medium block mb-1">Street Address</label>
               <textarea id="address" name="address" required maxLength={200} rows={3} className="w-full border-[1.5px] border-border-subtle rounded-xl px-4 py-3 text-sm bg-surface focus-visible:outline-none focus-visible:border-mango-orange transition-colors" />
@@ -363,6 +364,6 @@ export function CheckoutForm({ emptyStates }: { emptyStates: SiteContent["emptyS
   );
 }
 
-function Field({ id, name, label, type = "text", required, maxLength, placeholder }: { id: string; name: string; label: string; type?: string; required?: boolean; maxLength?: number; placeholder?: string }) {
-  return <div><label htmlFor={id} className="text-sm font-medium block mb-1">{label}</label><input id={id} name={name} type={type} required={required} maxLength={maxLength} placeholder={placeholder} className="w-full border-[1.5px] border-border-subtle rounded-xl px-4 py-3 text-sm bg-surface focus-visible:outline-none focus-visible:border-mango-orange transition-colors" /></div>;
+function Field({ id, name, label, type = "text", required, maxLength, placeholder, defaultValue }: { id: string; name: string; label: string; type?: string; required?: boolean; maxLength?: number; placeholder?: string; defaultValue?: string }) {
+  return <div><label htmlFor={id} className="text-sm font-medium block mb-1">{label}</label><input id={id} name={name} type={type} required={required} maxLength={maxLength} placeholder={placeholder} defaultValue={defaultValue} className="w-full border-[1.5px] border-border-subtle rounded-xl px-4 py-3 text-sm bg-surface focus-visible:outline-none focus-visible:border-mango-orange transition-colors" /></div>;
 }

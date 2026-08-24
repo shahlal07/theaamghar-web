@@ -42,6 +42,7 @@ export async function placeOrder(lines: OrderLineInput[], formData: FormData): P
 
   const fullName = String(formData.get("fullName") ?? "").trim();
   const phone = String(formData.get("phone") ?? "").trim();
+  const email = String(formData.get("email") ?? "").trim().toLowerCase();
   const address = String(formData.get("address") ?? "").trim();
   const city = String(formData.get("city") ?? "").trim();
   const province = String(formData.get("province") ?? "").trim();
@@ -49,8 +50,10 @@ export async function placeOrder(lines: OrderLineInput[], formData: FormData): P
   const notes = String(formData.get("notes") ?? "").trim().slice(0, 500);
   const isGift = formData.get("isGift") === "true";
   const giftMessage = isGift ? String(formData.get("giftMessage") ?? "").trim().slice(0, 300) : "";
+  const EMAIL_PATTERN = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+  if (!EMAIL_PATTERN.test(email)) return { error: "Enter a valid email address." };
 
-  if (!fullName || !phone || !address || !city || !province) return { error: "Please fill in all required delivery details." };
+  if (!fullName || !phone || !email || !address || !city || !province) return { error: "Please fill in all required delivery details." };
   if (!PK_PHONE_PATTERN.test(phone)) return { error: "Enter a valid Pakistani mobile number, e.g. 0300-1234567." };
 
   const boxSizeLines = lines.filter((l) => (l.source ?? "box_size") === "box_size");
@@ -182,7 +185,7 @@ export async function placeOrder(lines: OrderLineInput[], formData: FormData): P
       customer_id: user.id,
       vendor_id: vendorId,
       items: orderItems,
-      delivery: { full_name: fullName, phone, address, city, postal_code: postalCode || null, notes: notes || null },
+      delivery: { full_name: fullName, phone, email, address, city, postal_code: postalCode || null, notes: notes || null },
       subtotal,
       shipping_fee: shippingFee,
       discount_code: appliedCouponCode,
@@ -217,7 +220,11 @@ export async function placeOrder(lines: OrderLineInput[], formData: FormData): P
     await supabase.from("addresses").insert({ profile_id: user.id, label: "Delivery Address", address, city, province, postal_code: postalCode || null, phone, is_default: false });
   }
 
-  if (user.email) await sendOrderConfirmationEmail({ to: user.email, orderNumber: order.order_number, items: orderItems, subtotal, shippingFee, discountAmount, total, fullName, address, city, paymentMethod });
+  // Previously gated on user.email, which is always undefined for a guest's
+  // anonymous session -- guests never got a confirmation email at all. The
+  // email collected on this form is now always present regardless of
+  // account status.
+  await sendOrderConfirmationEmail({ to: email, orderNumber: order.order_number, items: orderItems, subtotal, shippingFee, discountAmount, total, fullName, address, city, paymentMethod });
   if (ADMIN_ALERT_EMAIL) await sendAdminNewOrderAlert({ to: ADMIN_ALERT_EMAIL, orderNumber: order.order_number, total, customerName: fullName, itemsSummary: orderItems.map((i) => `${i.qty}x ${i.name} (${getOrderItemVariantLabel(i)})`).join(", ") });
 
   return { success: true, orderNumber: order.order_number };
