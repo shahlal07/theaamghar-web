@@ -31,6 +31,7 @@ export default async function ProductsPage() {
         <ProductGrid
           products={products}
           whatsappNumber={settings?.support_whatsapp}
+          whatsappTemplate={settings?.whatsapp_order_message_template}
           paymentBadgeText={content.brand.paymentBadgeText}
           productPlural={content.aiAssistant.productPlural}
           accentEmoji={content.brand.accentEmoji}

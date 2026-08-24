@@ -14,12 +14,20 @@ export function paymentIssueWhatsAppLink(whatsappNumber: string, orderNumber: st
   return `https://wa.me/${whatsappNumber}?text=${encodeURIComponent(text)}`;
 }
 
+// `template`, when set, is the vendor's own copy from Settings
+// (business_settings.whatsapp_order_message_template) -- supports {product}
+// and {size} placeholders so a vendor can write their own message without
+// touching code. Falls back to the original fixed copy for every vendor who
+// hasn't set one.
 export function productOrderWhatsAppLink(
   whatsappNumber: string,
   productName: string,
-  boxSizeKg?: number
+  boxSizeKg?: number,
+  template?: string | null
 ): string {
   const sizeNote = boxSizeKg ? ` (${boxSizeKg}kg box)` : "";
-  const text = `Hi! I'd like to order ${productName}${sizeNote}. Is it available?`;
+  const text = template
+    ? template.replaceAll("{product}", productName).replaceAll("{size}", boxSizeKg ? `${boxSizeKg}kg` : "")
+    : `Hi! I'd like to order ${productName}${sizeNote}. Is it available?`;
   return `https://wa.me/${whatsappNumber}?text=${encodeURIComponent(text)}`;
 }

@@ -41,7 +41,16 @@ export function HeroSection({ videoSrc, mobileImageSrc, desktopImageSrc, title, 
 
   return (
     <section
+      // h-screen (100vh) includes the mobile browser's address/toolbar
+      // chrome in its calculation, which isn't actually visible viewport --
+      // the hero rendered taller than the real screen, so it looked cut
+      // off/"not adjusted" and jumped as the chrome showed/hid on scroll.
+      // The inline style's 100svh (small viewport height -- sized to the
+      // space that's always visible) wins over the class when supported; an
+      // unsupported unit is simply not applied, so the h-screen class's
+      // 100vh remains as the fallback on older browsers.
       className="relative h-screen min-h-[600px] w-full overflow-hidden bg-black"
+      style={{ height: "100svh" }}
       aria-label="Hero"
     >
       {showVideo ? (

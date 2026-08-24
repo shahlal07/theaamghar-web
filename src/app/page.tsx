@@ -76,6 +76,7 @@ export default async function Home() {
         <FeaturedCollection
           products={products}
           whatsappNumber={settings?.support_whatsapp}
+          whatsappTemplate={settings?.whatsapp_order_message_template}
           content={content.featuredCollection}
         />
       </div>

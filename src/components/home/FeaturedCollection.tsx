@@ -25,10 +25,12 @@ import type { SiteContent } from "@/lib/queries/site-content";
 export function FeaturedCollection({
   products,
   whatsappNumber,
+  whatsappTemplate,
   content,
 }: {
   products: ProductWithBoxSizes[];
   whatsappNumber?: string | null;
+  whatsappTemplate?: string | null;
   content: SiteContent["featuredCollection"];
 }) {
   const featured = products.slice(0, 6);
@@ -55,6 +57,7 @@ export function FeaturedCollection({
             product={product}
             index={index}
             whatsappNumber={whatsappNumber}
+            whatsappTemplate={whatsappTemplate}
           />
         ))}
       </div>
@@ -66,10 +69,12 @@ function FeaturedCard({
   product,
   index,
   whatsappNumber,
+  whatsappTemplate,
 }: {
   product: ProductWithBoxSizes;
   index: number;
   whatsappNumber?: string | null;
+  whatsappTemplate?: string | null;
 }) {
   const { addItem } = useCart();
   const { ids: compareIds, toggle: toggleCompare, isFull: compareIsFull } = useCompare();
@@ -138,14 +143,18 @@ function FeaturedCard({
           )}
           <div className="absolute inset-0 bg-gradient-to-t from-black/50 via-transparent to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-500" />
 
-          <div className="absolute top-2 left-2 sm:top-4 sm:left-4 flex flex-col gap-1.5 sm:gap-2 items-start max-w-[65%]">
+          {/* Badges, wishlist/compare/quick-add, origin, taste, and the
+              WhatsApp/Buy Now actions are all desktop-only here now -- on
+              mobile the card is a plain teaser (image, name, price,
+              reviews); everything else lives on the product page a tap
+              takes you to, matching every other mobile shopping app's
+              browse-then-tap-for-detail pattern instead of trying to cram
+              full purchase actions into a 2-up grid tile. */}
+          <div className="hidden sm:flex absolute top-4 left-4 flex-col gap-2 items-start max-w-[65%]">
             {product.isBestSeller && <Badge variant="gold">PREMIUM</Badge>}
             {product.isLimitedHarvest && <Badge variant="green">🍂 Limited</Badge>}
           </div>
 
-          {/* Wishlist/compare/quick-add overlay buttons made the homepage
-              cards feel cluttered on mobile (most traffic) -- desktop-only
-              from here down; mobile gets a compact action row below instead. */}
           <button
             type="button"
             onClick={handleWishlist}
@@ -185,29 +194,27 @@ function FeaturedCard({
           )}
         </div>
 
-        <div className="p-4 sm:p-6">
-          {/* Origin / rating / taste badge are extra detail that made the
-              mobile card feel packed -- desktop-only; mobile card shows just
-              the name and price, then the action row. */}
-          {product.origin && (
-            <div className="hidden sm:block text-xs font-semibold tracking-wide uppercase text-[var(--color-orchard-green-text)] mb-1">
-              {product.origin}
-            </div>
-          )}
-          <h3 className="font-serif text-base sm:text-2xl font-bold text-[var(--color-mango-deep-text)] truncate">{product.name}</h3>
+        <div className="p-3 sm:p-6">
+          <div className="hidden sm:block text-xs font-semibold tracking-wide uppercase text-[var(--color-orchard-green-text)] mb-1">
+            {product.origin}
+          </div>
+          <h3 className="font-serif text-sm sm:text-2xl font-bold text-[var(--color-mango-deep-text)] truncate">{product.name}</h3>
 
-          <div className="hidden sm:flex items-center gap-0.5 my-2 text-[var(--color-mango-deep-text)]" aria-hidden="true">
+          {/* Price + reviews are the only two facts a mobile teaser needs --
+              star rating stays visible on every breakpoint per the explicit
+              "just show price and reviews" homepage instruction. */}
+          <div className="flex items-center gap-0.5 my-1.5 sm:my-2 text-[var(--color-mango-deep-text)]" aria-hidden="true">
             {Array.from({ length: 5 }).map((_, i) => (
               <Star
                 key={i}
-                className="h-3.5 w-3.5"
+                className="h-3 w-3 sm:h-3.5 sm:w-3.5"
                 fill="currentColor"
                 strokeWidth={0}
                 style={{ opacity: i < Math.round(product.rating_avg) ? 1 : 0.25 }}
               />
             ))}
             {product.review_count > 0 && (
-              <span className="text-xs text-[var(--color-ink)]/60 ml-1">({product.review_count})</span>
+              <span className="text-[0.65rem] sm:text-xs text-[var(--color-ink)]/60 ml-1">({product.review_count})</span>
             )}
           </div>
 
@@ -219,12 +226,12 @@ function FeaturedCard({
 
           <div className="flex items-baseline justify-between mt-1 sm:mt-2">
             {soldOut ? (
-              <span className="text-sm text-[var(--color-ink)]/60">Currently unavailable</span>
+              <span className="text-xs sm:text-sm text-[var(--color-ink)]/60">Currently unavailable</span>
             ) : (
-              <span className="font-bold text-base sm:text-lg text-[var(--color-mango-deep-text)]">
+              <span className="font-bold text-sm sm:text-lg text-[var(--color-mango-deep-text)]">
                 {formatPKR(product.minPrice!)}
                 {size && (
-                  <span className="text-xs font-normal text-[var(--color-ink)]/60"> / {size.box_size_kg}kg</span>
+                  <span className="text-[0.65rem] sm:text-xs font-normal text-[var(--color-ink)]/60"> / {size.box_size_kg}kg</span>
                 )}
               </span>
             )}
@@ -237,7 +244,7 @@ function FeaturedCard({
                 e.preventDefault();
                 e.stopPropagation();
                 window.open(
-                  productOrderWhatsAppLink(whatsappNumber, product.name, size?.box_size_kg),
+                  productOrderWhatsAppLink(whatsappNumber, product.name, size?.box_size_kg, whatsappTemplate),
                   "_blank",
                   "noopener,noreferrer"
                 );
@@ -251,46 +258,11 @@ function FeaturedCard({
         </div>
       </Link>
 
-      {/* Desktop keeps the single "View Collection" CTA. Mobile (most of
-          our traffic) gets the 3 actions that actually matter right on the
-          homepage card: add to cart, buy now, or order via WhatsApp --
-          nothing else. */}
       <div className="hidden sm:block px-6 pb-6">
         <Button href={`/product/${product.slug}`} variant="outline-dark" size="md" className="w-full">
           View Collection
         </Button>
       </div>
-
-      {!soldOut && (
-        <div className="sm:hidden flex gap-1 px-3 pb-3">
-          <button
-            type="button"
-            onClick={handleQuickAdd}
-            className="flex-1 flex flex-col items-center gap-0.5 rounded-xl bg-[var(--color-mango-deep)] text-white py-2 active:scale-95 transition-transform"
-          >
-            <Plus className="h-3.5 w-3.5" strokeWidth={2.5} aria-hidden="true" />
-            <span className="text-[9px] font-bold leading-none">Add</span>
-          </button>
-          <Link
-            href={`/checkout?buynow=${product.defaultBoxSizeId}&buynowSource=${product.defaultUnitSource}&qty=1`}
-            onClick={(e) => e.stopPropagation()}
-            className="flex-1 flex flex-col items-center justify-center gap-0.5 rounded-xl bg-[var(--color-golden)] text-[var(--color-ink-fixed-dark)] py-2 active:scale-95 transition-transform"
-          >
-            <span className="text-[9px] font-bold leading-none">Buy Now</span>
-          </Link>
-          {whatsappNumber && (
-            <a
-              href={productOrderWhatsAppLink(whatsappNumber, product.name, size?.box_size_kg)}
-              target="_blank"
-              rel="noopener noreferrer"
-              onClick={(e) => e.stopPropagation()}
-              className="flex-1 flex flex-col items-center justify-center gap-0.5 rounded-xl bg-[#25D366] text-white py-2 active:scale-95 transition-transform"
-            >
-              <WhatsAppIcon className="w-3.5 h-3.5" />
-            </a>
-          )}
-        </div>
-      )}
     </motion.div>
   );
 }

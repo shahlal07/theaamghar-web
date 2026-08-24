@@ -9,6 +9,7 @@ import { getFreeShippingThreshold } from "@/lib/queries/shipping";
 import { productImageSrc } from "@/lib/product-image";
 import { formatPKR } from "@/lib/format";
 import { RecentlyViewedStrip } from "@/components/recently-viewed-strip";
+import { BoughtTogetherStrip } from "@/components/bought-together-strip";
 import type { SiteContent } from "@/lib/queries/site-content";
 import { ShoppingBag } from "lucide-react";
 
@@ -140,6 +141,10 @@ export function CartSidebar({ content }: { content: SiteContent["emptyStates"] }
                   </div>
                 </div>
               ))}
+              <BoughtTogetherStrip
+                vendorId={lines[0]?.vendorId ?? null}
+                excludeProductIds={lines.map((l) => l.productId)}
+              />
               <RecentlyViewedStrip />
             </div>
           )}

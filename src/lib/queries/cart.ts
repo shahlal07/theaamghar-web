@@ -6,6 +6,7 @@ export type CartLine = {
   unitId: string;
   source: "box_size" | "variant";
   productId: string;
+  vendorId: string;
   qty: number;
   name: string;
   slug: string;
@@ -34,7 +35,7 @@ export async function resolveCartLines(items: CartItem[]): Promise<CartLine[]> {
       ? supabase
           .from("product_box_sizes")
           .select(
-            "id, box_size_kg, selling_price, stock_qty, active, product:products(id, name, slug, image, status)"
+            "id, box_size_kg, selling_price, stock_qty, active, product:products(id, name, slug, image, status, vendor_id)"
           )
           .in(
             "id",
@@ -46,7 +47,7 @@ export async function resolveCartLines(items: CartItem[]): Promise<CartLine[]> {
       ? supabase
           .from("product_variants")
           .select(
-            "id, attributes, label, selling_price, stock_qty, active, product:products(id, name, slug, image, status)"
+            "id, attributes, label, selling_price, stock_qty, active, product:products(id, name, slug, image, status, vendor_id)"
           )
           .in(
             "id",
@@ -67,6 +68,7 @@ export async function resolveCartLines(items: CartItem[]): Promise<CartLine[]> {
         unitId: row.id,
         source: "box_size" as const,
         productId: row.product!.id,
+        vendorId: row.product!.vendor_id,
         qty,
         name: row.product!.name,
         slug: row.product!.slug,
@@ -87,6 +89,7 @@ export async function resolveCartLines(items: CartItem[]): Promise<CartLine[]> {
         unitId: row.id,
         source: "variant" as const,
         productId: row.product!.id,
+        vendorId: row.product!.vendor_id,
         qty,
         name: row.product!.name,
         slug: row.product!.slug,

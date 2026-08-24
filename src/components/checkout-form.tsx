@@ -16,6 +16,7 @@ import { formatPKR } from "@/lib/format";
 import { computeDiscount, computeOrderTotal } from "@/lib/discount";
 import type { SiteContent } from "@/lib/queries/site-content";
 import { PaymentMethodSelector, type PaymentMethodValue } from "@/components/payment-method-selector";
+import { BoughtTogetherStrip } from "@/components/bought-together-strip";
 import type { Tables } from "@/lib/supabase/types";
 
 const PENDING_CHECKOUT_KEY = "theaamghar_pending_checkout";
@@ -300,6 +301,14 @@ export function CheckoutForm({ emptyStates }: { emptyStates: SiteContent["emptyS
           <div className="flex justify-between font-bold text-lg pt-3 mt-2 border-t-[1.5px] border-border-subtle tabular-nums"><span>Total</span><span className="text-mango-orange">{formatPKR(total)}</span></div>
           <p className="text-xs text-ink-light mt-4 pt-4 border-t border-border-subtle">🚚 Usually delivered next-day, or same-day if you order before 3pm.</p>
         </div>
+        {resolvedLines && resolvedLines.length > 0 && (
+          <div className="mt-5">
+            <BoughtTogetherStrip
+              vendorId={resolvedLines[0]?.vendorId ?? null}
+              excludeProductIds={resolvedLines.map((l) => l.productId)}
+            />
+          </div>
+        )}
       </div>
     </div>
   );

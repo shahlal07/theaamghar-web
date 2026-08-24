@@ -19,10 +19,12 @@ import { productOrderWhatsAppLink } from "@/lib/whatsapp";
 export function ProductCard({
   product,
   whatsappNumber,
+  whatsappTemplate,
   paymentBadgeText,
 }: {
   product: ProductWithBoxSizes;
   whatsappNumber?: string | null;
+  whatsappTemplate?: string | null;
   paymentBadgeText?: string | null;
 }) {
   const { addItem } = useCart();
@@ -173,7 +175,7 @@ export function ProductCard({
               e.preventDefault();
               e.stopPropagation();
               window.open(
-                productOrderWhatsAppLink(whatsappNumber, product.name, product.boxSizes[0]?.box_size_kg),
+                productOrderWhatsAppLink(whatsappNumber, product.name, product.boxSizes[0]?.box_size_kg, whatsappTemplate),
                 "_blank",
                 "noopener,noreferrer"
               );

@@ -10,12 +10,14 @@ type SortOption = "recommended" | "price-asc" | "price-desc" | "newest";
 export function ProductGrid({
   products,
   whatsappNumber,
+  whatsappTemplate,
   paymentBadgeText,
   productPlural = "products",
   accentEmoji = "🛍️",
 }: {
   products: ProductWithBoxSizes[];
   whatsappNumber?: string | null;
+  whatsappTemplate?: string | null;
   paymentBadgeText?: string | null;
   productPlural?: string;
   accentEmoji?: string;
@@ -241,7 +243,7 @@ export function ProductGrid({
       ) : (
         <div className="grid grid-cols-2 md:grid-cols-3 gap-4 md:gap-6">
           {filtered.map((p) => (
-            <ProductCard key={p.id} product={p} whatsappNumber={whatsappNumber} paymentBadgeText={paymentBadgeText} />
+            <ProductCard key={p.id} product={p} whatsappNumber={whatsappNumber} whatsappTemplate={whatsappTemplate} paymentBadgeText={paymentBadgeText} />
           ))}
         </div>
       )}
