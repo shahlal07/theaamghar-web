@@ -290,7 +290,7 @@ export function CheckoutForm({ emptyStates }: { emptyStates: SiteContent["emptyS
             {resolvedLines.map((line) => (
               <div key={line.unitId} className="flex gap-3 items-center pb-3 border-b border-border-subtle">
                 {line.image && <Image src={productImageSrc(line.image, 400)} alt="" width={56} height={56} className="rounded-xl object-cover w-14 h-14 shrink-0" />}
-                <div className="flex-1 text-sm"><div className="font-semibold">{line.name}</div><div className="text-ink-light text-xs">{line.source === "box_size" ? `${line.label} box` : line.label} × {line.qty}</div></div>
+                <div className="flex-1 text-sm"><div className="font-semibold">{line.name}</div><div className="text-ink-light text-xs">{line.source === "box_size" ? `${line.label} box` : line.label} × {line.qty}{line.addonLabel && ` + ${line.addonLabel}`}</div></div>
                 <div className="font-bold text-mango-orange text-sm tabular-nums">{formatPKR(line.lineTotal)}</div>
               </div>
             ))}

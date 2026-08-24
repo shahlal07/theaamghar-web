@@ -8,6 +8,7 @@ import { getSiteChrome } from "@/lib/queries/site";
 import { getSiteContent } from "@/lib/queries/site-content";
 import { reviewCategoryList } from "@/lib/review-categories";
 import { buildSpecs } from "@/lib/product-types";
+import { getAddonGroups } from "@/lib/product-addons";
 import { ProductPurchasePanel } from "@/components/product-purchase-panel";
 import { ReviewForm } from "@/components/review-form";
 import { ProductCareSection } from "@/components/product-care-section";
@@ -72,7 +73,7 @@ export default async function ProductPage({ params }: { params: Promise<{ slug: 
   return (
     <div className="px-[5%] py-10 max-w-6xl mx-auto">
       <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify(productJsonLd) }} />
-      <ProductPurchasePanel productId={product.id} productSlug={product.slug} productName={product.name} images={images} boxSizes={product.boxSizes} variants={product.variants} whatsappNumber={settings?.support_whatsapp} />
+      <ProductPurchasePanel productId={product.id} productSlug={product.slug} productName={product.name} images={images} boxSizes={product.boxSizes} variants={product.variants} whatsappNumber={settings?.support_whatsapp} addonGroups={getAddonGroups(product.attributes)} />
       <div className="mt-10 max-w-3xl">
         {product.origin && <div className="text-xs font-semibold uppercase tracking-wide text-orchard-green mb-2">{product.origin}</div>}
         <h1 className="font-serif text-3xl md:text-4xl font-bold mb-2">{product.name}</h1>

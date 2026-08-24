@@ -17,6 +17,11 @@ export type CartItem = {
   unitId: string;
   source?: "box_size" | "variant";
   qty: number;
+  /** groupId -> selected option ids, for a product with optional add-ons
+   * (see lib/product-addons.ts). A cart holds at most one line per unitId --
+   * re-adding the same unit with a different selection replaces it rather
+   * than creating a second, differently-configured line. */
+  addonSelections?: Record<string, string[]>;
 };
 
 function itemSource(item: Pick<CartItem, "source">): "box_size" | "variant" {
@@ -25,7 +30,12 @@ function itemSource(item: Pick<CartItem, "source">): "box_size" | "variant" {
 
 type CartContextValue = {
   items: CartItem[];
-  addItem: (unitId: string, qty?: number, source?: "box_size" | "variant") => void;
+  addItem: (
+    unitId: string,
+    qty?: number,
+    source?: "box_size" | "variant",
+    addonSelections?: Record<string, string[]>
+  ) => void;
   removeItem: (unitId: string) => void;
   updateQty: (unitId: string, qty: number) => void;
   clearCart: () => void;
@@ -44,15 +54,16 @@ const STORAGE_KEY = "theaamghar_cart";
 const EMPTY_CART: CartItem[] = [];
 
 function mergeCartItems(a: CartItem[], b: CartItem[]): CartItem[] {
-  const merged = new Map<string, { qty: number; source: "box_size" | "variant" }>();
+  const merged = new Map<string, { qty: number; source: "box_size" | "variant"; addonSelections?: Record<string, string[]> }>();
   for (const item of [...a, ...b]) {
     const existing = merged.get(item.unitId);
     merged.set(item.unitId, {
       qty: (existing?.qty ?? 0) + item.qty,
       source: itemSource(item),
+      addonSelections: item.addonSelections ?? existing?.addonSelections,
     });
   }
-  return [...merged.entries()].map(([unitId, v]) => ({ unitId, qty: v.qty, source: v.source }));
+  return [...merged.entries()].map(([unitId, v]) => ({ unitId, qty: v.qty, source: v.source, addonSelections: v.addonSelections }));
 }
 
 /* Best-effort background push of the current cart to cart_items for the
@@ -173,11 +184,21 @@ export function CartProvider({ children }: { children: React.ReactNode }) {
   }, [items]);
 
   const value = useMemo<CartContextValue>(() => {
-    function addItem(unitId: string, qty = 1, source: "box_size" | "variant" = "box_size") {
+    function addItem(
+      unitId: string,
+      qty = 1,
+      source: "box_size" | "variant" = "box_size",
+      addonSelections?: Record<string, string[]>
+    ) {
       const existing = items.find((i) => i.unitId === unitId);
+      // A fresh addon selection replaces the line's stored one (rather than
+      // merging) so re-adding with different toppings reflects what was
+      // just picked, not a stale mix of two selections.
       const next = existing
-        ? items.map((i) => (i.unitId === unitId ? { ...i, qty: i.qty + qty } : i))
-        : [...items, { unitId, qty, source }];
+        ? items.map((i) =>
+            i.unitId === unitId ? { ...i, qty: i.qty + qty, addonSelections: addonSelections ?? i.addonSelections } : i
+          )
+        : [...items, { unitId, qty, source, addonSelections }];
       writeSyncedLocalStorage(STORAGE_KEY, next);
       setIsOpen(true);
     }

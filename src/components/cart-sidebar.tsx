@@ -105,6 +105,7 @@ export function CartSidebar({ content }: { content: SiteContent["emptyStates"] }
                     <div className="font-semibold text-sm">{line.name}</div>
                     <div className="text-xs text-ink-light mb-1.5">
                       {line.source === "box_size" ? `${line.label} box` : line.label}
+                      {line.addonLabel && ` + ${line.addonLabel}`}
                     </div>
                     <div className="flex items-center justify-between">
                       <div className="flex items-center gap-3 border-[1.5px] border-border-subtle rounded-full px-3 py-1">

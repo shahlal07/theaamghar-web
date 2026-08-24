@@ -1,6 +1,7 @@
 import { createClient } from "@/lib/supabase/client";
 import type { CartItem } from "@/lib/cart-context";
 import { variantLabel } from "@/lib/variant-label";
+import { getAddonGroups, addonSelectionLabel, totalAddonPrice } from "@/lib/product-addons";
 
 export type CartLine = {
   unitId: string;
@@ -15,6 +16,11 @@ export type CartLine = {
   unitPrice: number;
   stockQty: number;
   lineTotal: number;
+  /** Selected add-ons (toppings etc.), if the product has any -- flat price
+   * for the current selection, added once per line (not per qty), matching
+   * how these are priced ("any 2 toppings = Rs 50" regardless of qty). */
+  addonLabel: string | null;
+  addonPrice: number;
 };
 
 /* Cart items only carry {unitId, source, qty}; this resolves them against
@@ -35,7 +41,7 @@ export async function resolveCartLines(items: CartItem[]): Promise<CartLine[]> {
       ? supabase
           .from("product_box_sizes")
           .select(
-            "id, box_size_kg, selling_price, stock_qty, active, product:products(id, name, slug, image, status, vendor_id)"
+            "id, box_size_kg, selling_price, stock_qty, active, product:products(id, name, slug, image, status, vendor_id, attributes)"
           )
           .in(
             "id",
@@ -47,7 +53,7 @@ export async function resolveCartLines(items: CartItem[]): Promise<CartLine[]> {
       ? supabase
           .from("product_variants")
           .select(
-            "id, attributes, label, selling_price, stock_qty, active, product:products(id, name, slug, image, status, vendor_id)"
+            "id, attributes, label, selling_price, stock_qty, active, product:products(id, name, slug, image, status, vendor_id, attributes)"
           )
           .in(
             "id",
@@ -58,12 +64,17 @@ export async function resolveCartLines(items: CartItem[]): Promise<CartLine[]> {
   ]);
 
   const qtyByUnit = new Map(items.map((i) => [i.unitId, i.qty]));
+  const addonsByUnit = new Map(items.map((i) => [i.unitId, i.addonSelections]));
 
   const boxLines: CartLine[] = (boxSizeResult.data ?? [])
     .filter((row) => row.product && row.product.status === "published")
     .map((row) => {
       const qty = qtyByUnit.get(row.id) ?? 0;
       const unitPrice = Number(row.selling_price);
+      const addonGroups = getAddonGroups(row.product!.attributes as Record<string, unknown>);
+      const selections = addonsByUnit.get(row.id) ?? {};
+      const addonPrice = totalAddonPrice(addonGroups, selections);
+      const addonLabel = addonSelectionLabel(addonGroups, selections) || null;
       return {
         unitId: row.id,
         source: "box_size" as const,
@@ -76,7 +87,9 @@ export async function resolveCartLines(items: CartItem[]): Promise<CartLine[]> {
         label: variantLabel({ kind: "box_size", box_size_kg: Number(row.box_size_kg) }),
         unitPrice,
         stockQty: row.stock_qty,
-        lineTotal: unitPrice * qty,
+        lineTotal: unitPrice * qty + addonPrice,
+        addonLabel,
+        addonPrice,
       };
     });
 
@@ -85,6 +98,10 @@ export async function resolveCartLines(items: CartItem[]): Promise<CartLine[]> {
     .map((row) => {
       const qty = qtyByUnit.get(row.id) ?? 0;
       const unitPrice = Number(row.selling_price);
+      const addonGroups = getAddonGroups(row.product!.attributes as Record<string, unknown>);
+      const selections = addonsByUnit.get(row.id) ?? {};
+      const addonPrice = totalAddonPrice(addonGroups, selections);
+      const addonLabel = addonSelectionLabel(addonGroups, selections) || null;
       return {
         unitId: row.id,
         source: "variant" as const,
@@ -101,7 +118,9 @@ export async function resolveCartLines(items: CartItem[]): Promise<CartLine[]> {
         }),
         unitPrice,
         stockQty: row.stock_qty,
-        lineTotal: unitPrice * qty,
+        lineTotal: unitPrice * qty + addonPrice,
+        addonLabel,
+        addonPrice,
       };
     });
 

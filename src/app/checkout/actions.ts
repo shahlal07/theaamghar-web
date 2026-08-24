@@ -7,8 +7,14 @@ import { sendOrderConfirmationEmail, sendAdminNewOrderAlert, ADMIN_ALERT_EMAIL }
 import { computeDiscount, computeOrderTotal } from "@/lib/discount";
 import { variantLabel } from "@/lib/variant-label";
 import { getOrderItemVariantLabel, type OrderItem } from "@/lib/order-item";
+import { getAddonGroups, addonSelectionLabel, totalAddonPrice } from "@/lib/product-addons";
 
-export type OrderLineInput = { unitId: string; source?: "box_size" | "variant"; qty: number };
+export type OrderLineInput = {
+  unitId: string;
+  source?: "box_size" | "variant";
+  qty: number;
+  addonSelections?: Record<string, string[]>;
+};
 export type PlaceOrderState = { error: string } | { success: true; orderNumber: string } | undefined;
 const PK_PHONE_PATTERN = /^(?:\+92|0092|0)?3\d{2}[-\s]?\d{7}$/;
 export type CheckCouponState =
@@ -52,16 +58,17 @@ export async function placeOrder(lines: OrderLineInput[], formData: FormData): P
 
   const [{ data: boxSizes, error: boxSizesError }, { data: variants, error: variantsError }] = await Promise.all([
     boxSizeLines.length > 0
-      ? supabase.from("product_box_sizes").select("id, box_size_kg, selling_price, stock_qty, active, product:products(id, name, vendor_id, status, product_type)").in("id", boxSizeLines.map((l) => l.unitId))
+      ? supabase.from("product_box_sizes").select("id, box_size_kg, selling_price, stock_qty, active, product:products(id, name, vendor_id, status, product_type, attributes)").in("id", boxSizeLines.map((l) => l.unitId))
       : Promise.resolve({ data: [], error: null }),
     variantLines.length > 0
-      ? supabase.from("product_variants").select("id, attributes, label, selling_price, stock_qty, active, product:products(id, name, vendor_id, status, product_type)").in("id", variantLines.map((l) => l.unitId))
+      ? supabase.from("product_variants").select("id, attributes, label, selling_price, stock_qty, active, product:products(id, name, vendor_id, status, product_type, attributes)").in("id", variantLines.map((l) => l.unitId))
       : Promise.resolve({ data: [], error: null }),
   ]);
 
   if (boxSizesError || variantsError) return { error: "Something went wrong reading your cart. Please try again." };
 
   const qtyByUnit = new Map(lines.map((l) => [l.unitId, l.qty]));
+  const addonsByUnit = new Map(lines.map((l) => [l.unitId, l.addonSelections]));
   const orderItems: OrderItem[] = [];
   let subtotal = 0;
   let vendorId: string | null = null;
@@ -71,6 +78,10 @@ export async function placeOrder(lines: OrderLineInput[], formData: FormData): P
     if (qty <= 0 || !box.active || !box.product || box.product.status !== "published") return { error: "One of the items in your cart is no longer available." };
     if (box.stock_qty < qty) return { error: `Only ${box.stock_qty} left of ${box.product.name} (${box.box_size_kg}kg) -- please adjust the quantity.` };
     const unitPrice = Number(box.selling_price);
+    const addonGroups = getAddonGroups(box.product.attributes as Record<string, unknown>);
+    const addonSelections = addonsByUnit.get(box.id) ?? {};
+    const addonPrice = totalAddonPrice(addonGroups, addonSelections);
+    const addonLabel = addonSelectionLabel(addonGroups, addonSelections);
     orderItems.push({
       product_id: box.product.id,
       name: box.product.name,
@@ -82,9 +93,12 @@ export async function placeOrder(lines: OrderLineInput[], formData: FormData): P
       variant_id: box.id,
       variant_source: "box_size",
       variant_label: variantLabel({ kind: "box_size", box_size_kg: Number(box.box_size_kg) }),
-      variant_attributes: { box_size_kg: Number(box.box_size_kg) },
+      variant_attributes: {
+        box_size_kg: Number(box.box_size_kg),
+        ...(addonLabel ? { addon_label: addonLabel, addon_price: addonPrice } : {}),
+      },
     });
-    subtotal += unitPrice * qty;
+    subtotal += unitPrice * qty + addonPrice;
     if (vendorId && vendorId !== box.product.vendor_id) return { error: "Your cart contains products from different stores. Please check out one store at a time." };
     vendorId = box.product.vendor_id;
   }
@@ -95,8 +109,26 @@ export async function placeOrder(lines: OrderLineInput[], formData: FormData): P
     const label = variantLabel({ kind: "variant", attributes: (variant.attributes ?? {}) as Record<string, string>, label: variant.label });
     if (variant.stock_qty < qty) return { error: `Only ${variant.stock_qty} left of ${variant.product.name} (${label}) -- please adjust the quantity.` };
     const unitPrice = Number(variant.selling_price);
-    orderItems.push({ product_id: variant.product.id, name: variant.product.name, variety: variant.product.name, qty, unit_price: unitPrice, product_type: variant.product.product_type, variant_id: variant.id, variant_source: "variant", variant_label: label, variant_attributes: (variant.attributes ?? {}) as Record<string, string> });
-    subtotal += unitPrice * qty;
+    const addonGroups = getAddonGroups(variant.product.attributes as Record<string, unknown>);
+    const addonSelections = addonsByUnit.get(variant.id) ?? {};
+    const addonPrice = totalAddonPrice(addonGroups, addonSelections);
+    const addonLabel = addonSelectionLabel(addonGroups, addonSelections);
+    orderItems.push({
+      product_id: variant.product.id,
+      name: variant.product.name,
+      variety: variant.product.name,
+      qty,
+      unit_price: unitPrice,
+      product_type: variant.product.product_type,
+      variant_id: variant.id,
+      variant_source: "variant",
+      variant_label: label,
+      variant_attributes: {
+        ...((variant.attributes ?? {}) as Record<string, string>),
+        ...(addonLabel ? { addon_label: addonLabel, addon_price: addonPrice } : {}),
+      },
+    });
+    subtotal += unitPrice * qty + addonPrice;
     if (vendorId && vendorId !== variant.product.vendor_id) return { error: "Your cart contains products from different stores. Please check out one store at a time." };
     vendorId = variant.product.vendor_id;
   }

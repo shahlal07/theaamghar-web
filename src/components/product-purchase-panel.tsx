@@ -12,6 +12,7 @@ import { formatPKR } from "@/lib/format";
 import { trackProductView } from "@/lib/recently-viewed";
 import { WhatsAppIcon } from "@/components/contact-icons";
 import { productOrderWhatsAppLink } from "@/lib/whatsapp";
+import { priceForSelection, type AddonGroup } from "@/lib/product-addons";
 
 type BoxSize = {
   id: string;
@@ -36,6 +37,7 @@ export function ProductPurchasePanel({
   boxSizes,
   variants = [],
   whatsappNumber,
+  addonGroups = [],
 }: {
   productId: string;
   productSlug: string;
@@ -44,10 +46,20 @@ export function ProductPurchasePanel({
   boxSizes: BoxSize[];
   variants?: Variant[];
   whatsappNumber?: string | null;
+  addonGroups?: AddonGroup[];
 }) {
   const { addItem } = useCart();
   const { user } = useUser();
   const router = useRouter();
+  const [selectedAddons, setSelectedAddons] = useState<Record<string, string[]>>({});
+
+  function toggleAddon(groupId: string, optionId: string) {
+    setSelectedAddons((prev) => {
+      const current = prev[groupId] ?? [];
+      const next = current.includes(optionId) ? current.filter((id) => id !== optionId) : [...current, optionId];
+      return { ...prev, [groupId]: next };
+    });
+  }
   const showToast = useToast();
 
   // Fast path: any product with real box sizes (i.e. every product today,
@@ -139,9 +151,15 @@ export function ProductPurchasePanel({
 
   function handleAddToCart() {
     if (!selectedUnit) return;
-    addItem(selectedUnit.id, qty, isFruit ? "box_size" : "variant");
+    addItem(selectedUnit.id, qty, isFruit ? "box_size" : "variant", addonGroups.length > 0 ? selectedAddons : undefined);
     showToast(`${productName} added to cart!`);
   }
+
+  // Buy Now skips the cart entirely (see checkout's buynow= flow), which has
+  // no way to carry an addon selection through the URL/resolution path yet
+  // -- a product with add-ons only offers Add to Cart, where they're fully
+  // supported, rather than silently dropping the topping choice on Buy Now.
+  const hasAddons = addonGroups.length > 0;
 
   function handleBuyNow() {
     if (!selectedUnit) return;
@@ -325,6 +343,38 @@ export function ProductPurchasePanel({
           <p className="text-sm text-error mb-6">This option is currently out of stock.</p>
         )}
 
+        {addonGroups.map((group) => {
+          const selected = selectedAddons[group.id] ?? [];
+          const addonPrice = priceForSelection(group, selected.length);
+          return (
+            <fieldset key={group.id} className="mb-6">
+              <legend className="text-xs font-semibold uppercase tracking-wide text-ink-light mb-3">
+                {group.name} (optional)
+              </legend>
+              <div className="flex flex-wrap gap-3">
+                {group.options.map((option) => {
+                  const checked = selected.includes(option.id);
+                  return (
+                    <label key={option.id} className="flex items-center gap-2 cursor-pointer text-sm">
+                      <input
+                        type="checkbox"
+                        checked={checked}
+                        onChange={() => toggleAddon(group.id, option.id)}
+                        className="w-4 h-4 accent-mango-orange"
+                      />
+                      {option.label}
+                    </label>
+                  );
+                })}
+              </div>
+              {group.note && <p className="text-xs text-ink-light mt-2">{group.note}</p>}
+              {addonPrice > 0 && (
+                <p className="text-xs font-semibold text-mango-orange mt-1">+ {formatPKR(addonPrice)}</p>
+              )}
+            </fieldset>
+          );
+        })}
+
         <div className="flex gap-3">
           <button
             type="button"
@@ -334,14 +384,16 @@ export function ProductPurchasePanel({
           >
             Add to Cart
           </button>
-          <button
-            type="button"
-            onClick={handleBuyNow}
-            disabled={!inStock}
-            className="flex-1 bg-mango-orange text-white font-semibold py-3.5 rounded-full transition-transform hover:-translate-y-0.5 disabled:opacity-50 disabled:hover:translate-y-0"
-          >
-            Buy Now
-          </button>
+          {!hasAddons && (
+            <button
+              type="button"
+              onClick={handleBuyNow}
+              disabled={!inStock}
+              className="flex-1 bg-mango-orange text-white font-semibold py-3.5 rounded-full transition-transform hover:-translate-y-0.5 disabled:opacity-50 disabled:hover:translate-y-0"
+            >
+              Buy Now
+            </button>
+          )}
           <button
             type="button"
             onClick={handleWishlist}
