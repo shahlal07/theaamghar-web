@@ -171,6 +171,16 @@ export async function placeOrder(lines: OrderLineInput[], formData: FormData): P
   let paymentMethod = "cod";
   let paymentAccountId: string | null = null;
 
+  // A vendor can turn COD off from Settings -- re-check server-side rather
+  // than trusting the client hid the option, since this form field isn't
+  // otherwise validated against anything.
+  if (requestedMethod === "cod") {
+    // business_settings itself is admin-only RLS -- public_business_settings
+    // is the customer-facing view (same pattern used by shipping-server.ts).
+    const { data: settings } = await supabase.from("public_business_settings").select("cod_enabled").eq("vendor_id", vendorId).maybeSingle();
+    if (settings && settings.cod_enabled === false) return { error: "Cash on Delivery isn't available for this store. Please choose another payment method." };
+  }
+
   if (["bank", "easypaisa", "jazzcash"].includes(requestedMethod) && requestedAccountId) {
     const { data: account } = await supabase.from("payment_accounts").select("id, method").eq("id", requestedAccountId).eq("vendor_id", vendorId).eq("active", true).maybeSingle();
     if (account && account.method === requestedMethod) {

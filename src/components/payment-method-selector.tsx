@@ -2,7 +2,7 @@
 
 import { useEffect, useState } from "react";
 import { Building2, Smartphone, Wallet, Copy, Check, X } from "lucide-react";
-import { getActivePaymentAccounts, type PaymentAccount } from "@/lib/queries/payment-accounts";
+import { getActivePaymentAccounts, getCodEnabled, type PaymentAccount } from "@/lib/queries/payment-accounts";
 import { formatPKR } from "@/lib/format";
 
 export type PaymentMethodValue = "cod" | "bank" | "easypaisa" | "jazzcash";
@@ -29,6 +29,7 @@ export function PaymentMethodSelector({
 }) {
   const [accounts, setAccounts] = useState<PaymentAccount[] | null>(null);
   const [openAccount, setOpenAccount] = useState<PaymentAccount | null>(null);
+  const [codEnabled, setCodEnabled] = useState(true);
 
   useEffect(() => {
     // Cart lines are still resolving -- wait for a real vendorId rather than
@@ -36,7 +37,19 @@ export function PaymentMethodSelector({
     // scope this query client-side).
     if (!vendorId) return;
     getActivePaymentAccounts(vendorId).then(setAccounts);
+    getCodEnabled(vendorId).then(setCodEnabled);
   }, [vendorId]);
+
+  // A vendor can turn COD off from their Settings -- if the customer had it
+  // selected (or it's the default) and it just became unavailable, fall
+  // back to the first offered manual-transfer method instead of silently
+  // submitting an order with a payment method the vendor no longer accepts.
+  useEffect(() => {
+    if (!codEnabled && value === "cod" && accounts && accounts.length > 0) {
+      onChange(accounts[0].method, accounts[0].id);
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [codEnabled, accounts]);
 
   // An account the admin hasn't activated (or hasn't filled in real details
   // for) simply isn't offered -- better to show only COD than to invite a
@@ -46,18 +59,20 @@ export function PaymentMethodSelector({
   return (
     <>
       <div className="flex flex-col gap-3">
-        <button
-          type="button"
-          onClick={() => onChange("cod", null)}
-          className={`text-left rounded-xl p-4 border-[1.5px] transition-colors ${
-            value === "cod"
-              ? "border-mango-orange bg-mango-orange/8"
-              : "border-border-subtle hover:border-mango-orange/40"
-          }`}
-        >
-          <div className="font-semibold text-sm">Cash on Delivery</div>
-          <div className="text-xs text-ink-light">Pay in cash when your mangoes arrive</div>
-        </button>
+        {codEnabled && (
+          <button
+            type="button"
+            onClick={() => onChange("cod", null)}
+            className={`text-left rounded-xl p-4 border-[1.5px] transition-colors ${
+              value === "cod"
+                ? "border-mango-orange bg-mango-orange/8"
+                : "border-border-subtle hover:border-mango-orange/40"
+            }`}
+          >
+            <div className="font-semibold text-sm">Cash on Delivery</div>
+            <div className="text-xs text-ink-light">Pay in cash when your mangoes arrive</div>
+          </button>
+        )}
 
         {available.map((account) => {
           const meta = METHOD_META[account.method];
@@ -93,10 +108,15 @@ export function PaymentMethodSelector({
           );
         })}
 
-        {accounts !== null && available.length === 0 && (
+        {accounts !== null && available.length === 0 && codEnabled && (
           <p className="text-xs text-ink-light">
             Bank, Easypaisa and JazzCash transfers aren&apos;t set up yet — Cash on Delivery is
             available for now.
+          </p>
+        )}
+        {accounts !== null && available.length === 0 && !codEnabled && (
+          <p className="text-xs text-ink-light">
+            No payment methods are available right now. Please contact us before ordering.
           </p>
         )}
       </div>

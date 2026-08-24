@@ -30,3 +30,17 @@ export async function getActivePaymentAccounts(vendorId: string): Promise<Paymen
   }
   return (data ?? []) as PaymentAccount[];
 }
+
+// Defaults to true (COD offered) on any error/missing row -- matches the
+// column's own DB default, so a vendor who hasn't touched this setting
+// keeps the behavior that was always true before this toggle existed.
+export async function getCodEnabled(vendorId: string): Promise<boolean> {
+  const supabase = createClient();
+  const { data, error } = await supabase
+    .from("public_business_settings")
+    .select("cod_enabled")
+    .eq("vendor_id", vendorId)
+    .maybeSingle();
+  if (error || !data) return true;
+  return data.cod_enabled;
+}
