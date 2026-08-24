@@ -18,7 +18,10 @@ export function FAQ({ faqs }: { faqs: FaqEntry[] }) {
   return (
     <Section aria-label="Frequently asked questions" className="bg-[var(--color-cream-warm)]">
       <Heading eyebrow="Questions" title="Frequently Asked" center className="mb-12" />
-      <div className="max-w-2xl mx-auto divide-y divide-[var(--color-mango-deep)]/10">
+      {/* Heading always shows; the expandable question list is dense scroll
+          content hidden on mobile to keep the homepage light (most traffic
+          is mobile) -- full list stays on desktop. */}
+      <div className="hidden md:block max-w-2xl mx-auto divide-y divide-[var(--color-mango-deep)]/10">
         {items.map((item) => {
           const open = openId === item.id;
           return (

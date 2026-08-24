@@ -143,6 +143,9 @@ function FeaturedCard({
             {product.isLimitedHarvest && <Badge variant="green">🍂 Limited</Badge>}
           </div>
 
+          {/* Wishlist/compare/quick-add overlay buttons made the homepage
+              cards feel cluttered on mobile (most traffic) -- desktop-only
+              from here down; mobile gets a compact action row below instead. */}
           <button
             type="button"
             onClick={handleWishlist}
@@ -150,9 +153,7 @@ function FeaturedCard({
               wishlisted ? "from" : "to"
             } wishlist`}
             aria-pressed={wishlisted}
-            // 44px tap target on mobile, back to the original 36px on
-            // desktop where a cursor (not a fingertip) is doing the clicking.
-            className="absolute top-2 right-2 sm:top-4 sm:right-4 w-11 h-11 sm:w-9 sm:h-9 rounded-full bg-white/90 text-[var(--color-ink-fixed-dark)] flex items-center justify-center text-lg transition-transform hover:scale-110 active:scale-90"
+            className="hidden sm:flex absolute top-4 right-4 w-9 h-9 rounded-full bg-white/90 text-[var(--color-ink-fixed-dark)] items-center justify-center text-lg transition-transform hover:scale-110 active:scale-90"
           >
             {wishlisted ? "♥" : "♡"}
           </button>
@@ -162,7 +163,7 @@ function FeaturedCard({
             onClick={handleCompareToggle}
             aria-pressed={isComparing}
             title="Add to comparison"
-            className={`absolute bottom-2 left-2 sm:bottom-4 sm:left-4 flex items-center gap-1 min-h-[36px] sm:min-h-0 text-[0.65rem] sm:text-xs font-semibold px-2.5 sm:px-3 py-1.5 rounded-full transition-all active:scale-90 ${
+            className={`hidden sm:flex absolute bottom-4 left-4 items-center gap-1 text-xs font-semibold px-3 py-1.5 rounded-full transition-all active:scale-90 ${
               isComparing ? "bg-[var(--color-golden)] text-[var(--color-ink-fixed-dark)]" : "bg-white/90 text-[var(--color-ink-fixed-dark)]"
             }`}
           >
@@ -176,7 +177,7 @@ function FeaturedCard({
             <button
               type="button"
               onClick={handleQuickAdd}
-              className="absolute bottom-4 right-4 translate-y-2 opacity-0 group-hover:translate-y-0 group-hover:opacity-100 transition-all duration-300 flex items-center gap-1.5 bg-white text-[var(--color-ink-fixed-dark)] text-xs font-bold px-4 py-2.5 rounded-full shadow-lg hover:bg-[var(--color-golden)]"
+              className="hidden sm:flex absolute bottom-4 right-4 translate-y-2 opacity-0 group-hover:translate-y-0 group-hover:opacity-100 transition-all duration-300 items-center gap-1.5 bg-white text-[var(--color-ink-fixed-dark)] text-xs font-bold px-4 py-2.5 rounded-full shadow-lg hover:bg-[var(--color-golden)]"
             >
               <Plus className="h-3.5 w-3.5" strokeWidth={2.5} aria-hidden="true" />
               Quick Add
@@ -185,14 +186,17 @@ function FeaturedCard({
         </div>
 
         <div className="p-4 sm:p-6">
+          {/* Origin / rating / taste badge are extra detail that made the
+              mobile card feel packed -- desktop-only; mobile card shows just
+              the name and price, then the action row. */}
           {product.origin && (
-            <div className="text-[0.65rem] sm:text-xs font-semibold tracking-wide uppercase text-[var(--color-orchard-green-text)] mb-1">
+            <div className="hidden sm:block text-xs font-semibold tracking-wide uppercase text-[var(--color-orchard-green-text)] mb-1">
               {product.origin}
             </div>
           )}
-          <h3 className="font-serif text-lg sm:text-2xl font-bold text-[var(--color-mango-deep-text)] truncate">{product.name}</h3>
+          <h3 className="font-serif text-base sm:text-2xl font-bold text-[var(--color-mango-deep-text)] truncate">{product.name}</h3>
 
-          <div className="flex items-center gap-0.5 my-2 text-[var(--color-mango-deep-text)]" aria-hidden="true">
+          <div className="hidden sm:flex items-center gap-0.5 my-2 text-[var(--color-mango-deep-text)]" aria-hidden="true">
             {Array.from({ length: 5 }).map((_, i) => (
               <Star
                 key={i}
@@ -208,16 +212,16 @@ function FeaturedCard({
           </div>
 
           {product.sweetness && (
-            <div className="inline-block text-xs font-medium text-[var(--color-orchard-green-text)] bg-[var(--color-orchard-green)]/8 rounded-full px-3 py-1 mb-3">
+            <div className="hidden sm:inline-block text-xs font-medium text-[var(--color-orchard-green-text)] bg-[var(--color-orchard-green)]/8 rounded-full px-3 py-1 mb-3">
               Taste: {product.sweetness}
             </div>
           )}
 
-          <div className="flex items-baseline justify-between mt-2">
+          <div className="flex items-baseline justify-between mt-1 sm:mt-2">
             {soldOut ? (
               <span className="text-sm text-[var(--color-ink)]/60">Currently unavailable</span>
             ) : (
-              <span className="font-bold text-lg text-[var(--color-mango-deep-text)]">
+              <span className="font-bold text-base sm:text-lg text-[var(--color-mango-deep-text)]">
                 {formatPKR(product.minPrice!)}
                 {size && (
                   <span className="text-xs font-normal text-[var(--color-ink)]/60"> / {size.box_size_kg}kg</span>
@@ -238,7 +242,7 @@ function FeaturedCard({
                   "noopener,noreferrer"
                 );
               }}
-              className="mt-2 flex items-center gap-1.5 text-xs font-semibold text-[#25D366]"
+              className="hidden sm:flex mt-2 items-center gap-1.5 text-xs font-semibold text-[#25D366]"
             >
               <WhatsAppIcon className="w-3.5 h-3.5" />
               Order via WhatsApp
@@ -247,11 +251,46 @@ function FeaturedCard({
         </div>
       </Link>
 
-      <div className="px-4 pb-4 sm:px-6 sm:pb-6">
+      {/* Desktop keeps the single "View Collection" CTA. Mobile (most of
+          our traffic) gets the 3 actions that actually matter right on the
+          homepage card: add to cart, buy now, or order via WhatsApp --
+          nothing else. */}
+      <div className="hidden sm:block px-6 pb-6">
         <Button href={`/product/${product.slug}`} variant="outline-dark" size="md" className="w-full">
           View Collection
         </Button>
       </div>
+
+      {!soldOut && (
+        <div className="sm:hidden flex gap-1 px-3 pb-3">
+          <button
+            type="button"
+            onClick={handleQuickAdd}
+            className="flex-1 flex flex-col items-center gap-0.5 rounded-xl bg-[var(--color-mango-deep)] text-white py-2 active:scale-95 transition-transform"
+          >
+            <Plus className="h-3.5 w-3.5" strokeWidth={2.5} aria-hidden="true" />
+            <span className="text-[9px] font-bold leading-none">Add</span>
+          </button>
+          <Link
+            href={`/checkout?buynow=${product.defaultBoxSizeId}&buynowSource=${product.defaultUnitSource}&qty=1`}
+            onClick={(e) => e.stopPropagation()}
+            className="flex-1 flex flex-col items-center justify-center gap-0.5 rounded-xl bg-[var(--color-golden)] text-[var(--color-ink-fixed-dark)] py-2 active:scale-95 transition-transform"
+          >
+            <span className="text-[9px] font-bold leading-none">Buy Now</span>
+          </Link>
+          {whatsappNumber && (
+            <a
+              href={productOrderWhatsAppLink(whatsappNumber, product.name, size?.box_size_kg)}
+              target="_blank"
+              rel="noopener noreferrer"
+              onClick={(e) => e.stopPropagation()}
+              className="flex-1 flex flex-col items-center justify-center gap-0.5 rounded-xl bg-[#25D366] text-white py-2 active:scale-95 transition-transform"
+            >
+              <WhatsAppIcon className="w-3.5 h-3.5" />
+            </a>
+          )}
+        </div>
+      )}
     </motion.div>
   );
 }

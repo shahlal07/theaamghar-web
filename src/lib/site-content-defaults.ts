@@ -311,8 +311,17 @@ export function mergeSiteContent(
       typeof baseValue === "object" &&
       !Array.isArray(baseValue)
     ) {
-      result[key] = { ...baseValue, ...overrideValue };
-    } else if (overrideValue !== undefined) {
+      // An empty string in a saved nested field (e.g. an image URL an admin
+      // never actually set) must NOT blank out the working default -- an
+      // empty src on <Image>/<video> renders broken on the live site. Only a
+      // real, non-empty override value replaces the base for that key.
+      const nested = { ...(baseValue as Record<string, unknown>) };
+      for (const [nestedKey, nestedValue] of Object.entries(overrideValue as Record<string, unknown>)) {
+        if (nestedValue === "" || nestedValue === undefined) continue;
+        nested[nestedKey] = nestedValue;
+      }
+      result[key] = nested;
+    } else if (overrideValue !== undefined && !(typeof overrideValue === "string" && overrideValue === "")) {
       result[key] = overrideValue;
     }
   }

@@ -17,7 +17,10 @@ export function WhyChooseUs({ content }: { content: SiteContent["whyChooseUs"] }
   return (
     <Section aria-label="Why choose us" className="bg-[var(--color-cream-warm)]">
       <Heading eyebrow={content.eyebrow} title={content.title} center className="mb-16" />
-      <div className="space-y-14">
+      {/* Heading always shows; the detailed reason-by-reason body is dense
+          scroll content that made the mobile homepage feel congested (most
+          traffic is mobile) -- hidden below md, full experience on desktop. */}
+      <div className="hidden md:block space-y-14">
         {content.reasons.map((reason, index) => (
           <motion.div
             key={reason.title}

@@ -21,19 +21,24 @@ export function Story({ content }: { content: SiteContent["story"] }) {
             center
           />
         </Reveal>
-        <Reveal delay={100}>
-          <p className="text-[var(--color-ink)]/75 text-lg leading-relaxed mt-8 mb-4">{content.paragraph1}</p>
-        </Reveal>
-        <Reveal delay={180}>
-          <p className="text-[var(--color-ink)]/75 text-lg leading-relaxed mb-12">{content.paragraph2}</p>
-        </Reveal>
-        <Reveal delay={260}>
-          <div className="grid grid-cols-3 gap-6 max-w-md mx-auto">
-            {content.stats.map((stat) => (
-              <Stat key={stat.label} value={stat.value} suffix={stat.suffix} label={stat.label} />
-            ))}
-          </div>
-        </Reveal>
+        {/* Heading above always shows; the paragraphs + stats are the dense
+            body content hidden on mobile to keep the homepage light (most
+            traffic is mobile) -- full experience stays on desktop. */}
+        <div className="hidden md:block">
+          <Reveal delay={100}>
+            <p className="text-[var(--color-ink)]/75 text-lg leading-relaxed mt-8 mb-4">{content.paragraph1}</p>
+          </Reveal>
+          <Reveal delay={180}>
+            <p className="text-[var(--color-ink)]/75 text-lg leading-relaxed mb-12">{content.paragraph2}</p>
+          </Reveal>
+          <Reveal delay={260}>
+            <div className="grid grid-cols-3 gap-6 max-w-md mx-auto">
+              {content.stats.map((stat) => (
+                <Stat key={stat.label} value={stat.value} suffix={stat.suffix} label={stat.label} />
+              ))}
+            </div>
+          </Reveal>
+        </div>
       </div>
     </Section>
   );
