@@ -1,9 +1,9 @@
 "use client";
 
-import { useActionState, useState } from "react";
-import Link from "next/link";
+import { useActionState, useRef, useState } from "react";
 import { Upload } from "lucide-react";
 import { useUser } from "@/lib/use-user";
+import { createClient as createBrowserSupabaseClient } from "@/lib/supabase/client";
 import { submitReview } from "@/app/product/[slug]/actions";
 import { reviewCategoryList } from "@/lib/review-categories";
 import type { SiteContent } from "@/lib/site-content-defaults";
@@ -28,22 +28,27 @@ export function ReviewForm({
     async (_prev, formData) => submitReview(formData),
     null
   );
+  const formRef = useRef<HTMLFormElement>(null);
+  // Guest reviews: submitReview only ever required *a* session (real or
+  // anonymous) to satisfy reviews.customer_id, same as checkout's own
+  // guest flow -- signInAnonymously() then re-submitting was the only
+  // piece actually missing here; the "Sign in to leave a review" gate was
+  // stricter than the backend needed.
+  const guestSessionRef = useRef(false);
+
+  async function handleSubmit(e: React.FormEvent<HTMLFormElement>) {
+    if (user || loading || guestSessionRef.current) return;
+    e.preventDefault();
+    const form = e.currentTarget;
+    const supabase = createBrowserSupabaseClient();
+    const { error } = await supabase.auth.signInAnonymously();
+    if (!error) {
+      guestSessionRef.current = true;
+      form.requestSubmit();
+    }
+  }
 
   if (loading) return null;
-
-  if (!user) {
-    return (
-      <p className="text-sm text-ink-light border border-border-subtle rounded-brand-sm p-4">
-        <Link
-          href={`/login?returnTo=${encodeURIComponent(`/product/${productSlug}#reviews`)}`}
-          className="text-mango-orange font-semibold"
-        >
-          Sign in
-        </Link>{" "}
-        to leave a review.
-      </p>
-    );
-  }
 
   if (state?.success) {
     return (
@@ -60,7 +65,7 @@ export function ReviewForm({
   }
 
   return (
-    <form action={formAction} className="border border-border-subtle rounded-brand-sm p-5">
+    <form ref={formRef} action={formAction} onSubmit={handleSubmit} className="border border-border-subtle rounded-brand-sm p-5">
       <input type="hidden" name="productId" value={productId} />
       <input type="hidden" name="productSlug" value={productSlug} />
       <input type="hidden" name="rating" value={rating} />

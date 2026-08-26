@@ -1,9 +1,9 @@
 "use client";
 
-import { useActionState, useState } from "react";
-import Link from "next/link";
+import { useActionState, useRef, useState } from "react";
 import { Upload, Sparkles, CheckCircle2 } from "lucide-react";
 import { useUser } from "@/lib/use-user";
+import { createClient as createBrowserSupabaseClient } from "@/lib/supabase/client";
 import { submitBugReport, type SubmitBugReportState } from "@/app/report-bug/actions";
 
 export function ReportBugForm() {
@@ -14,22 +14,27 @@ export function ReportBugForm() {
     async (_prev, formData) => submitBugReport(_prev, formData),
     undefined
   );
+  const formRef = useRef<HTMLFormElement>(null);
+  // Guest bug reports: submitBugReport only ever required *a* session (real
+  // or anonymous), same as checkout's own guest flow -- the "Sign in to
+  // report a bug and earn mango credits" gate was stricter than the backend
+  // needed. A guest just won't actually earn credits (nothing to credit an
+  // anonymous session with), but can still submit and get the AI reply.
+  const guestSessionRef = useRef(false);
+
+  async function handleSubmit(e: React.FormEvent<HTMLFormElement>) {
+    if (user || loading || guestSessionRef.current) return;
+    e.preventDefault();
+    const form = e.currentTarget;
+    const supabase = createBrowserSupabaseClient();
+    const { error } = await supabase.auth.signInAnonymously();
+    if (!error) {
+      guestSessionRef.current = true;
+      form.requestSubmit();
+    }
+  }
 
   if (loading) return null;
-
-  if (!user) {
-    return (
-      <p className="text-sm text-ink-light border border-border-subtle rounded-2xl p-5 bg-surface">
-        <Link
-          href={`/login?returnTo=${encodeURIComponent("/report-bug")}`}
-          className="text-mango-orange font-semibold"
-        >
-          Sign in
-        </Link>{" "}
-        to report a bug and earn mango credits.
-      </p>
-    );
-  }
 
   function handleScreenshotChange(e: React.ChangeEvent<HTMLInputElement>) {
     const file = e.target.files?.[0] ?? null;
@@ -67,7 +72,9 @@ export function ReportBugForm() {
 
   return (
     <form
+      ref={formRef}
       action={formAction}
+      onSubmit={handleSubmit}
       className="border border-border-subtle rounded-2xl p-5 bg-surface flex flex-col gap-4"
     >
       <div>
