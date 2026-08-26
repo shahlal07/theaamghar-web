@@ -234,9 +234,23 @@ export function CheckoutForm({ emptyStates }: { emptyStates: SiteContent["emptyS
   }
 
   return (
-    <div className="grid md:grid-cols-[1.2fr_1fr] gap-10">
-      <form ref={formRef} action={formAction} onSubmit={handleSubmit} noValidate>
-        <div className="bg-surface border border-border-subtle rounded-2xl shadow-brand-sm p-6 mb-5">
+    // Mobile stacks everything in DOM/`order` sequence (address → payment →
+    // discount → order summary → place order → bought-together, per a real
+    // customer report that the old layout buried the order summary and
+    // total price below the submit button on a phone). Desktop pins each
+    // block back into its original two-column spot via md:col-start/
+    // md:row-start, independent of that mobile order -- CSS Grid places
+    // order-modified-document-order items into the next free row of their
+    // explicit column, so this doesn't need to duplicate any markup.
+    <form
+      ref={formRef}
+      action={formAction}
+      onSubmit={handleSubmit}
+      noValidate
+      className="grid gap-5 md:grid-cols-[1.2fr_1fr] md:gap-x-10 md:gap-y-0 md:items-start"
+    >
+      <div className="order-1 md:order-1 md:col-start-1 md:row-start-1">
+        <div className="bg-surface border border-border-subtle rounded-2xl shadow-brand-sm p-6">
           <h2 className="font-serif text-xl font-bold mb-4">📍 Delivery Details</h2>
           {savedAddresses.length > 0 && (
             <div className="mb-4">
@@ -293,15 +307,19 @@ export function CheckoutForm({ emptyStates }: { emptyStates: SiteContent["emptyS
             )}
           </div>
         </div>
+      </div>
 
-        <div className="bg-surface border border-border-subtle rounded-2xl shadow-brand-sm p-6 mb-5">
+      <div className="order-2 md:order-2 md:col-start-1 md:row-start-2">
+        <div className="bg-surface border border-border-subtle rounded-2xl shadow-brand-sm p-6">
           <h2 className="font-serif text-xl font-bold mb-4">💰 Payment Method</h2>
           <input type="hidden" name="paymentMethod" value={paymentMethod} />
           <input type="hidden" name="paymentAccountId" value={paymentAccountId ?? ""} />
           <PaymentMethodSelector value={paymentMethod} onChange={(method, accountId) => { setPaymentMethod(method); setPaymentAccountId(accountId); }} total={total} vendorId={resolvedLines?.[0]?.vendorId ?? null} />
         </div>
+      </div>
 
-        <div className="bg-surface border border-border-subtle rounded-2xl shadow-brand-sm p-6 mb-5">
+      <div className="order-3 md:order-3 md:col-start-1 md:row-start-3">
+        <div className="bg-surface border border-border-subtle rounded-2xl shadow-brand-sm p-6">
           <h2 className="font-serif text-xl font-bold mb-4">🏷️ Discount</h2>
           <input type="hidden" name="useWelcomeDiscount" value={useWelcomeDiscount && welcomeDiscountPercent ? "true" : ""} />
           <input type="hidden" name="couponCode" value={!useWelcomeDiscount && couponState.status === "valid" ? couponInput.trim() : ""} />
@@ -317,23 +335,15 @@ export function CheckoutForm({ emptyStates }: { emptyStates: SiteContent["emptyS
           </div>
           {couponState.message && !useWelcomeDiscount && <p className={`text-xs mt-2 ${couponState.status === "valid" ? "text-orchard-green" : "text-error"}`}>{couponState.status === "valid" ? "✓ " : ""}{couponState.message}</p>}
         </div>
+      </div>
 
-        {state && "error" in state && <p className="text-sm text-error mb-4">{state.error}</p>}
-        <button type="submit" disabled={pending || resolvedLines === null || shippingResolving} className="w-full bg-mango-orange text-white font-semibold py-4 rounded-full transition-transform hover:-translate-y-0.5 disabled:opacity-60 disabled:hover:translate-y-0">
-          {pending ? "Placing Order…" : `${buynowUnitId ? "Buy Now" : "Place Order"} — ${formatPKR(total)}`}
-        </button>
-        {!user && !userLoading && (
-          <p className="text-xs text-ink-light text-center mt-3">
-            🔒 No account needed — check out as a guest. Want order history and faster checkout next time?{" "}
-            <Link href={`/signup?returnTo=${encodeURIComponent("/checkout")}`} className="text-mango-orange font-semibold">
-              Create a free account
-            </Link>
-            .
-          </p>
-        )}
-      </form>
-
-      <div>
+      {/* Order Summary sits ahead of the submit button on mobile (order-4,
+          before the order-5 button block below) so a customer sees the
+          total before being asked to place the order -- previously it lived
+          in a second grid column that only appeared AFTER the button when
+          stacked on a phone. Desktop keeps it in the original right column
+          (md:col-start-2 md:row-start-1), unaffected by that reordering. */}
+      <div className="order-4 md:order-4 md:col-start-2 md:row-start-1 md:row-span-2">
         <div className="bg-cream-warm border border-border-subtle rounded-2xl shadow-brand-sm p-6 md:sticky md:top-24">
           <h2 className="font-serif text-xl font-bold mb-4">Order Summary</h2>
           {resolvedLines === null ? <p className="text-sm text-ink-light">Loading…</p> : <div className="flex flex-col gap-3 mb-4">
@@ -351,6 +361,25 @@ export function CheckoutForm({ emptyStates }: { emptyStates: SiteContent["emptyS
           <div className="flex justify-between font-bold text-lg pt-3 mt-2 border-t-[1.5px] border-border-subtle tabular-nums"><span>Total</span><span className="text-mango-orange">{formatPKR(total)}</span></div>
           <p className="text-xs text-ink-light mt-4 pt-4 border-t border-border-subtle">🚚 Usually delivered next-day, or same-day if you order before 3pm.</p>
         </div>
+      </div>
+
+      <div className="order-5 md:order-5 md:col-start-1 md:row-start-4">
+        {state && "error" in state && <p className="text-sm text-error mb-4">{state.error}</p>}
+        <button type="submit" disabled={pending || resolvedLines === null || shippingResolving} className="w-full bg-mango-orange text-white font-semibold py-4 rounded-full transition-transform hover:-translate-y-0.5 disabled:opacity-60 disabled:hover:translate-y-0">
+          {pending ? "Placing Order…" : `${buynowUnitId ? "Buy Now" : "Place Order"} — ${formatPKR(total)}`}
+        </button>
+        {!user && !userLoading && (
+          <p className="text-xs text-ink-light text-center mt-3">
+            🔒 No account needed — check out as a guest. Want order history and faster checkout next time?{" "}
+            <Link href={`/signup?returnTo=${encodeURIComponent("/checkout")}`} className="text-mango-orange font-semibold">
+              Create a free account
+            </Link>
+            .
+          </p>
+        )}
+      </div>
+
+      <div className="order-6 md:order-6 md:col-start-2 md:row-start-3">
         {resolvedLines && resolvedLines.length > 0 && (
           <div className="mt-5">
             <BoughtTogetherStrip
@@ -360,7 +389,7 @@ export function CheckoutForm({ emptyStates }: { emptyStates: SiteContent["emptyS
           </div>
         )}
       </div>
-    </div>
+    </form>
   );
 }
 
