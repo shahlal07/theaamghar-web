@@ -34,6 +34,14 @@ export type SiteContent = {
     desktopVideoUrl: string;
     desktopImageUrl: string;
     mobileImageUrl: string;
+    // Opt-in, defaults to false/absent for every existing vendor (TheAamGhar
+    // and Mina Cafe both currently rely on mobileImageUrl falling through as
+    // the desktop image too when no separate desktop asset is set -- see
+    // HeroSection.tsx). Set true only when the mobile asset is genuinely
+    // mobile-resolution (a small product photo, not a real hero shot) and
+    // would look soft stretched full-bleed on a desktop hero -- desktop then
+    // keeps its existing gradient instead of upscaling it.
+    mobileOnly?: boolean;
   };
   story: {
     eyebrow: string;
@@ -56,6 +64,8 @@ export type SiteContent = {
     body: string;
     videoUrl: string;
     mobileImageUrl: string;
+    // Same opt-in as hero.mobileOnly -- see that field's comment.
+    mobileOnly?: boolean;
   };
   delivery: {
     eyebrow: string;

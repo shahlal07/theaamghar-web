@@ -45,6 +45,7 @@ export default async function Home() {
         videoSrc={content.hero.desktopVideoUrl}
         mobileImageSrc={content.hero.mobileImageUrl}
         desktopImageSrc={content.hero.desktopImageUrl}
+        mobileOnly={content.hero.mobileOnly}
         accentEmoji={content.brand.accentEmoji}
         title={
           <>
@@ -99,6 +100,7 @@ export default async function Home() {
             <LazyVideo
               src={content.storyBanner.videoUrl}
               mobileImageSrc={content.storyBanner.mobileImageUrl}
+              mobileOnly={content.storyBanner.mobileOnly}
               className="w-full rounded-brand shadow-brand-sm aspect-[4/5]"
             />
           </Reveal>

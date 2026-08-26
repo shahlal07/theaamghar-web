@@ -23,6 +23,10 @@ interface HeroSectionProps {
   videoSrc: string;
   mobileImageSrc: string;
   desktopImageSrc?: string;
+  // See SiteContent.hero.mobileOnly's comment -- when true, desktop never
+  // falls back to mobileImageSrc even without a desktopImageSrc/video (the
+  // mobile asset is assumed too low-resolution to blow up full-bleed).
+  mobileOnly?: boolean;
   title: React.ReactNode;
   subtitle?: React.ReactNode;
   children?: React.ReactNode;
@@ -35,10 +39,10 @@ interface HeroSectionProps {
 // photoshoot) so it never downloads the video at all. Vendors with no video
 // asset (photo-only businesses) fall back to a static image on both
 // breakpoints instead of an empty <video> tag.
-export function HeroSection({ videoSrc, mobileImageSrc, desktopImageSrc, title, subtitle, children, accentEmoji }: HeroSectionProps) {
+export function HeroSection({ videoSrc, mobileImageSrc, desktopImageSrc, mobileOnly, title, subtitle, children, accentEmoji }: HeroSectionProps) {
   const isDesktop = useSyncExternalStore(subscribe, getSnapshot, getServerSnapshot);
   const showVideo = isDesktop && Boolean(videoSrc);
-  const imageSrc = (isDesktop && desktopImageSrc) || mobileImageSrc;
+  const imageSrc = isDesktop ? desktopImageSrc || (mobileOnly ? undefined : mobileImageSrc) : mobileImageSrc;
 
   return (
     <section

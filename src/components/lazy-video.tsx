@@ -30,16 +30,22 @@ function getServerSnapshot() {
 export function LazyVideo({
   src,
   mobileImageSrc,
+  mobileOnly,
   className,
 }: {
   src: string;
   mobileImageSrc?: string;
+  // See SiteContent.storyBanner.mobileOnly's comment -- when true and there's
+  // no video, desktop shows this wrapper's own gradient background instead
+  // of stretching a mobile-resolution image full-bleed.
+  mobileOnly?: boolean;
   className?: string;
 }) {
   const wrapRef = useRef<HTMLDivElement>(null);
   const [shouldLoad, setShouldLoad] = useState(false);
   const isDesktop = useSyncExternalStore(subscribe, getSnapshot, getServerSnapshot);
   const showVideo = Boolean(src) && (isDesktop || !mobileImageSrc);
+  const showImage = !showVideo && Boolean(mobileImageSrc) && !(mobileOnly && isDesktop);
 
   useEffect(() => {
     if (!showVideo) return;
@@ -74,9 +80,9 @@ export function LazyVideo({
           </video>
         )
       ) : (
-        mobileImageSrc && (
+        showImage && (
           <Image
-            src={mobileImageSrc}
+            src={mobileImageSrc!}
             alt=""
             fill
             sizes="(max-width: 768px) 100vw, 0px"
