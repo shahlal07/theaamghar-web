@@ -4,7 +4,7 @@ import { useEffect, useRef, useState } from "react";
 import { useSearchParams } from "next/navigation";
 import Link from "next/link";
 import { useUser } from "@/lib/use-user";
-import { getOrderByNumberClient, getOrderByNumberAndEmailClient } from "@/lib/queries/orders-client";
+import { getOrderByNumberClient, getLatestOrderByContactClient } from "@/lib/queries/orders-client";
 import { formatPKR } from "@/lib/format";
 import { PaymentProofPanel } from "@/components/payment-proof-panel";
 import { getOrderItemVariantLabel } from "@/lib/order-item";
@@ -26,11 +26,13 @@ const STATUS_LABELS: Record<string, string> = {
   refunded: "Refunded",
 };
 
+type TrackMethod = "order" | "contact";
+
 export function TrackForm({ whatsappNumber }: { whatsappNumber: string | null }) {
   const searchParams = useSearchParams();
   const { user, loading: userLoading } = useUser();
+  const [method, setMethod] = useState<TrackMethod>("order");
   const [query, setQuery] = useState(searchParams.get("order") ?? "");
-  const [email, setEmail] = useState("");
   // undefined = no search performed yet; null = searched, not found; an
   // Order = found. Deriving "searched" from this instead of a separate
   // boolean avoids a synchronous setState at the top of search() that
@@ -43,19 +45,19 @@ export function TrackForm({ whatsappNumber }: { whatsappNumber: string | null })
   // can never clobber a newer one that already resolved.
   const latestRequestId = useRef(0);
 
-  // Tracking never requires an account (or even the exact guest session
-  // used at checkout): a signed-in customer's own order still resolves via
-  // RLS with just the order number, but anyone -- including a guest who
-  // lost their session on a different device or browser -- can instead
-  // supply the order number plus the email captured at checkout.
-  async function search(orderNumber: string) {
-    const trimmedNumber = orderNumber.trim().toUpperCase();
-    const trimmedEmail = email.trim();
-    if (!trimmedNumber) return;
+  // One box, one method at a time: "Order Number" resolves a signed-in
+  // customer's own order via RLS (no account = nothing to find, since a bare
+  // order number is a guessable sequential id and isn't proof of ownership
+  // on its own). "Email or Phone" needs no account or order number at all --
+  // it's a security-definer RPC that returns the single most recent order
+  // matching that contact, digit-normalized so "+92 321 9876543" and
+  // "03219876543" both match the same stored phone.
+  async function search(value: string) {
+    const trimmed = value.trim();
+    if (!trimmed) return;
     const requestId = ++latestRequestId.current;
-    let result: Order | null = null;
-    if (user) result = await getOrderByNumberClient(trimmedNumber);
-    if (!result && trimmedEmail) result = await getOrderByNumberAndEmailClient(trimmedNumber, trimmedEmail);
+    const result =
+      method === "order" ? await getOrderByNumberClient(trimmed.toUpperCase()) : await getLatestOrderByContactClient(trimmed);
     if (requestId === latestRequestId.current) setOrder(result);
   }
 
@@ -73,52 +75,73 @@ export function TrackForm({ whatsappNumber }: { whatsappNumber: string | null })
 
   return (
     <div>
+      <div className="flex gap-2 mb-4 justify-center">
+        {(
+          [
+            { id: "order", label: "Order Number" },
+            { id: "contact", label: "Email or Phone" },
+          ] as const
+        ).map((opt) => (
+          <button
+            key={opt.id}
+            type="button"
+            onClick={() => {
+              setMethod(opt.id);
+              setOrder(undefined);
+              setQuery("");
+            }}
+            className={`px-4 py-2 rounded-full text-sm font-semibold transition-colors ${
+              method === opt.id
+                ? "bg-mango-orange text-white"
+                : "bg-surface border-[1.5px] border-border-subtle text-ink-light hover:border-mango-orange"
+            }`}
+          >
+            {opt.label}
+          </button>
+        ))}
+      </div>
+
       <form
         onSubmit={(e) => {
           e.preventDefault();
           search(query);
         }}
-        className="flex flex-col gap-3 mb-8"
+        className="flex gap-3 mb-8"
       >
-        <div className="flex gap-3">
-          <input
-            type="text"
-            value={query}
-            onChange={(e) => setQuery(e.target.value)}
-            placeholder="Order number, e.g. TAG-100001"
-            className="flex-1 border-[1.5px] border-border-subtle rounded-full px-5 py-3 text-sm bg-surface focus-visible:outline-none focus-visible:border-mango-orange transition-colors"
-          />
-          <button
-            type="submit"
-            className="bg-mango-orange text-white font-semibold px-6 py-3 rounded-full transition-transform hover:-translate-y-0.5"
-          >
-            Track
-          </button>
-        </div>
-        {!user && (
-          <input
-            type="email"
-            value={email}
-            onChange={(e) => setEmail(e.target.value)}
-            placeholder="Email used at checkout"
-            className="border-[1.5px] border-border-subtle rounded-full px-5 py-3 text-sm bg-surface focus-visible:outline-none focus-visible:border-mango-orange transition-colors"
-          />
-        )}
+        <input
+          type="text"
+          value={query}
+          onChange={(e) => setQuery(e.target.value)}
+          placeholder={method === "order" ? "Order number, e.g. ORD-100001" : "Email or phone used at checkout"}
+          className="flex-1 border-[1.5px] border-border-subtle rounded-full px-5 py-3 text-sm bg-surface focus-visible:outline-none focus-visible:border-mango-orange transition-colors"
+        />
+        <button
+          type="submit"
+          className="bg-mango-orange text-white font-semibold px-6 py-3 rounded-full transition-transform hover:-translate-y-0.5"
+        >
+          Track
+        </button>
       </form>
 
-      {!user && (
+      {method === "order" && !user && (
         <p className="text-center text-xs text-ink-light -mt-5 mb-8">
-          Not signed in? Enter the email you used at checkout above, or{" "}
+          Tracking by order number needs you to be signed in. Guest?{" "}
+          <button type="button" onClick={() => setMethod("contact")} className="text-mango-orange font-semibold">
+            Track by email or phone
+          </button>{" "}
+          instead, or{" "}
           <Link href={`/login?returnTo=${encodeURIComponent(`/track${query ? `?order=${query}` : ""}`)}`} className="text-mango-orange font-semibold">
             sign in
-          </Link>{" "}
-          to see all your orders.
+          </Link>
+          .
         </p>
       )}
 
       {searched && order === null && (
         <p className="text-center text-ink-light py-10">
-          {user ? "No order found with that number on your account." : "No order found with that number and email."}
+          {method === "order"
+            ? "No order found with that number on your account."
+            : "No order found with that email or phone."}
         </p>
       )}
 

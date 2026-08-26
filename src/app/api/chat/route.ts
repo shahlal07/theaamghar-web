@@ -29,7 +29,10 @@ const MAX_MESSAGE_LENGTH = 1000;
 
 type ChatMessage = { role: "user" | "assistant"; content: string };
 
-const ORDER_NUMBER_PATTERN = /\bTAG-\d{4,}\b/i;
+// ORD- is the current prefix for every vendor (order_number_seq's default
+// used to hardcode TAG-, a TheAamGhar leftover from before multi-tenancy --
+// TAG- orders placed before that fix still need to match here too).
+const ORDER_NUMBER_PATTERN = /\b(?:TAG|ORD)-\d{4,}\b/i;
 const TRACKING_INTENT_PATTERN =
   /\btrack(ing)?\b|\bwhere('s| is)? my (order|package|parcel)\b|order status|my orders?\b|ongoing order/i;
 
@@ -113,7 +116,7 @@ async function buildOrderTrackingBlock(latestUserMessage: string): Promise<strin
     } = await supabase.auth.getUser();
 
     if (!user) {
-      return `\n\nThe customer wants to track an order but isn't signed in. Tell them to sign in at /login (or give you a specific order number like TAG-100001, which also requires being signed in as its owner) to see real status.`;
+      return `\n\nThe customer wants to track an order but isn't signed in. Tell them to sign in at /login (or give you a specific order number like ORD-100001, which also requires being signed in as its owner) to see real status.`;
     }
 
     const orders = (await getOrdersForCurrentUser()) as OrderRow[];
@@ -189,7 +192,7 @@ ${shippingCost != null ? `- Standard shipping cost: Rs ${shippingCost} (varies a
 ${freeShippingAt != null ? `- Free shipping on orders over Rs ${freeShippingAt}.` : ""}
 - New customers get a one-time welcome discount after verifying their email in their account (see Account page). Don't invent a specific percentage or code beyond what's stated here -- only what the customer's real account shows applies to them.
 - ${loyaltyProgram.name}: customers earn ${loyaltyProgram.currencyPlural} (shown as "${loyaltyProgram.currencyTitleCase}" in their account) for activity like check-ins and reviews -- point them to the Rewards page in their account for their real balance, never guess a number.
-- Orders can be tracked at /track using the order number, or right here in chat — a customer can paste an order number (like TAG-100001) or just ask "track my order" and you'll be given their real order data below when that happens.
+- Orders can be tracked at /track using the order number, or right here in chat — a customer can paste an order number (like ORD-100001) or just ask "track my order" and you'll be given their real order data below when that happens.
 - Reviews can be left on a product's page once it's delivered, via the account's Orders page.
 - ${damagedItemNote} (${whatsapp}) with their order number — support will make it right.
 - Signing in is available via email/password, Google, or phone number (OTP).
