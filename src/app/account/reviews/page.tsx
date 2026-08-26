@@ -18,7 +18,7 @@ export default async function AccountReviewsPage() {
             </svg>
           }
           title="No reviews yet"
-          message="Once your mangoes are delivered, you can share what you thought — your reviews will show up here."
+          message="Once your order is delivered, you can share what you thought — your reviews will show up here."
           actionHref="/account/orders"
           actionLabel="View Your Orders"
         />

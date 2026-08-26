@@ -292,9 +292,9 @@ export default async function AccountDashboardPage() {
                   </svg>
                 }
                 title="Nothing saved yet"
-                message="Tap the heart on any mango to save it here."
+                message="Tap the heart on any product to save it here."
                 actionHref="/#shop"
-                actionLabel="Browse Mangoes"
+                actionLabel="Browse Products"
               />
             ) : (
               <div className="grid grid-cols-2 gap-3">

@@ -46,7 +46,7 @@ export default async function OrdersPage() {
           title="No orders yet"
           message="Your future orders will show up here as beautiful cards you can track, reorder, and review from."
           actionHref="/#shop"
-          actionLabel="Browse Mangoes"
+          actionLabel="Browse Products"
         />
       ) : (
         <div className="flex flex-col gap-4">

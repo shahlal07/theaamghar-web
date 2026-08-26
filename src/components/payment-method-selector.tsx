@@ -70,7 +70,7 @@ export function PaymentMethodSelector({
             }`}
           >
             <div className="font-semibold text-sm">Cash on Delivery</div>
-            <div className="text-xs text-ink-light">Pay in cash when your mangoes arrive</div>
+            <div className="text-xs text-ink-light">Pay in cash when your order arrives</div>
           </button>
         )}
 

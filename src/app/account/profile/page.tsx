@@ -74,7 +74,7 @@ export default async function ProfilePage() {
           <div className="bg-surface border border-border-subtle rounded-brand p-5">
             <h2 className="text-sm font-bold mb-1">Favourite Variety</h2>
             <p className="text-sm text-ink-light">
-              {stats.favouriteVariety ?? "Order a few mangoes and we'll learn your favourite!"}
+              {stats.favouriteVariety ?? "Order a few products and we'll learn your favourite!"}
             </p>
           </div>
         </div>

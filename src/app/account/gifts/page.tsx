@@ -49,9 +49,9 @@ export default async function GiftsPage() {
             </svg>
           }
           title="No gifts sent yet"
-          message="Check 'This is a gift' at checkout to send a box of mangoes straight to someone else's door."
+          message="Check 'This is a gift' at checkout to send an order straight to someone else's door."
           actionHref="/#shop"
-          actionLabel="Browse Mangoes"
+          actionLabel="Browse Products"
         />
       ) : (
         <div className="flex flex-col gap-4">

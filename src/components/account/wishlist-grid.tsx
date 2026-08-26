@@ -27,9 +27,9 @@ export function WishlistGrid({
           </svg>
         }
         title="Your wishlist is empty"
-        message="Tap the heart on any mango to save it here and get notified about price drops, restocks, and season-ending alerts."
+        message="Tap the heart on any product to save it here and get notified about price drops and restocks."
         actionHref="/#shop"
-        actionLabel="Browse Mangoes"
+        actionLabel="Browse Products"
       />
     );
   }
