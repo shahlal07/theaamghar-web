@@ -1,4 +1,4 @@
-export type AddonOption = { id: string; label: string };
+export type AddonOption = { id: string; label: string; image?: string };
 export type AddonPricingTier = { count: number; price: number };
 export type AddonGroup = {
   id: string;

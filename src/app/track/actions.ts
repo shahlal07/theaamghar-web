@@ -1,5 +1,6 @@
 "use server";
 
+import { after } from "next/server";
 import { createClient } from "@/lib/supabase/server";
 import { sendAdminPaymentProofAlert, ADMIN_ALERT_EMAIL } from "@/lib/email";
 
@@ -58,6 +59,7 @@ export async function uploadPaymentProof(
   }
 
   if (ADMIN_ALERT_EMAIL) {
+    const to = ADMIN_ALERT_EMAIL;
     // Best-effort: RLS already scopes this to the caller's own order, and a
     // failed lookup just means a slightly less detailed alert email, not a
     // failed upload (which already succeeded above).
@@ -67,11 +69,8 @@ export async function uploadPaymentProof(
       .eq("order_number", orderNumber)
       .maybeSingle();
 
-    await sendAdminPaymentProofAlert({
-      to: ADMIN_ALERT_EMAIL,
-      orderNumber,
-      total: Number(order?.total ?? 0),
-    });
+    const total = Number(order?.total ?? 0);
+    after(() => sendAdminPaymentProofAlert({ to, orderNumber, total }));
   }
 
   return { success: true };

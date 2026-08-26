@@ -1,7 +1,7 @@
 "use client";
 
 import { useActionState, useEffect, useRef, useState } from "react";
-import { Upload, CheckCircle2, Clock, AlertTriangle } from "lucide-react";
+import { Upload, MessageCircle, CheckCircle2, Clock, AlertTriangle } from "lucide-react";
 import { uploadPaymentProof, type UploadProofState } from "@/app/track/actions";
 import { getActivePaymentAccounts, type PaymentAccount } from "@/lib/queries/payment-accounts";
 import { paymentIssueWhatsAppLink, paymentProofWhatsAppLink } from "@/lib/whatsapp";
@@ -151,6 +151,19 @@ export function PaymentProofPanel({
           className="sr-only"
           onChange={(e) => setFileName(e.target.files?.[0]?.name ?? null)}
         />
+
+        {whatsappNumber && !isSubmitted && (
+          <a
+            href={paymentProofWhatsAppLink(whatsappNumber, orderNumber)}
+            target="_blank"
+            rel="noopener noreferrer"
+            className="flex items-center justify-center gap-2 border-[1.5px] border-dashed border-[#25D366]/50 rounded-xl px-4 py-5 text-sm font-semibold text-[#25D366] mt-3 hover:border-[#25D366] transition-colors"
+          >
+            <MessageCircle className="w-4 h-4" aria-hidden="true" />
+            Send payment screenshot via WhatsApp
+          </a>
+        )}
+
         <p className="text-xs text-ink-light mt-2">JPG, PNG, WebP or PDF · max 5MB</p>
 
         {state && "error" in state && <p className="text-sm text-error mt-3">{state.error}</p>}
@@ -172,20 +185,6 @@ export function PaymentProofPanel({
               : "Upload payment proof"}
         </button>
       </form>
-
-      {whatsappNumber && !isSubmitted && (
-        <p className="text-xs text-ink-light mt-3 text-center">
-          Prefer WhatsApp?{" "}
-          <a
-            href={paymentProofWhatsAppLink(whatsappNumber, orderNumber)}
-            target="_blank"
-            rel="noopener noreferrer"
-            className="font-semibold text-[#25D366] underline"
-          >
-            Send your screenshot there instead →
-          </a>
-        </p>
-      )}
     </div>
   );
 }

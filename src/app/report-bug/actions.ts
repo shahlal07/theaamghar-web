@@ -1,6 +1,7 @@
 "use server";
 
 import { revalidatePath } from "next/cache";
+import { after } from "next/server";
 import { createClient } from "@/lib/supabase/server";
 import { generateBugReportAiReply } from "@/lib/bug-report-ai";
 import { sendAdminBugReportAlert, ADMIN_ALERT_EMAIL } from "@/lib/email";
@@ -84,17 +85,15 @@ export async function submitBugReport(
   if (insertError) return { error: "Couldn't submit your report. Please try again." };
 
   if (ADMIN_ALERT_EMAIL) {
+    const to = ADMIN_ALERT_EMAIL;
     const { data: profile } = await supabase
       .from("profiles")
       .select("name")
       .eq("id", user.id)
       .maybeSingle();
 
-    await sendAdminBugReportAlert({
-      to: ADMIN_ALERT_EMAIL,
-      title,
-      reporterName: profile?.name ?? user.email ?? "A customer",
-    });
+    const reporterName = profile?.name ?? user.email ?? "A customer";
+    after(() => sendAdminBugReportAlert({ to, title, reporterName }));
   }
 
   revalidatePath("/report-bug");

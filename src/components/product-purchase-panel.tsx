@@ -362,6 +362,11 @@ export function ProductPurchasePanel({
                         onChange={() => toggleAddon(group.id, option.id)}
                         className="w-4 h-4 accent-mango-orange"
                       />
+                      {option.image && (
+                        <span className="relative block h-8 w-8 shrink-0 overflow-hidden rounded-md border border-border-subtle">
+                          <Image src={productImageSrc(option.image, 96)} alt="" fill sizes="32px" className="object-cover" />
+                        </span>
+                      )}
                       {option.label}
                     </label>
                   );

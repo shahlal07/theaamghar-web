@@ -1,6 +1,7 @@
 "use server";
 
 import { headers } from "next/headers";
+import { after } from "next/server";
 import { createClient } from "@/lib/supabase/server";
 import { getShippingRateServer } from "@/lib/queries/shipping-server";
 import { sendOrderConfirmationEmail, sendAdminNewOrderAlert, ADMIN_ALERT_EMAIL } from "@/lib/email";
@@ -234,8 +235,13 @@ export async function placeOrder(lines: OrderLineInput[], formData: FormData): P
   // anonymous session -- guests never got a confirmation email at all. The
   // email collected on this form is now always present regardless of
   // account status.
-  await sendOrderConfirmationEmail({ to: email, orderNumber: order.order_number, items: orderItems, subtotal, shippingFee, discountAmount, total, fullName, address, city, paymentMethod });
-  if (ADMIN_ALERT_EMAIL) await sendAdminNewOrderAlert({ to: ADMIN_ALERT_EMAIL, orderNumber: order.order_number, total, customerName: fullName, itemsSummary: orderItems.map((i) => `${i.qty}x ${i.name} (${getOrderItemVariantLabel(i)})`).join(", ") });
+  // Fired via after() rather than awaited -- a slow/unreachable SMTP server
+  // must never stall the "Placing Order..." UI the customer is staring at,
+  // since the order itself has already succeeded by this point.
+  after(async () => {
+    await sendOrderConfirmationEmail({ to: email, orderNumber: order.order_number, items: orderItems, subtotal, shippingFee, discountAmount, total, fullName, address, city, paymentMethod });
+    if (ADMIN_ALERT_EMAIL) await sendAdminNewOrderAlert({ to: ADMIN_ALERT_EMAIL, orderNumber: order.order_number, total, customerName: fullName, itemsSummary: orderItems.map((i) => `${i.qty}x ${i.name} (${getOrderItemVariantLabel(i)})`).join(", ") });
+  });
 
   return { success: true, orderNumber: order.order_number };
 }

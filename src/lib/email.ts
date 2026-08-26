@@ -20,11 +20,19 @@ const GMAIL_APP_PASSWORD = process.env.GMAIL_APP_PASSWORD;
 // inbox to check rather than a separate address.
 export const ADMIN_ALERT_EMAIL = GMAIL_USER ?? null;
 
+// Every call site now fires these off via next/server's after() rather than
+// awaiting them inline, so a slow/unreachable SMTP server can no longer
+// stall order placement -- but a bounded timeout here is still worth having
+// as defense in depth (a hung connection would otherwise tie up the
+// server's post-response work indefinitely).
 const transporter =
   GMAIL_USER && GMAIL_APP_PASSWORD
     ? nodemailer.createTransport({
         service: "gmail",
         auth: { user: GMAIL_USER, pass: GMAIL_APP_PASSWORD },
+        connectionTimeout: 10_000,
+        greetingTimeout: 10_000,
+        socketTimeout: 10_000,
       })
     : null;
 
