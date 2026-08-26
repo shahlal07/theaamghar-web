@@ -52,6 +52,19 @@ export function TrackForm({ whatsappNumber, vendorId }: { whatsappNumber: string
   // request is allowed to commit its result, so a slower earlier request
   // can never clobber a newer one that already resolved.
   const latestRequestId = useRef(0);
+  const searchInputRef = useRef<HTMLInputElement>(null);
+
+  // Customer report: focusing the search box left it wherever the browser's
+  // own "scroll input into view" happened to land it (often too low, close
+  // to the keyboard) instead of a predictable spot. scrollIntoView's own
+  // "start" alignment plus a small delay (letting the keyboard's open
+  // animation finish first, so it isn't fighting that scroll) puts the
+  // input at a consistent, comfortable position near the top every time.
+  function handleSearchFocus() {
+    setTimeout(() => {
+      searchInputRef.current?.scrollIntoView({ behavior: "smooth", block: "start" });
+    }, 300);
+  }
 
   // One box, one method at a time: "Order Number" resolves a signed-in
   // customer's own order via RLS (no account = nothing to find, since a bare
@@ -130,11 +143,13 @@ export function TrackForm({ whatsappNumber, vendorId }: { whatsappNumber: string
         className="flex gap-3 mb-8"
       >
         <input
+          ref={searchInputRef}
           type="text"
           value={query}
           onChange={(e) => setQuery(e.target.value)}
+          onFocus={handleSearchFocus}
           placeholder={method === "order" ? "Order number, e.g. ORD-100001" : "Email or phone used at checkout"}
-          className="flex-1 min-w-0 border-[1.5px] border-border-subtle rounded-full px-5 py-3 text-sm bg-surface focus-visible:outline-none focus-visible:border-mango-orange transition-colors"
+          className="flex-1 min-w-0 scroll-mt-[calc(var(--nav-height)+1rem)] border-[1.5px] border-border-subtle rounded-full px-5 py-3 text-sm bg-surface focus-visible:outline-none focus-visible:border-mango-orange transition-colors"
         />
         <button
           type="submit"

@@ -4,6 +4,7 @@ import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { useCart } from "@/lib/cart-context";
 import { useUser } from "@/lib/use-user";
+import { useKeyboardOpen } from "@/lib/use-keyboard-open";
 
 // /chat has its own bottom input bar (same reasoning as checkout/login/signup
 // already being focused, single-purpose flows) -- the tab bar would overlap it.
@@ -15,8 +16,18 @@ export function MobileTabBar() {
   const pathname = usePathname();
   const { count, openCart } = useCart();
   const { user } = useUser();
+  const keyboardOpen = useKeyboardOpen();
 
   if (EXCLUDED_PREFIXES.some((p) => pathname.startsWith(p))) return null;
+  // Otherwise this fixed bar gets dragged up and sandwiched right above the
+  // keyboard when a text field is focused (Android's interactive-widget=
+  // resizes-content, needed so /chat's dvh sizing keeps its own input above
+  // the keyboard, also shrinks the layout viewport everywhere else -- so a
+  // `fixed bottom-0` element recalculates its position against the new,
+  // smaller viewport instead of staying at the real screen edge). Hiding
+  // it while the keyboard is open is simpler and more robust than trying to
+  // keep it pinned to the true bottom during a live keyboard animation.
+  if (keyboardOpen) return null;
 
   const accountHref = user ? "/account" : "/login";
 
