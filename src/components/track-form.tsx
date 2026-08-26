@@ -134,11 +134,11 @@ export function TrackForm({ whatsappNumber, vendorId }: { whatsappNumber: string
           value={query}
           onChange={(e) => setQuery(e.target.value)}
           placeholder={method === "order" ? "Order number, e.g. ORD-100001" : "Email or phone used at checkout"}
-          className="flex-1 border-[1.5px] border-border-subtle rounded-full px-5 py-3 text-sm bg-surface focus-visible:outline-none focus-visible:border-mango-orange transition-colors"
+          className="flex-1 min-w-0 border-[1.5px] border-border-subtle rounded-full px-5 py-3 text-sm bg-surface focus-visible:outline-none focus-visible:border-mango-orange transition-colors"
         />
         <button
           type="submit"
-          className="bg-mango-orange text-white font-semibold px-6 py-3 rounded-full transition-transform hover:-translate-y-0.5"
+          className="shrink-0 bg-mango-orange text-white font-semibold px-6 py-3 rounded-full transition-transform hover:-translate-y-0.5"
         >
           Track
         </button>

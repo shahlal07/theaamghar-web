@@ -197,7 +197,7 @@ export function ChatInterface({
           placeholder={language === "ur" ? "اپنا سوال لکھیں…" : "Type your question…"}
           dir={language === "ur" ? "rtl" : "ltr"}
           maxLength={1000}
-          className="flex-1 border border-border-subtle rounded-full px-4 py-2.5 text-base bg-surface"
+          className="flex-1 min-w-0 border border-border-subtle rounded-full px-4 py-2.5 text-base bg-surface"
         />
         <button
           type="submit"

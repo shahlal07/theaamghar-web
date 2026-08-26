@@ -330,8 +330,8 @@ export function CheckoutForm({ emptyStates }: { emptyStates: SiteContent["emptyS
             </label>
           )}
           <div className="flex gap-2">
-            <input type="text" value={couponInput} disabled={useWelcomeDiscount} onChange={(e) => { setCouponInput(e.target.value); if (couponState.status !== "idle") setCouponState({ status: "idle" }); }} placeholder="Enter coupon code" maxLength={40} className="flex-1 border-[1.5px] border-border-subtle rounded-full px-4 py-2.5 text-sm uppercase bg-surface focus-visible:outline-none focus-visible:border-mango-orange transition-colors disabled:opacity-50" />
-            <button type="button" onClick={handleApplyCoupon} disabled={useWelcomeDiscount || couponChecking || !couponInput.trim()} className="bg-orchard-green text-white text-sm font-semibold px-5 py-2.5 rounded-full disabled:opacity-60">{couponChecking ? "Checking…" : "Apply"}</button>
+            <input type="text" value={couponInput} disabled={useWelcomeDiscount} onChange={(e) => { setCouponInput(e.target.value); if (couponState.status !== "idle") setCouponState({ status: "idle" }); }} placeholder="Enter coupon code" maxLength={40} className="flex-1 min-w-0 border-[1.5px] border-border-subtle rounded-full px-4 py-2.5 text-sm uppercase bg-surface focus-visible:outline-none focus-visible:border-mango-orange transition-colors disabled:opacity-50" />
+            <button type="button" onClick={handleApplyCoupon} disabled={useWelcomeDiscount || couponChecking || !couponInput.trim()} className="shrink-0 bg-orchard-green text-white text-sm font-semibold px-5 py-2.5 rounded-full disabled:opacity-60">{couponChecking ? "Checking…" : "Apply"}</button>
           </div>
           {couponState.message && !useWelcomeDiscount && <p className={`text-xs mt-2 ${couponState.status === "valid" ? "text-orchard-green" : "text-error"}`}>{couponState.status === "valid" ? "✓ " : ""}{couponState.message}</p>}
         </div>
