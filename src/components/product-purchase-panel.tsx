@@ -71,8 +71,47 @@ export function ProductPurchasePanel({
   // takes the generalized multi-fieldset path below.
   const isFruit = boxSizes.length > 0;
 
-  const [activeImage, setActiveImage] = useState(images[0] ?? null);
-  const [showVideo, setShowVideo] = useState(false);
+  // One media strip (images then video, if any) driving a swipeable
+  // carousel -- replaces the old separate "hero image + thumbnail row"
+  // pair. On mobile this is the primary way to browse photos (native touch
+  // swipe via scroll-snap, no gesture library needed); the thumbnail strip
+  // below still works too, on every breakpoint.
+  const mediaItems = useMemo(
+    () => [
+      ...images.map((src) => ({ type: "image" as const, src })),
+      ...(videoUrl ? [{ type: "video" as const, src: videoUrl }] : []),
+    ],
+    [images, videoUrl]
+  );
+  const [activeIndex, setActiveIndex] = useState(0);
+  const carouselRef = useRef<HTMLDivElement>(null);
+  const slideRefs = useRef<(HTMLDivElement | null)[]>([]);
+
+  function scrollToIndex(index: number) {
+    slideRefs.current[index]?.scrollIntoView({ behavior: "smooth", inline: "center", block: "nearest" });
+  }
+
+  // Swiping updates activeIndex (for the dots/thumbnails) without any
+  // manual scroll-position math -- whichever slide is >=60% visible in the
+  // carousel's own scroll container counts as active.
+  useEffect(() => {
+    const root = carouselRef.current;
+    if (!root) return;
+    const observer = new IntersectionObserver(
+      (entries) => {
+        for (const entry of entries) {
+          if (entry.isIntersecting) {
+            const index = slideRefs.current.findIndex((el) => el === entry.target);
+            if (index !== -1) setActiveIndex(index);
+          }
+        }
+      },
+      { root, threshold: 0.6 }
+    );
+    slideRefs.current.forEach((el) => el && observer.observe(el));
+    return () => observer.disconnect();
+  }, [mediaItems]);
+
   const [selectedBoxSizeId, setSelectedBoxSizeId] = useState(
     boxSizes.find((b) => b.stock_qty > 0)?.id ?? boxSizes[0]?.id ?? null
   );
@@ -104,26 +143,6 @@ export function ProductPurchasePanel({
   const [wishlisted, setWishlisted] = useState(false);
   const [showStickyBar, setShowStickyBar] = useState(false);
   const panelEndRef = useRef<HTMLDivElement>(null);
-  const stageRef = useRef<HTMLDivElement>(null);
-
-  // Subtle CSS-only 3D tilt toward the cursor — pure transform on an
-  // existing ref, no re-render, no extra assets, so it stays cheap on
-  // mobile. Mirrors the tilt-to-inspect motif used across the site.
-  function handleStageMove(e: React.PointerEvent<HTMLDivElement>) {
-    if (window.matchMedia("(prefers-reduced-motion: reduce)").matches) return;
-    const el = stageRef.current;
-    if (!el) return;
-    const r = el.getBoundingClientRect();
-    const px = (e.clientX - r.left) / r.width - 0.5;
-    const py = (e.clientY - r.top) / r.height - 0.5;
-    const rx = Math.max(-6, Math.min(6, px * 10));
-    const ry = Math.max(-5, Math.min(5, -py * 8));
-    el.style.transform = `perspective(1200px) rotateX(${ry}deg) rotateY(${rx}deg)`;
-  }
-  function handleStageLeave() {
-    const el = stageRef.current;
-    if (el) el.style.transform = "perspective(1200px) rotateX(0deg) rotateY(0deg)";
-  }
 
   useEffect(() => {
     if (!user) return;
@@ -184,65 +203,107 @@ export function ProductPurchasePanel({
   return (
     <div className="grid md:grid-cols-2 gap-10">
       <div>
-        <div
-          ref={stageRef}
-          onPointerMove={handleStageMove}
-          onPointerLeave={handleStageLeave}
-          style={{ transition: "transform 0.35s cubic-bezier(.22,1,.36,1)" }}
-          className="relative aspect-square rounded-brand overflow-hidden bg-cream-warm shadow-brand-lg"
-        >
-          {showVideo && videoUrl ? (
-            <video
-              src={videoUrl}
-              controls
-              autoPlay
-              muted
-              loop
-              playsInline
-              className="absolute inset-0 w-full h-full object-cover"
-            />
-          ) : (
-            activeImage && (
-              <Image
-                src={productImageSrc(activeImage, 1000)}
-                alt={productName}
-                fill
-                priority
-                className="object-cover"
-              />
-            )
+        <div className="relative">
+          <div
+            ref={carouselRef}
+            className="flex overflow-x-auto snap-x snap-mandatory rounded-brand shadow-brand-lg [scrollbar-width:none] [&::-webkit-scrollbar]:hidden"
+          >
+            {mediaItems.map((item, i) => (
+              <div
+                key={item.src + i}
+                ref={(el) => {
+                  slideRefs.current[i] = el;
+                }}
+                className="relative aspect-square w-full shrink-0 snap-center bg-cream-warm"
+              >
+                {item.type === "video" ? (
+                  <video
+                    src={item.src}
+                    controls
+                    muted
+                    loop
+                    playsInline
+                    // Only the currently-active slide's video actually
+                    // loads/plays -- keeps the other slides from all
+                    // downloading video the moment the carousel mounts.
+                    preload={activeIndex === i ? "auto" : "none"}
+                    className="absolute inset-0 w-full h-full object-cover"
+                  />
+                ) : (
+                  <Image
+                    src={productImageSrc(item.src, 1000)}
+                    alt={productName}
+                    fill
+                    priority={i === 0}
+                    sizes="(max-width: 768px) 100vw, 50vw"
+                    className="object-cover"
+                  />
+                )}
+              </div>
+            ))}
+          </div>
+
+          {mediaItems.length > 1 && (
+            <>
+              <button
+                type="button"
+                onClick={() => scrollToIndex(Math.max(0, activeIndex - 1))}
+                aria-label="Previous photo"
+                disabled={activeIndex === 0}
+                className="hidden sm:flex absolute left-3 top-1/2 -translate-y-1/2 w-9 h-9 rounded-full bg-white/90 items-center justify-center text-lg shadow-brand-sm disabled:opacity-0 transition-opacity"
+              >
+                ‹
+              </button>
+              <button
+                type="button"
+                onClick={() => scrollToIndex(Math.min(mediaItems.length - 1, activeIndex + 1))}
+                aria-label="Next photo"
+                disabled={activeIndex === mediaItems.length - 1}
+                className="hidden sm:flex absolute right-3 top-1/2 -translate-y-1/2 w-9 h-9 rounded-full bg-white/90 items-center justify-center text-lg shadow-brand-sm disabled:opacity-0 transition-opacity"
+              >
+                ›
+              </button>
+              <div className="absolute bottom-3 inset-x-0 flex justify-center gap-1.5">
+                {mediaItems.map((item, i) => (
+                  <button
+                    key={item.src + i}
+                    type="button"
+                    onClick={() => scrollToIndex(i)}
+                    aria-label={`Go to ${item.type} ${i + 1}`}
+                    className={`h-1.5 rounded-full transition-all ${
+                      activeIndex === i ? "w-5 bg-white" : "w-1.5 bg-white/60"
+                    }`}
+                  />
+                ))}
+              </div>
+            </>
           )}
         </div>
-        {(images.length > 1 || videoUrl) && (
-          <div className="flex gap-3 mt-4">
-            {images.map((img) => (
+
+        {mediaItems.length > 1 && (
+          <div className="hidden sm:flex gap-3 mt-4">
+            {mediaItems.map((item, i) => (
               <button
-                key={img}
+                key={item.src + i}
                 type="button"
-                onClick={() => {
-                  setActiveImage(img);
-                  setShowVideo(false);
-                }}
-                className={`relative w-16 h-16 rounded-xl overflow-hidden ring-2 transition-all ${
-                  !showVideo && activeImage === img ? "ring-mango-orange" : "ring-transparent hover:ring-border-subtle"
+                onClick={() => scrollToIndex(i)}
+                aria-label={item.type === "video" ? "Show video" : `Show photo ${i + 1}`}
+                className={`relative w-16 h-16 rounded-xl overflow-hidden ring-2 transition-all bg-cream-warm ${
+                  activeIndex === i ? "ring-mango-orange" : "ring-transparent hover:ring-border-subtle"
                 }`}
               >
-                <Image src={productImageSrc(img, 400)} alt="" fill className="object-cover" />
+                {item.type === "video" ? (
+                  <>
+                    <video src={item.src} className="absolute inset-0 w-full h-full object-cover" muted playsInline preload="metadata" />
+                    <span className="absolute inset-0 flex items-center justify-center">
+                      <span className="w-6 h-6 rounded-full bg-black/50 text-white flex items-center justify-center text-xs">▶</span>
+                    </span>
+                  </>
+                ) : (
+                  <Image src={productImageSrc(item.src, 400)} alt="" fill className="object-cover" />
+                )}
               </button>
             ))}
-            {videoUrl && (
-              <button
-                type="button"
-                onClick={() => setShowVideo(true)}
-                aria-label="Play product video"
-                className={`relative w-16 h-16 rounded-xl overflow-hidden ring-2 transition-all bg-cream-warm flex items-center justify-center ${
-                  showVideo ? "ring-mango-orange" : "ring-transparent hover:ring-border-subtle"
-                }`}
-              >
-                <video src={videoUrl} className="absolute inset-0 w-full h-full object-cover" muted playsInline preload="metadata" />
-                <span className="relative z-10 w-6 h-6 rounded-full bg-black/50 text-white flex items-center justify-center text-xs">▶</span>
-              </button>
-            )}
           </div>
         )}
       </div>

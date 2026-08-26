@@ -149,12 +149,21 @@ img.img-fallback {
 
    Enforced globally at the mobile breakpoint rather than editing ~19 files,
    so any input added later is covered by default. Desktop keeps the smaller
-   visual size, where no zoom behaviour exists. */
+   visual size, where no zoom behaviour exists.
+
+   !important is load-bearing here, not decorative: a plain `input` element
+   selector (specificity 0-0-1) always loses to Tailwind's `.text-sm` class
+   (0-1-0) regardless of source order or being inside a more specific media
+   query -- every input that also carries `text-sm` (checkout, track, most
+   forms) was silently still rendering at 14px and still triggering the zoom
+   this rule was written to prevent. This was reported live as the checkout/
+   track/product pages looking "oversized" on a real phone -- tapping any
+   field zoomed the whole page in and it stayed zoomed. */
 @media (max-width: 767px) {
   input,
   select,
   textarea {
-    font-size: 16px;
+    font-size: 16px !important;
   }
 }
 
