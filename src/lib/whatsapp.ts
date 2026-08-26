@@ -24,6 +24,15 @@ export function paymentProofWhatsAppLink(whatsappNumber: string, orderNumber: st
   return `https://wa.me/${whatsappNumber}?text=${encodeURIComponent(text)}`;
 }
 
+// Lets a guest on the track page hand a specific order straight to support
+// without retyping the order number -- pre-fills it (and its status, so
+// support has context before the customer even finishes typing) rather than
+// a generic "I have a question" message.
+export function orderTrackingWhatsAppLink(whatsappNumber: string, orderNumber: string, status: string): string {
+  const text = `Hi! I'd like an update on my order ${orderNumber} (currently: ${status}).`;
+  return `https://wa.me/${whatsappNumber}?text=${encodeURIComponent(text)}`;
+}
+
 // `template`, when set, is the vendor's own copy from Settings
 // (business_settings.whatsapp_order_message_template) -- supports {product}
 // and {size} placeholders so a vendor can write their own message without
