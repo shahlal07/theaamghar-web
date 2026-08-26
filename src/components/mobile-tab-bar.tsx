@@ -7,7 +7,9 @@ import { useUser } from "@/lib/use-user";
 
 // /chat has its own bottom input bar (same reasoning as checkout/login/signup
 // already being focused, single-purpose flows) -- the tab bar would overlap it.
-const EXCLUDED_PREFIXES = ["/checkout", "/login", "/signup", "/chat"];
+// Exported so main-content.tsx's <main> padding can match exactly -- see
+// that file's comment for why the two need to stay in sync.
+export const EXCLUDED_PREFIXES = ["/checkout", "/login", "/signup", "/chat"];
 
 export function MobileTabBar() {
   const pathname = usePathname();

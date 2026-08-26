@@ -14,6 +14,7 @@ import { Navbar } from "@/components/navbar";
 import { ConditionalFooter } from "@/components/conditional-footer";
 import { CartSidebar } from "@/components/cart-sidebar";
 import { MobileTabBar } from "@/components/mobile-tab-bar";
+import { MainContent } from "@/components/main-content";
 import { WhatsAppButton } from "@/components/whatsapp-button";
 import { CompareBar } from "@/components/compare-bar";
 import { BackToTopButton } from "@/components/back-to-top-button";
@@ -173,9 +174,7 @@ export default async function RootLayout({
           <CartProvider>
             <CompareProvider>
               <Navbar brand={content.brand} />
-              <main id="main" className="flex-1 pt-[var(--nav-height)] pb-16 md:pb-0">
-                {children}
-              </main>
+              <MainContent>{children}</MainContent>
               <ConditionalFooter settings={settings} content={content} />
               <CartSidebar content={content.emptyStates} />
               <MobileTabBar />
