@@ -11,6 +11,38 @@ type Language = "en" | "ur";
 // switches languages again later in the same conversation.
 const URDU_SCRIPT_PATTERN = /[؀-ۿݐ-ݿ]/;
 
+// Safety net for the system prompt's "no markdown" rule -- an LLM doesn't
+// always follow formatting instructions reliably, and this chat bubble only
+// ever renders plain text (no markdown parser), so a stray reply with a
+// table or bold markers would show up as raw, jumbled pipe/asterisk
+// characters wrapping awkwardly in a narrow bubble (a real customer report:
+// "chat box is crowded with lots of free space"). Strips the common
+// offenders down to something that still reads fine as plain text.
+function sanitizeReply(text: string): string {
+  return text
+    .split("\n")
+    .filter((line) => !/^\s*\|?\s*:?-{2,}:?\s*(\|\s*:?-{2,}:?\s*)+\|?\s*$/.test(line)) // markdown table separator rows
+    .map((line) => {
+      const trimmed = line.trim();
+      // A markdown table row ("| Variant | Price |") becomes a plain
+      // comma-separated line instead of raw pipes.
+      if (trimmed.startsWith("|") && trimmed.endsWith("|")) {
+        return trimmed
+          .slice(1, -1)
+          .split("|")
+          .map((cell) => cell.trim())
+          .filter(Boolean)
+          .join(", ");
+      }
+      return line;
+    })
+    .join("\n")
+    .replace(/\*\*(.+?)\*\*/g, "$1") // bold
+    .replace(/^#{1,6}\s+/gm, "") // headings
+    .replace(/^\s*[-*]\s+/gm, "") // bullet markers
+    .trim();
+}
+
 function greetings(businessName: string, productPlural: string, accentEmoji: string): Record<Language, string> {
   return {
     en: `Hi! I'm the ${businessName} support assistant. Ask me about orders, delivery, payments, or anything ${productPlural}-related ${accentEmoji}`,
@@ -112,7 +144,7 @@ export function ChatInterface({
         ]);
         return;
       }
-      setMessages((prev) => [...prev, { role: "assistant", content: data.reply }]);
+      setMessages((prev) => [...prev, { role: "assistant", content: sanitizeReply(data.reply) }]);
     } catch {
       setMessages((prev) => [
         ...prev,
@@ -159,7 +191,7 @@ export function ChatInterface({
           <div
             key={i}
             dir={URDU_SCRIPT_PATTERN.test(m.content) ? "rtl" : "ltr"}
-            className={`max-w-[85%] sm:max-w-[70%] text-sm px-4 py-2.5 rounded-brand-sm ${
+            className={`max-w-[85%] sm:max-w-[70%] text-sm px-4 py-2.5 rounded-brand-sm whitespace-pre-line ${
               m.role === "user"
                 ? "self-end bg-mango-orange text-white"
                 : "self-start bg-cream-warm text-ink"

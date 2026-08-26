@@ -249,7 +249,7 @@ export function CheckoutForm({ emptyStates }: { emptyStates: SiteContent["emptyS
       noValidate
       className="grid gap-5 md:grid-cols-[1.2fr_1fr] md:gap-x-10 md:gap-y-0 md:items-start"
     >
-      <div className="order-1 md:order-1 md:col-start-1 md:row-start-1">
+      <div className="order-1 md:order-1 md:col-start-1 md:row-start-1 min-w-0">
         <div className="bg-surface border border-border-subtle rounded-2xl shadow-brand-sm p-6">
           <h2 className="font-serif text-xl font-bold mb-4">📍 Delivery Details</h2>
           {savedAddresses.length > 0 && (
@@ -309,7 +309,7 @@ export function CheckoutForm({ emptyStates }: { emptyStates: SiteContent["emptyS
         </div>
       </div>
 
-      <div className="order-2 md:order-2 md:col-start-1 md:row-start-2">
+      <div className="order-2 md:order-2 md:col-start-1 md:row-start-2 min-w-0">
         <div className="bg-surface border border-border-subtle rounded-2xl shadow-brand-sm p-6">
           <h2 className="font-serif text-xl font-bold mb-4">💰 Payment Method</h2>
           <input type="hidden" name="paymentMethod" value={paymentMethod} />
@@ -318,7 +318,7 @@ export function CheckoutForm({ emptyStates }: { emptyStates: SiteContent["emptyS
         </div>
       </div>
 
-      <div className="order-3 md:order-3 md:col-start-1 md:row-start-3">
+      <div className="order-3 md:order-3 md:col-start-1 md:row-start-3 min-w-0">
         <div className="bg-surface border border-border-subtle rounded-2xl shadow-brand-sm p-6">
           <h2 className="font-serif text-xl font-bold mb-4">🏷️ Discount</h2>
           <input type="hidden" name="useWelcomeDiscount" value={useWelcomeDiscount && welcomeDiscountPercent ? "true" : ""} />
@@ -343,7 +343,7 @@ export function CheckoutForm({ emptyStates }: { emptyStates: SiteContent["emptyS
           in a second grid column that only appeared AFTER the button when
           stacked on a phone. Desktop keeps it in the original right column
           (md:col-start-2 md:row-start-1), unaffected by that reordering. */}
-      <div className="order-4 md:order-4 md:col-start-2 md:row-start-1 md:row-span-2">
+      <div className="order-4 md:order-4 md:col-start-2 md:row-start-1 md:row-span-2 min-w-0">
         <div className="bg-cream-warm border border-border-subtle rounded-2xl shadow-brand-sm p-6 md:sticky md:top-24">
           <h2 className="font-serif text-xl font-bold mb-4">Order Summary</h2>
           {resolvedLines === null ? <p className="text-sm text-ink-light">Loading…</p> : <div className="flex flex-col gap-3 mb-4">
@@ -363,7 +363,7 @@ export function CheckoutForm({ emptyStates }: { emptyStates: SiteContent["emptyS
         </div>
       </div>
 
-      <div className="order-5 md:order-5 md:col-start-1 md:row-start-4">
+      <div className="order-5 md:order-5 md:col-start-1 md:row-start-4 min-w-0">
         {state && "error" in state && <p className="text-sm text-error mb-4">{state.error}</p>}
         <button type="submit" disabled={pending || resolvedLines === null || shippingResolving} className="w-full bg-mango-orange text-white font-semibold py-4 rounded-full transition-transform hover:-translate-y-0.5 disabled:opacity-60 disabled:hover:translate-y-0">
           {pending ? "Placing Order…" : `${buynowUnitId ? "Buy Now" : "Place Order"} — ${formatPKR(total)}`}
@@ -379,7 +379,7 @@ export function CheckoutForm({ emptyStates }: { emptyStates: SiteContent["emptyS
         )}
       </div>
 
-      <div className="order-6 md:order-6 md:col-start-2 md:row-start-3">
+      <div className="order-6 md:order-6 md:col-start-2 md:row-start-3 min-w-0">
         {resolvedLines && resolvedLines.length > 0 && (
           <div className="mt-5">
             <BoughtTogetherStrip
