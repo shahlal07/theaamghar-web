@@ -35,6 +35,12 @@
      light-on-light text. Use this instead in those specific spots. */
   --color-ink-fixed-dark: #1a1a1a;
 
+  /* Contrast text for content painted directly on --color-golden (a
+     vendor's accent color, which can be light OR dark). Overridden per
+     vendor in layout.tsx's brandColorsStyle() via WCAG luminance -- this
+     default matches the default golden's (#ffd700, light) contrast. */
+  --color-golden-contrast: #1a1a1a;
+
   --color-cream: #fffbf0;
   --color-cream-warm: #fff5e6;
   --color-ink: #1a1a1a;
@@ -96,6 +102,7 @@
   --color-orchard-green: var(--color-orchard-green);
   --color-orchard-light: var(--color-orchard-light);
   --color-golden: var(--color-golden);
+  --color-golden-contrast: var(--color-golden-contrast);
   --color-cream: var(--color-cream);
   --color-cream-warm: var(--color-cream-warm);
   --color-ink: var(--color-ink);

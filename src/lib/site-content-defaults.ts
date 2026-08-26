@@ -34,6 +34,12 @@ export type SiteContent = {
     desktopVideoUrl: string;
     desktopImageUrl: string;
     mobileImageUrl: string;
+    // Separate mobile video, opt-in. desktopVideoUrl only ever plays on
+    // desktop (a landscape video looks wrong full-bleed on a phone) -- when
+    // this is empty, mobile falls back to mobileImageUrl/desktopImageUrl as
+    // before. Set this only when a vendor has a portrait-cropped cut made
+    // specifically for phones.
+    mobileVideoUrl?: string;
     // Opt-in, defaults to false/absent for every existing vendor (TheAamGhar
     // and Mina Cafe both currently rely on mobileImageUrl falling through as
     // the desktop image too when no separate desktop asset is set -- see
@@ -63,7 +69,10 @@ export type SiteContent = {
     heading: string;
     body: string;
     videoUrl: string;
+    desktopImageUrl?: string;
     mobileImageUrl: string;
+    // Same opt-in as hero.mobileVideoUrl -- see that field's comment.
+    mobileVideoUrl?: string;
     // Same opt-in as hero.mobileOnly -- see that field's comment.
     mobileOnly?: boolean;
   };

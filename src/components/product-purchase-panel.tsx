@@ -34,6 +34,7 @@ export function ProductPurchasePanel({
   productSlug,
   productName,
   images,
+  videoUrl,
   boxSizes,
   variants = [],
   whatsappNumber,
@@ -43,6 +44,7 @@ export function ProductPurchasePanel({
   productSlug: string;
   productName: string;
   images: string[];
+  videoUrl?: string | null;
   boxSizes: BoxSize[];
   variants?: Variant[];
   whatsappNumber?: string | null;
@@ -70,6 +72,7 @@ export function ProductPurchasePanel({
   const isFruit = boxSizes.length > 0;
 
   const [activeImage, setActiveImage] = useState(images[0] ?? null);
+  const [showVideo, setShowVideo] = useState(false);
   const [selectedBoxSizeId, setSelectedBoxSizeId] = useState(
     boxSizes.find((b) => b.stock_qty > 0)?.id ?? boxSizes[0]?.id ?? null
   );
@@ -188,30 +191,58 @@ export function ProductPurchasePanel({
           style={{ transition: "transform 0.35s cubic-bezier(.22,1,.36,1)" }}
           className="relative aspect-square rounded-brand overflow-hidden bg-cream-warm shadow-brand-lg"
         >
-          {activeImage && (
-            <Image
-              src={productImageSrc(activeImage, 1000)}
-              alt={productName}
-              fill
-              priority
-              className="object-cover"
+          {showVideo && videoUrl ? (
+            <video
+              src={videoUrl}
+              controls
+              autoPlay
+              muted
+              loop
+              playsInline
+              className="absolute inset-0 w-full h-full object-cover"
             />
+          ) : (
+            activeImage && (
+              <Image
+                src={productImageSrc(activeImage, 1000)}
+                alt={productName}
+                fill
+                priority
+                className="object-cover"
+              />
+            )
           )}
         </div>
-        {images.length > 1 && (
+        {(images.length > 1 || videoUrl) && (
           <div className="flex gap-3 mt-4">
             {images.map((img) => (
               <button
                 key={img}
                 type="button"
-                onClick={() => setActiveImage(img)}
+                onClick={() => {
+                  setActiveImage(img);
+                  setShowVideo(false);
+                }}
                 className={`relative w-16 h-16 rounded-xl overflow-hidden ring-2 transition-all ${
-                  activeImage === img ? "ring-mango-orange" : "ring-transparent hover:ring-border-subtle"
+                  !showVideo && activeImage === img ? "ring-mango-orange" : "ring-transparent hover:ring-border-subtle"
                 }`}
               >
                 <Image src={productImageSrc(img, 400)} alt="" fill className="object-cover" />
               </button>
             ))}
+            {videoUrl && (
+              <button
+                type="button"
+                onClick={() => setShowVideo(true)}
+                aria-label="Play product video"
+                className={`relative w-16 h-16 rounded-xl overflow-hidden ring-2 transition-all bg-cream-warm flex items-center justify-center ${
+                  showVideo ? "ring-mango-orange" : "ring-transparent hover:ring-border-subtle"
+                }`}
+              >
+                <video src={videoUrl} className="absolute inset-0 w-full h-full object-cover" muted playsInline preload="metadata" />
+                <span className="relative z-10 w-6 h-6 rounded-full bg-black/50 text-white flex items-center justify-center text-xs">▶</span>
+              </button>
+            )}
           </div>
         )}
       </div>

@@ -29,11 +29,23 @@ function getServerSnapshot() {
 // device-aware split as HeroSection, just applied to a second video.
 export function LazyVideo({
   src,
+  mobileVideoSrc,
+  desktopImageSrc,
   mobileImageSrc,
   mobileOnly,
   className,
 }: {
   src: string;
+  // Portrait-cut video for mobile, opt-in -- see SiteContent.storyBanner
+  // .mobileVideoUrl's comment. Falls back to the desktop `src` on mobile
+  // when neither this nor mobileImageSrc is set (unchanged legacy
+  // behavior), otherwise a mobile image takes priority over the desktop
+  // video the same way it always has.
+  mobileVideoSrc?: string;
+  // Static desktop fallback (used when there's no desktop video) -- without
+  // this, desktop had no way to show a still image at all; it either played
+  // the video or fell through to mobileImageSrc/gradient.
+  desktopImageSrc?: string;
   mobileImageSrc?: string;
   // See SiteContent.storyBanner.mobileOnly's comment -- when true and there's
   // no video, desktop shows this wrapper's own gradient background instead
@@ -44,8 +56,10 @@ export function LazyVideo({
   const wrapRef = useRef<HTMLDivElement>(null);
   const [shouldLoad, setShouldLoad] = useState(false);
   const isDesktop = useSyncExternalStore(subscribe, getSnapshot, getServerSnapshot);
-  const showVideo = Boolean(src) && (isDesktop || !mobileImageSrc);
-  const showImage = !showVideo && Boolean(mobileImageSrc) && !(mobileOnly && isDesktop);
+  const activeVideoSrc = isDesktop ? src : mobileVideoSrc || (!mobileImageSrc ? src : undefined);
+  const showVideo = Boolean(activeVideoSrc);
+  const activeImageSrc = isDesktop ? desktopImageSrc || (mobileOnly ? undefined : mobileImageSrc) : mobileImageSrc;
+  const showImage = !showVideo && Boolean(activeImageSrc);
 
   useEffect(() => {
     if (!showVideo) return;
@@ -76,16 +90,16 @@ export function LazyVideo({
             playsInline
             preload="none"
           >
-            <source src={src} type="video/mp4" />
+            <source src={activeVideoSrc} type="video/mp4" />
           </video>
         )
       ) : (
         showImage && (
           <Image
-            src={mobileImageSrc!}
+            src={activeImageSrc!}
             alt=""
             fill
-            sizes="(max-width: 768px) 100vw, 0px"
+            sizes="(max-width: 768px) 100vw, 50vw"
             className="object-cover"
           />
         )

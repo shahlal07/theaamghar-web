@@ -196,7 +196,13 @@ function OrderDetail({
       ) : (
         <div className="flex items-center justify-between mb-8">
           {STATUS_STEPS.map((step, i) => (
-            <div key={step} className="flex-1 flex flex-col items-center relative">
+            // min-w-0 overrides flexbox's default min-width:auto -- without
+            // it, a step whose label text is wider than its 1/5 share (e.g.
+            // "Order Placed" on a 375px screen) forced the whole row wider
+            // than the viewport instead of letting the label wrap, causing
+            // horizontal overflow/scroll on mobile (real bug, found via
+            // review).
+            <div key={step} className="flex-1 min-w-0 flex flex-col items-center relative">
               {i > 0 && (
                 <div
                   className={`absolute top-3 right-1/2 w-full h-0.5 transition-colors ${
@@ -264,11 +270,11 @@ function OrderDetail({
         <h3 className="font-semibold text-sm mb-2">Items</h3>
         <div className="flex flex-col gap-2">
           {items.map((item, i) => (
-            <div key={i} className="flex justify-between text-sm">
-              <span>
+            <div key={i} className="flex justify-between gap-3 text-sm">
+              <span className="min-w-0">
                 {item.name} ({getOrderItemVariantLabel(item)}) × {item.qty}
               </span>
-              <span>{formatPKR(item.unit_price * item.qty)}</span>
+              <span className="shrink-0 tabular-nums">{formatPKR(item.unit_price * item.qty)}</span>
             </div>
           ))}
         </div>

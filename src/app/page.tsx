@@ -43,6 +43,7 @@ export default async function Home() {
     <div>
       <HeroSection
         videoSrc={content.hero.desktopVideoUrl}
+        mobileVideoSrc={content.hero.mobileVideoUrl}
         mobileImageSrc={content.hero.mobileImageUrl}
         desktopImageSrc={content.hero.desktopImageUrl}
         mobileOnly={content.hero.mobileOnly}
@@ -99,6 +100,8 @@ export default async function Home() {
           <Reveal>
             <LazyVideo
               src={content.storyBanner.videoUrl}
+              mobileVideoSrc={content.storyBanner.mobileVideoUrl}
+              desktopImageSrc={content.storyBanner.desktopImageUrl}
               mobileImageSrc={content.storyBanner.mobileImageUrl}
               mobileOnly={content.storyBanner.mobileOnly}
               className="w-full rounded-brand shadow-brand-sm aspect-[4/5]"

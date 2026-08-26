@@ -27,7 +27,7 @@ export function FindUs({
     <Section aria-label="Find us" className="bg-[var(--color-cream-warm)]">
       <Heading eyebrow="Find Us" title="Visit our spot" center className="mb-14" />
       <div className="max-w-5xl mx-auto grid gap-6 md:grid-cols-2 items-stretch">
-        <div className="bg-white rounded-brand shadow-brand-sm p-8 flex flex-col justify-center">
+        <div className="bg-surface rounded-brand shadow-brand-sm p-8 flex flex-col justify-center">
           {city && (
             <span className="inline-flex items-center gap-1.5 w-fit bg-[var(--color-cream-warm)] text-[var(--color-mango-deep-text)] text-xs font-semibold px-3 py-1.5 rounded-full mb-4">
               <MapPin className="h-3.5 w-3.5" strokeWidth={2} aria-hidden="true" />

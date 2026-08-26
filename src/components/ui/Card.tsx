@@ -20,7 +20,7 @@ export function Card({
       whileHover={hover ? { y: -6 } : undefined}
       transition={{ duration: 0.3, ease: "easeOut" }}
       className={cn(
-        "rounded-[24px] bg-white shadow-[0_8px_30px_rgba(74,44,18,0.08)]",
+        "rounded-[24px] bg-surface shadow-[0_8px_30px_rgba(74,44,18,0.08)]",
         hover && "hover:shadow-[0_20px_50px_rgba(74,44,18,0.14)] transition-shadow duration-300",
         className
       )}
@@ -40,7 +40,13 @@ export function GlassCard({
   return (
     <div
       className={cn(
-        "rounded-[24px] bg-white/90 backdrop-blur-xl border border-white/60 shadow-[0_8px_30px_rgba(74,44,18,0.08)]",
+        // bg-white/90 previously stayed white regardless of theme while its
+        // contents (Testimonials, TrustBar) use theme-adaptive --color-ink
+        // text -- in dark mode that text flips near-white, making it nearly
+        // invisible against a still-white card. bg-surface/90 tracks the
+        // theme instead (real bug, found via a live dark-mode readability
+        // check on the review cards).
+        "rounded-[24px] bg-surface/90 backdrop-blur-xl border border-border-subtle shadow-[0_8px_30px_rgba(74,44,18,0.08)]",
         className
       )}
     >

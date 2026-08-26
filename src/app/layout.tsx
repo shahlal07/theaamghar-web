@@ -1,4 +1,4 @@
-import type { Metadata } from "next";
+import type { Metadata, Viewport } from "next";
 import localFont from "next/font/local";
 import Script from "next/script";
 import { Suspense } from "react";
@@ -49,6 +49,19 @@ const cormorantGaramond = localFont({
   display: "swap",
 });
 
+// interactiveWidget: "resizes-content" (the modern replacement for the old
+// non-standard interactive-widget meta tag) tells Android Chrome to shrink
+// the layout viewport -- and therefore every dvh unit -- when the on-screen
+// keyboard opens, same as iOS Safari already does by default. Without this,
+// Android left the layout viewport full-height and just overlaid the
+// keyboard on top, so /chat's h-dvh panel never actually shrank and the
+// input ended up hidden behind the keyboard.
+export const viewport: Viewport = {
+  width: "device-width",
+  initialScale: 1,
+  interactiveWidget: "resizes-content",
+};
+
 // Dynamic (not a static `export const metadata`) so the title/description/OG
 // tags come from the admin-editable site_content row -- see
 // src/lib/queries/site-content.ts. Falls back to the same real copy either
@@ -92,11 +105,30 @@ export async function generateMetadata(): Promise<Metadata> {
 // real default per-key) since this is server-rendered content interpolated
 // directly into a <style> tag -- never trust the DB row's raw string here,
 // even though the admin Server Action already validates on write.
+// A vendor's accent color drives --color-golden, but several shared
+// components (Button's primary variant, Badge's gold variant, the
+// FeaturedCollection compare toggle) paint text directly on top of it using
+// a FIXED dark color -- correct for TheAamGhar's actual gold (#ffd700) but
+// invisible for any vendor whose accent happens to be dark (NIGEHBAAN's
+// black accent made its own primary CTA text unreadable -- this was a real,
+// live bug). Relative luminance (WCAG formula) picks black or white text
+// automatically per vendor instead of asking every vendor to pick a
+// contrast color themselves.
+function contrastTextFor(hex: string): string {
+  const r = parseInt(hex.slice(1, 3), 16) / 255;
+  const g = parseInt(hex.slice(3, 5), 16) / 255;
+  const b = parseInt(hex.slice(5, 7), 16) / 255;
+  const lin = (c: number) => (c <= 0.03928 ? c / 12.92 : Math.pow((c + 0.055) / 1.055, 2.4));
+  const luminance = 0.2126 * lin(r) + 0.7152 * lin(g) + 0.0722 * lin(b);
+  return luminance > 0.5 ? "#1a1a1a" : "#ffffff";
+}
+
 function brandColorsStyle(colors: SiteContent["brandColors"]): string {
   const HEX = /^#[0-9a-f]{6}$/i;
   const d = DEFAULT_SITE_CONTENT.brandColors;
   const safe = (value: string, fallback: string) => (HEX.test(value) ? value : fallback);
-  return `:root{--color-mango-orange:${safe(colors.primary, d.primary)};--color-mango-deep:${safe(colors.primaryDeep, d.primaryDeep)};--color-orchard-green:${safe(colors.secondary, d.secondary)};--color-orchard-light:${safe(colors.secondaryLight, d.secondaryLight)};--color-golden:${safe(colors.accent, d.accent)};}`;
+  const accent = safe(colors.accent, d.accent);
+  return `:root{--color-mango-orange:${safe(colors.primary, d.primary)};--color-mango-deep:${safe(colors.primaryDeep, d.primaryDeep)};--color-orchard-green:${safe(colors.secondary, d.secondary)};--color-orchard-light:${safe(colors.secondaryLight, d.secondaryLight)};--color-golden:${accent};--color-golden-contrast:${contrastTextFor(accent)};}`;
 }
 
 export default async function RootLayout({

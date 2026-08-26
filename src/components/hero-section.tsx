@@ -21,6 +21,7 @@ function getServerSnapshot() {
 
 interface HeroSectionProps {
   videoSrc: string;
+  mobileVideoSrc?: string;
   mobileImageSrc: string;
   desktopImageSrc?: string;
   // See SiteContent.hero.mobileOnly's comment -- when true, desktop never
@@ -39,9 +40,13 @@ interface HeroSectionProps {
 // photoshoot) so it never downloads the video at all. Vendors with no video
 // asset (photo-only businesses) fall back to a static image on both
 // breakpoints instead of an empty <video> tag.
-export function HeroSection({ videoSrc, mobileImageSrc, desktopImageSrc, mobileOnly, title, subtitle, children, accentEmoji }: HeroSectionProps) {
+export function HeroSection({ videoSrc, mobileVideoSrc, mobileImageSrc, desktopImageSrc, mobileOnly, title, subtitle, children, accentEmoji }: HeroSectionProps) {
   const isDesktop = useSyncExternalStore(subscribe, getSnapshot, getServerSnapshot);
-  const showVideo = isDesktop && Boolean(videoSrc);
+  // Desktop plays its own video; mobile only plays a video if a
+  // mobile-specific cut was uploaded (a landscape desktop video looks wrong
+  // full-bleed on a phone, so it never falls back to videoSrc here).
+  const activeVideoSrc = isDesktop ? videoSrc : mobileVideoSrc;
+  const showVideo = Boolean(activeVideoSrc);
   const imageSrc = isDesktop ? desktopImageSrc || (mobileOnly ? undefined : mobileImageSrc) : mobileImageSrc;
 
   return (
@@ -61,7 +66,7 @@ export function HeroSection({ videoSrc, mobileImageSrc, desktopImageSrc, mobileO
       {showVideo ? (
         <video
           className="absolute inset-0 h-full w-full object-cover"
-          src={videoSrc}
+          src={activeVideoSrc}
           autoPlay
           muted
           loop

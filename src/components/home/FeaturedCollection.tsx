@@ -173,7 +173,7 @@ function FeaturedCard({
             aria-pressed={isComparing}
             title="Add to comparison"
             className={`hidden sm:flex absolute bottom-4 left-4 items-center gap-1 text-xs font-semibold px-3 py-1.5 rounded-full transition-all active:scale-90 ${
-              isComparing ? "bg-[var(--color-golden)] text-[var(--color-ink-fixed-dark)]" : "bg-white/90 text-[var(--color-ink-fixed-dark)]"
+              isComparing ? "bg-[var(--color-golden)] text-[var(--color-golden-contrast)]" : "bg-white/90 text-[var(--color-ink-fixed-dark)]"
             }`}
           >
             <svg className="w-3 h-3" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" aria-hidden="true">
@@ -186,7 +186,7 @@ function FeaturedCard({
             <button
               type="button"
               onClick={handleQuickAdd}
-              className="hidden sm:flex absolute bottom-4 right-4 translate-y-2 opacity-0 group-hover:translate-y-0 group-hover:opacity-100 transition-all duration-300 items-center gap-1.5 bg-white text-[var(--color-ink-fixed-dark)] text-xs font-bold px-4 py-2.5 rounded-full shadow-lg hover:bg-[var(--color-golden)]"
+              className="hidden sm:flex absolute bottom-4 right-4 translate-y-2 opacity-0 group-hover:translate-y-0 group-hover:opacity-100 transition-all duration-300 items-center gap-1.5 bg-white text-[var(--color-ink-fixed-dark)] text-xs font-bold px-4 py-2.5 rounded-full shadow-lg hover:bg-[var(--color-golden)] hover:text-[var(--color-golden-contrast)]"
             >
               <Plus className="h-3.5 w-3.5" strokeWidth={2.5} aria-hidden="true" />
               Quick Add

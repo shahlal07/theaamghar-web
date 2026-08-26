@@ -63,6 +63,26 @@ export function ChatInterface({
     inputRef.current?.focus();
   }, []);
 
+  // iOS Safari's own "scroll focused input into view" behavior drags the
+  // whole document (navbar included, per a real customer report) upward
+  // when the keyboard opens, even though this panel is already sized with
+  // dvh and doesn't need it to. Forcing the window back to (0,0) on every
+  // visualViewport change cancels that native scroll without touching the
+  // panel's own internal message-list scrolling (scrollRef, above).
+  useEffect(() => {
+    const vv = window.visualViewport;
+    if (!vv) return;
+    function pinPage() {
+      window.scrollTo(0, 0);
+    }
+    vv.addEventListener("resize", pinPage);
+    vv.addEventListener("scroll", pinPage);
+    return () => {
+      vv.removeEventListener("resize", pinPage);
+      vv.removeEventListener("scroll", pinPage);
+    };
+  }, []);
+
   async function handleSend(e: React.FormEvent) {
     e.preventDefault();
     const text = input.trim();
