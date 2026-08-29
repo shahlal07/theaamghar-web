@@ -183,7 +183,7 @@ export default async function RootLayout({
               <FloatingCartFab accentEmoji={content.brand.accentEmoji} />
               <CompareBar />
               <BackToTopButton />
-              <NavigationLoadingOverlay />
+              <NavigationLoadingOverlay vendorSlug={vendor.slug} />
             </CompareProvider>
           </CartProvider>
         </ToastProvider>

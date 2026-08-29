@@ -3,6 +3,7 @@
 import { useEffect, useRef, useState } from "react";
 import { usePathname } from "next/navigation";
 import { NashemannLoader } from "@/components/nashemann-loader";
+import { SimpleLoader } from "@/components/simple-loader";
 
 // Full-page loader shown while an internal page navigation is in flight,
 // reusing the same Nashemann-branded overlay as app/loading.tsx (App
@@ -13,7 +14,7 @@ import { NashemannLoader } from "@/components/nashemann-loader";
 // App Router doesn't expose route-change start/end events, so this
 // listens for genuine internal <a> clicks (skipping hash anchors,
 // external links, new-tab clicks, mailto/tel, etc.) directly.
-export function NavigationLoadingOverlay() {
+export function NavigationLoadingOverlay({ vendorSlug }: { vendorSlug: string }) {
   const [loading, setLoading] = useState(false);
   const pathname = usePathname();
   const previousPathname = useRef(pathname);
@@ -72,5 +73,5 @@ export function NavigationLoadingOverlay() {
 
   if (!loading) return null;
 
-  return <NashemannLoader />;
+  return vendorSlug === "nigehbaan" ? <SimpleLoader /> : <NashemannLoader />;
 }
